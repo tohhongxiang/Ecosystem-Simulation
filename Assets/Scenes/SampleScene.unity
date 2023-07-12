@@ -242,7 +242,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31cfdc95c6fbd45069951bcc5dff2858, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!43 &513894221
+--- !u!43 &474578177
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -525,6 +525,62 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &778904389
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 778904390}
+  - component: {fileID: 778904391}
+  m_Layer: 0
+  m_Name: TerrainGrass
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &778904390
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778904389}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1976411348}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &778904391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778904389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a89b0687f995d403aaf3c21609280da6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabs:
+  - {fileID: 145914, guid: d7a915fb0c1dc1b4dab87d1268965a0e, type: 3}
+  - {fileID: 110038, guid: cc7144ff9653031498f244b1df8c8fa9, type: 3}
+  - {fileID: 168714, guid: 999200afe6b45cc4da2c0bda41570269, type: 3}
+  - {fileID: 114718, guid: 03c9d794d270d6a42a8617eaebbd1558, type: 3}
+  - {fileID: 110140, guid: afe2818fc38e1c44ea0e9758dd1992d2, type: 3}
+  - {fileID: 144238, guid: e56f1fbea0219724398a7942c07f3618, type: 3}
+  - {fileID: 128762, guid: 9afff6499b68a0e49a880ea03cce605f, type: 3}
+  - {fileID: 199584, guid: 3d40c4278058cb740a3d4b039105082c, type: 3}
+  minSpawnHeight: 2
+  maxSpawnHeight: 10
+  amount: 1500
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,7 +801,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1220057064}
-  m_Mesh: {fileID: 513894221}
+  m_Mesh: {fileID: 474578177}
 --- !u!114 &1220057068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -758,6 +814,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31cfdc95c6fbd45069951bcc5dff2858, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1557957083
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1557957084}
+  - component: {fileID: 1557957085}
+  m_Layer: 0
+  m_Name: TerrainTrees
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1557957084
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1557957083}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1976411348}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1557957085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1557957083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a89b0687f995d403aaf3c21609280da6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabs:
+  - {fileID: 134014, guid: 1a2e1c6550b2a8d4590347dd6573d878, type: 3}
+  - {fileID: 111638, guid: b1906e04b9f548148b786a8582d5a1f3, type: 3}
+  - {fileID: 143756, guid: 6b1e970065443dd46b6854a0caf642c9, type: 3}
+  - {fileID: 190414, guid: 653c97bd88b4b084d87714542c43ee5a, type: 3}
+  - {fileID: 102970, guid: f88e0c5504d699d4ebb950b8944bffcb, type: 3}
+  - {fileID: 113998, guid: 1fedb5571d445274782330b0eea48e80, type: 3}
+  - {fileID: 177546, guid: 247e09e89c199dd46b07af0a0a46b8ac, type: 3}
+  - {fileID: 113998, guid: 1fedb5571d445274782330b0eea48e80, type: 3}
+  - {fileID: 108714, guid: 00ed5f0c12fd8d5499f54fb0096adab9, type: 3}
+  minSpawnHeight: 3
+  maxSpawnHeight: 15
+  amount: 800
 --- !u!1 &1708224026
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,9 +882,8 @@ GameObject:
   - component: {fileID: 1708224027}
   - component: {fileID: 1708224029}
   - component: {fileID: 1708224028}
-  - component: {fileID: 1708224030}
   m_Layer: 0
-  m_Name: TerrainGenerator
+  m_Name: Terrain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -824,26 +936,9 @@ MonoBehaviour:
   heightMapSettings: {fileID: 11400000, guid: 449f89c0b715c4087a9ba572a8a574e5, type: 2}
   meshSettings: {fileID: 11400000, guid: 393797181d24941b8b8785fdb34ed99e, type: 2}
   terrainMaterial: {fileID: 2100000, guid: 4207f8ef618624bb79c0a036e57d9590, type: 2}
-  terrainObjectSpawner: {fileID: 1708224030}
---- !u!114 &1708224030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1708224026}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a89b0687f995d403aaf3c21609280da6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 7237531875431067706, guid: e212e17f802aa4ed589e552d0f168af7, type: 3}
-  minSpawnHeight: 3
-  maxSpawnHeight: 40
-  spawnArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 100, y: 100, z: 100}
-  amount: 100
+  terrainObjectSpawners:
+  - {fileID: 1557957085}
+  - {fileID: 778904391}
 --- !u!1 &1976411347
 GameObject:
   m_ObjectHideFlags: 0
@@ -875,6 +970,8 @@ Transform:
   - {fileID: 1220057065}
   - {fileID: 450452284}
   - {fileID: 1708224027}
+  - {fileID: 1557957084}
+  - {fileID: 778904390}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

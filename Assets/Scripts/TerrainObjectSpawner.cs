@@ -26,7 +26,8 @@ public class TerrainObjectSpawner : MonoBehaviour
                     if (hitPosition.y > minSpawnHeight && hitPosition.y < maxSpawnHeight)
                     {
                         GameObject prefab = prefabs[Random.Range(0, prefabs.Length - 1)];
-                        Instantiate(prefab, hitPosition, Quaternion.identity, gameObject.transform);
+                        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, info.normal);
+                        Instantiate(prefab, hitPosition, rotation, gameObject.transform);
                         break;
                     }
                 }
