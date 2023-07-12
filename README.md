@@ -9,3 +9,5 @@
 - [How I Learned Procedural Generation](https://www.youtube.com/watch?v=XpG3YqUkCTY)
 - [Unity Shader Graph (URP)Terrain Shader](https://www.youtube.com/watch?v=uJSxqr3a0cA)
 - [Basics of Shader Graph - Unity Tutorial](https://www.youtube.com/watch?v=Ar9eIn4z6XE)
+- [3D Stylized Water with Refraction and Foam Shader Graph - Unity Tutorial](https://www.youtube.com/watch?v=MHdDUqJHJxM)
+- [SIMPLE CARTOON WATER in Unity](https://www.youtube.com/watch?v=Vg0L9aCRWPE)

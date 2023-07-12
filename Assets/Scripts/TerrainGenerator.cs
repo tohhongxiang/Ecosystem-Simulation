@@ -5,18 +5,15 @@ public class TerrainGenerator : MonoBehaviour
     public HeightMapSettings heightMapSettings;
     public MeshSettings meshSettings;
     public Material terrainMaterial;
-    public TerrainObjectSpawner[] terrainObjectSpawners;
-    public WaterGenerator waterGenerator;
+    public TerrainObjectGenerator[] terrainObjectSpawners;
 
     void Start()
     {
         Bounds chunkBounds = SpawnChunks();
 
-        foreach (TerrainObjectSpawner terrainObjectSpawner in terrainObjectSpawners) {
-            terrainObjectSpawner.SpawnTerrainObjects(chunkBounds);
+        foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners) {
+            terrainObjectSpawner.SpawnObjects(chunkBounds);
         }
-
-        waterGenerator.SpawnWater(chunkBounds);
     }
 
     Bounds SpawnChunks()

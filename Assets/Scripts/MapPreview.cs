@@ -9,24 +9,16 @@ public class MapPreview : MonoBehaviour
     public DrawMode drawMode;
     public HeightMapSettings heightMapSettings;
     public MeshSettings meshSettings;
-
-    public TerrainObjectSpawner[] terrainObjectSpawners;
-
-    public WaterGenerator waterGenerator;
+    public TerrainObjectGenerator[] terrainObjectSpawners;
 
     public void DrawMapInEditor()
     {
         if (terrainObjectSpawners != null)
         {
-            foreach (TerrainObjectSpawner terrainObjectSpawner in terrainObjectSpawners)
+            foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners)
             {
-                terrainObjectSpawner.ClearTerrainObjects();
+                terrainObjectSpawner.ClearObjects();
             }
-        }
-
-        if (waterGenerator != null)
-        {
-            waterGenerator.ClearSpawnedWater();
         }
 
         // drawing fall off map does not require generation of heightmap, so we place it above
@@ -57,15 +49,10 @@ public class MapPreview : MonoBehaviour
 
             if (terrainObjectSpawners != null)
             {
-                foreach (TerrainObjectSpawner terrainObjectSpawner in terrainObjectSpawners)
+                foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners)
                 {
-                    terrainObjectSpawner.SpawnTerrainObjects(previewMesh.GetComponent<MeshCollider>().bounds);
+                    terrainObjectSpawner.SpawnObjects(previewMesh.GetComponent<Renderer>().bounds);
                 }
-            }
-
-            if (waterGenerator != null)
-            {
-                waterGenerator.SpawnWater(previewMesh.GetComponent<MeshCollider>().bounds);
             }
         }
     }
@@ -90,6 +77,15 @@ public class MapPreview : MonoBehaviour
         {
             meshSettings.OnValuesUpdated -= OnValuesUpdated;
             meshSettings.OnValuesUpdated += OnValuesUpdated;
+        }
+
+        if (terrainObjectSpawners != null)
+        {
+            foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners)
+            {
+                terrainObjectSpawner.OnValuesUpdated -= OnValuesUpdated;
+                terrainObjectSpawner.OnValuesUpdated += OnValuesUpdated;
+            }
         }
     }
 
