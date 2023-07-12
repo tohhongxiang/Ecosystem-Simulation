@@ -5,14 +5,21 @@ public class TerrainGenerator : MonoBehaviour
     public HeightMapSettings heightMapSettings;
     public MeshSettings meshSettings;
     public Material terrainMaterial;
+    public TerrainObjectSpawner[] terrainObjectSpawners;
 
     void Start()
     {
-        SpawnChunks();
+        Bounds chunkBounds = SpawnChunks();
+
+        foreach (TerrainObjectSpawner terrainObjectSpawner in terrainObjectSpawners) {
+            terrainObjectSpawner.SpawnTerrainObjects(chunkBounds);
+        }
     }
 
-    void SpawnChunks()
+    Bounds SpawnChunks()
     {
+        Bounds bounds = new Bounds(transform.position, Vector3.one);
+
         for (int x = 0; x < meshSettings.numberOfChunks; x++)
         {
             for (int z = 0; z < meshSettings.numberOfChunks; z++)
@@ -40,8 +47,14 @@ public class TerrainGenerator : MonoBehaviour
 
                 meshFilter.sharedMesh = meshData.CreateMesh();
                 meshCollider.sharedMesh = meshFilter.sharedMesh;
+
+                // try to use bounds instead
+                Bounds meshBounds = meshObject.GetComponent<MeshCollider>().bounds;
+                bounds.Encapsulate(meshBounds);
             }
         }
+
+        return bounds;
     }
 }
 
