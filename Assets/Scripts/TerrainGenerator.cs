@@ -6,6 +6,7 @@ public class TerrainGenerator : MonoBehaviour
     public MeshSettings meshSettings;
     public Material terrainMaterial;
     public TerrainObjectSpawner[] terrainObjectSpawners;
+    public WaterGenerator waterGenerator;
 
     void Start()
     {
@@ -14,6 +15,8 @@ public class TerrainGenerator : MonoBehaviour
         foreach (TerrainObjectSpawner terrainObjectSpawner in terrainObjectSpawners) {
             terrainObjectSpawner.SpawnTerrainObjects(chunkBounds);
         }
+
+        waterGenerator.SpawnWater(chunkBounds);
     }
 
     Bounds SpawnChunks()
@@ -32,6 +35,7 @@ public class TerrainGenerator : MonoBehaviour
                 meshObject.transform.position = new Vector3(chunkCoordinates.x, 0, chunkCoordinates.y) * meshSettings.scale;
                 meshObject.transform.parent = gameObject.transform;
                 meshObject.transform.localScale = Vector3.one * meshSettings.scale;
+                meshObject.tag = "Terrain";
 
                 // create meshrenderer to apply material
                 MeshRenderer meshRenderer = meshObject.AddComponent<MeshRenderer>();
@@ -48,7 +52,6 @@ public class TerrainGenerator : MonoBehaviour
                 meshFilter.sharedMesh = meshData.CreateMesh();
                 meshCollider.sharedMesh = meshFilter.sharedMesh;
 
-                // try to use bounds instead
                 Bounds meshBounds = meshObject.GetComponent<MeshCollider>().bounds;
                 bounds.Encapsulate(meshBounds);
             }

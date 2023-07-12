@@ -15,4 +15,4 @@ MonoBehaviour:
   autoUpdate: 1
   chunkSize: 200
   numberOfChunks: 2
-  scale: 1
+  scale: 0.97

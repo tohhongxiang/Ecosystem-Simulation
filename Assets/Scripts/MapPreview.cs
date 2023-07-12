@@ -5,13 +5,30 @@ public class MapPreview : MonoBehaviour
     public GameObject previewTexture;
     public GameObject previewMesh;
 
-    public enum DrawMode { NoiseMap, FalloffMap, Mesh };
+    public enum DrawMode { NoiseMap, FalloffMap, Mesh, Full };
     public DrawMode drawMode;
     public HeightMapSettings heightMapSettings;
     public MeshSettings meshSettings;
 
+    public TerrainObjectSpawner[] terrainObjectSpawners;
+
+    public WaterGenerator waterGenerator;
+
     public void DrawMapInEditor()
     {
+        if (terrainObjectSpawners != null)
+        {
+            foreach (TerrainObjectSpawner terrainObjectSpawner in terrainObjectSpawners)
+            {
+                terrainObjectSpawner.ClearTerrainObjects();
+            }
+        }
+
+        if (waterGenerator != null)
+        {
+            waterGenerator.ClearSpawnedWater();
+        }
+
         // drawing fall off map does not require generation of heightmap, so we place it above
         if (drawMode == DrawMode.FalloffMap)
         {
@@ -32,6 +49,24 @@ public class MapPreview : MonoBehaviour
         {
             MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap.values, heightMapSettings.heightMultiplier, heightMapSettings.heightCurve);
             DrawMesh(meshData);
+        }
+        else if (drawMode == DrawMode.Full)
+        {
+            MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap.values, heightMapSettings.heightMultiplier, heightMapSettings.heightCurve);
+            DrawMesh(meshData);
+
+            if (terrainObjectSpawners != null)
+            {
+                foreach (TerrainObjectSpawner terrainObjectSpawner in terrainObjectSpawners)
+                {
+                    terrainObjectSpawner.SpawnTerrainObjects(previewMesh.GetComponent<MeshCollider>().bounds);
+                }
+            }
+
+            if (waterGenerator != null)
+            {
+                waterGenerator.SpawnWater(previewMesh.GetComponent<MeshCollider>().bounds);
+            }
         }
     }
 
@@ -72,7 +107,9 @@ public class MapPreview : MonoBehaviour
     public void DrawMesh(MeshData meshData)
     {
         MeshFilter meshFilter = previewMesh.GetComponent<MeshFilter>();
+        MeshCollider meshCollider = previewMesh.GetComponent<MeshCollider>();
         meshFilter.sharedMesh = meshData.CreateMesh();
+        meshCollider.sharedMesh = meshFilter.sharedMesh;
 
         previewTexture.gameObject.SetActive(false);
         previewMesh.gameObject.SetActive(true);
