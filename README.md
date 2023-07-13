@@ -2,6 +2,13 @@
 
 ## Procedural Generation of World
 
+Using Perlin Noise to generate landmasses, and then randomly placing terrain objects such as grass and trees onto the land
+
+Remaining stuff to do:
+- Grass sway
+- Skybox
+- Give random rotation offsets to spawned terrain objects
+
 - [Procedural Terrain Generation](https://www.youtube.com/playlist?list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3)
 - [PROCEDURAL TERRAIN in Unity! - Mesh Generation](https://www.youtube.com/watch?v=64NblGkAabk)
 - [MESH GENERATION in Unity - Basics](https://www.youtube.com/watch?v=eJEpeUH1EMg)
@@ -11,3 +18,4 @@
 - [Basics of Shader Graph - Unity Tutorial](https://www.youtube.com/watch?v=Ar9eIn4z6XE)
 - [3D Stylized Water with Refraction and Foam Shader Graph - Unity Tutorial](https://www.youtube.com/watch?v=MHdDUqJHJxM)
 - [SIMPLE CARTOON WATER in Unity](https://www.youtube.com/watch?v=Vg0L9aCRWPE)
+- [Rotation Math Tricks - Using Unity's Quaternion Operators](https://www.youtube.com/watch?v=O4qPd5kdjgc)
