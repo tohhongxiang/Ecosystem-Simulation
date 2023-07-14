@@ -20,3 +20,4 @@ Remaining stuff to do:
 - [SIMPLE CARTOON WATER in Unity](https://www.youtube.com/watch?v=Vg0L9aCRWPE)
 - [Rotation Math Tricks - Using Unity's Quaternion Operators](https://www.youtube.com/watch?v=O4qPd5kdjgc)
 - [Display fields of a ScriptableObject in the inspector](https://gist.github.com/tomkail/ba4136e6aa990f4dc94e0d39ec6a058c)
+- [Unity Shader Graph - Clouds Tutorial](https://www.youtube.com/watch?v=xxhvUyvIH6s)

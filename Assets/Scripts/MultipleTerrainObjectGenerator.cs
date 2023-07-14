@@ -36,7 +36,7 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
             {
                 float randomX = Random.Range(spawnAreaBounds.min.x, spawnAreaBounds.max.x);
                 float randomZ = Random.Range(spawnAreaBounds.min.z, spawnAreaBounds.max.z);
-                float highYCoordinate = 100;
+                float highYCoordinate = spawnAreaBounds.max.y + 10;
 
                 Vector3 raycastStart = new Vector3(randomX, highYCoordinate, randomZ);
                 Ray ray = new Ray(raycastStart, Vector3.down);
@@ -81,6 +81,7 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 
                 Vector3 scale = new Vector3(Random.Range(minScale, maxScale), Random.Range(minScale, maxScale), Random.Range(minScale, maxScale));
                 instantiatedPrefab.transform.localScale = scale;
+
                 break;
             }
 
