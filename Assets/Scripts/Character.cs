@@ -12,6 +12,7 @@ public class Character : MonoBehaviour
     private int velocityZHash;
     private int isDrinkingHash;
     private int isEatingHash;
+    private int isAttackingHash;
 
     void Start()
     {
@@ -23,6 +24,7 @@ public class Character : MonoBehaviour
         velocityZHash = Animator.StringToHash("velocityZ");
         isDrinkingHash = Animator.StringToHash("isDrinking");
         isEatingHash = Animator.StringToHash("isEating");
+        isAttackingHash = Animator.StringToHash("isAttacking");
     }
 
     // Update is called once per frame
@@ -34,6 +36,7 @@ public class Character : MonoBehaviour
 
         animator.SetBool(isDrinkingHash, Input.GetKey(KeyCode.Space));
         animator.SetBool(isEatingHash, Input.GetKey(KeyCode.E));
+        animator.SetBool(isAttackingHash, Input.GetKey(KeyCode.R));
 
         // characterController.Move(move * speed * Time.deltaTime);
     }
