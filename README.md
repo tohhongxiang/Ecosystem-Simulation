@@ -4,11 +4,6 @@
 
 Using Perlin Noise to generate landmasses, and then randomly placing terrain objects such as grass and trees onto the land
 
-Remaining stuff to do:
-- Grass sway
-- Skybox
-- Give random rotation offsets to spawned terrain objects
-
 - [Procedural Terrain Generation](https://www.youtube.com/playlist?list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3)
 - [PROCEDURAL TERRAIN in Unity! - Mesh Generation](https://www.youtube.com/watch?v=64NblGkAabk)
 - [MESH GENERATION in Unity - Basics](https://www.youtube.com/watch?v=eJEpeUH1EMg)
@@ -21,3 +16,10 @@ Remaining stuff to do:
 - [Rotation Math Tricks - Using Unity's Quaternion Operators](https://www.youtube.com/watch?v=O4qPd5kdjgc)
 - [Display fields of a ScriptableObject in the inspector](https://gist.github.com/tomkail/ba4136e6aa990f4dc94e0d39ec6a058c)
 - [Unity Shader Graph - Clouds Tutorial](https://www.youtube.com/watch?v=xxhvUyvIH6s)
+
+## Animation
+
+- [How to Animate Characters in Unity 3D | Animator Explained](https://www.youtube.com/watch?v=vApG8aYD5aI)
+- [How to Animate Characters in Unity 3D | Animation Transitions With Booleans](https://www.youtube.com/watch?v=FF6kezDQZ7s)
+- [How to Animate Characters in Unity 3D | Blend Trees Explained: One Dimensional](https://www.youtube.com/watch?v=m8rGyoStfgQ)
+- [How To Animate Characters In Unity 3D | Animation Layers Explained](https://www.youtube.com/watch?v=W0eRZGS6dhQ)

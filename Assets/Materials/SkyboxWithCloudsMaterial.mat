@@ -100,11 +100,11 @@ Material:
     - _CloudCutoff: 10
     - _CloudDistance: 0.8
     - _CloudDistanceFadePower: 0.35
-    - _CloudFarTiling: 0.25
+    - _CloudFarTiling: 0.13
     - _CloudOpacity: 0.23
     - _CloudTiling: 0.05
     - _CloudsBrightness: 1.8
-    - _CloudsNormalStrength: 0.15
+    - _CloudsNormalStrength: 0.36
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
@@ -124,18 +124,18 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _SkyExponent1: 2.25
-    - _SkyExponent2: 1.14
-    - _SkyIntensity: 1.42
+    - _SkyExponent2: 1.2
+    - _SkyIntensity: 1.45
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _SunDisk: 2
-    - _SunExponent: 2.11
+    - _SunExponent: 3.36
     - _SunIntensity: 3.31
     - _SunRadiusA: 0.03
-    - _SunRadiusB: 0.1
+    - _SunRadiusB: 0.04
     - _SunSize: 0.04
     - _SunSizeConvergence: 5
     - _Surface: 0
@@ -148,16 +148,16 @@ Material:
     - _CloudColor: {r: 1, g: 1, b: 1, a: 0.59607846}
     - _CloudOffset: {r: 0, g: 0, b: 0, a: 0}
     - _CloudScale: {r: 0.11, g: 0.07, b: 0, a: 0}
-    - _CloudsColor: {r: 0.78898185, g: 0.8490566, b: 0.8453002, a: 0}
+    - _CloudsColor: {r: 1, g: 1, b: 1, a: 0}
     - _CloudsSpeed: {r: 0.05, g: 0.05, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GroundColor: {r: 0.2783019, g: 0.4862787, b: 1, a: 1}
     - _HorizonColor: {r: 0.4675152, g: 0.9367509, b: 0.9622642, a: 0}
     - _NadirColor: {r: 0.2009167, g: 0.990566, b: 0.530353, a: 0}
-    - _SkyColor1: {r: 0.2509804, g: 0.32941177, b: 0.44705886, a: 0}
-    - _SkyColor2: {r: 0.5647059, g: 0.69411767, b: 0.86666673, a: 0}
-    - _SkyColor3: {r: 0.25640798, g: 0.8113208, b: 0.6365851, a: 0}
+    - _SkyColor1: {r: 0.20857067, g: 0.2874066, b: 0.4056604, a: 0}
+    - _SkyColor2: {r: 0.5644357, g: 0.66215736, b: 0.7924528, a: 0}
+    - _SkyColor3: {r: 0.368325, g: 0.8396226, b: 0.82154024, a: 0}
     - _SkyTint: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _ZenithColor: {r: 0.3537736, g: 1, b: 0.96922725, a: 1}
