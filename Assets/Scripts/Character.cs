@@ -5,19 +5,21 @@ using UnityEngine;
 [RequireComponent(typeof(Animator), typeof(Animator))]
 public class Character : MonoBehaviour
 {
+    // components
     private CharacterController characterController;
     private Animator animator;
-    
-    [SerializeField] private float speed = 2.0f;
-    private float gravity = 9.81f;
-    private float yVelocity = 0;
-    [SerializeField] private float gravityMultiplier = 3.0f;
-
     private int velocityXHash;
     private int velocityZHash;
     private int isDrinkingHash;
     private int isEatingHash;
     private int isAttackingHash;
+
+    [Header("Movement parameters")]
+    [SerializeField] private float speed = 2.0f;
+    private float gravity = 9.81f;
+    private float yVelocity = 0;
+    [SerializeField] private float gravityMultiplier = 3.0f;
+
 
     void Start()
     {
@@ -40,16 +42,26 @@ public class Character : MonoBehaviour
         Vector3 direction = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         Move(direction);
 
-        animator.SetBool(isDrinkingHash, Input.GetKey(KeyCode.Space));
-        animator.SetBool(isEatingHash, Input.GetKey(KeyCode.E));
-        animator.SetBool(isAttackingHash, Input.GetKey(KeyCode.R));
-
-        // characterController.Move(move * speed * Time.deltaTime);
+        Drink(Input.GetKey(KeyCode.Space));
+        Eat(Input.GetKey(KeyCode.E));
+        Attack(Input.GetKey(KeyCode.R));
     }
 
     private void Move(Vector3 direction) {
         animator.SetFloat(velocityXHash, direction.x);
         animator.SetFloat(velocityZHash, direction.z);
+    }
+
+    private void Drink(bool isDrinking) {
+        animator.SetBool(isDrinkingHash, isDrinking);
+    }
+
+    private void Attack(bool isAttacking) {
+        animator.SetBool(isAttackingHash, isAttacking);
+    }
+
+    private void Eat(bool isEating) {
+        animator.SetBool(isEatingHash, isEating);
     }
 
     private void ApplyGravity() {
