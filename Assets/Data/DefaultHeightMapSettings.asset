@@ -25,7 +25,7 @@ MonoBehaviour:
   falloffParameters:
     falloffStart: 0.75
     falloffEnd: 1
-  heightMultiplier: 30
+  heightMultiplier: 15
   heightCurve:
     serializedVersion: 2
     m_Curve:
@@ -39,32 +39,32 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.17287937
-      value: 0.01383364
-      inSlope: 0.0011871818
-      outSlope: 0.0011871818
+      time: 0.24252158
+      value: 0.17657351
+      inSlope: 0.054962873
+      outSlope: 0.054962873
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.14596266
-      outWeight: 0.24515776
+      outWeight: 0.1697743
     - serializedVersion: 3
-      time: 0.7032481
-      value: 0.2708208
-      inSlope: 0.344226
-      outSlope: 0.344226
+      time: 0.44299588
+      value: 0.2873602
+      inSlope: -0.4157276
+      outSlope: -0.4157276
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.47199026
+      outWeight: 0.15671593
     - serializedVersion: 3
-      time: 0.88289136
-      value: 0.5726605
-      inSlope: 0.85584116
-      outSlope: 0.85584116
+      time: 0.7527585
+      value: 0.41938138
+      inSlope: -1.1147282
+      outSlope: -1.1147282
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.30593687
-      outWeight: 0.6577223
+      outWeight: 0.17814627
     - serializedVersion: 3
       time: 1
       value: 1
