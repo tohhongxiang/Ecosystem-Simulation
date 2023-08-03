@@ -23,3 +23,9 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [How to Animate Characters in Unity 3D | Animation Transitions With Booleans](https://www.youtube.com/watch?v=FF6kezDQZ7s)
 - [How to Animate Characters in Unity 3D | Blend Trees Explained: One Dimensional](https://www.youtube.com/watch?v=m8rGyoStfgQ)
 - [How To Animate Characters In Unity 3D | Animation Layers Explained](https://www.youtube.com/watch?v=W0eRZGS6dhQ)
+
+## NavMesh
+
+- [Unity NavMesh](https://learn.unity.com/tutorial/unity-navmesh?uv=2017.3)
+- [Coupling Animation and Navigation](https://docs.unity3d.com/Manual/nav-CouplingAnimationAndNavigation.html)
+- [How to align to the ground in unity](https://www.youtube.com/watch?v=KFUygjZKD8E)
