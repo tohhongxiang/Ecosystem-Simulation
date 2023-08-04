@@ -29,3 +29,4 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [Unity NavMesh](https://learn.unity.com/tutorial/unity-navmesh?uv=2017.3)
 - [Coupling Animation and Navigation](https://docs.unity3d.com/Manual/nav-CouplingAnimationAndNavigation.html)
 - [How to align to the ground in unity](https://www.youtube.com/watch?v=KFUygjZKD8E)
+- [Root Motion NavMeshAgent Animation | AI Series Part 42 | Unity Tutorial](https://www.youtube.com/watch?v=uAGjKxH4sDQ)

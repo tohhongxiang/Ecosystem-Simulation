@@ -9,56 +9,59 @@ public class LocomotionSimpleAgent : MonoBehaviour
     NavMeshAgent agent;
     Vector2 smoothDeltaPosition = Vector2.zero;
     Vector2 velocity = Vector2.zero;
-    public float turnSpeed = 0.1f;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        animator.applyRootMotion = true;
+
         agent = GetComponent<NavMeshAgent>();
-        // Don’t update position automatically
         agent.updatePosition = false;
-        // agent.updateRotation = false;
+        agent.updateRotation = false;
     }
 
     void Update()
     {
         Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
+        worldDeltaPosition.y = 0;
 
         // Map 'worldDeltaPosition' to local space
         float dx = Vector3.Dot(transform.right, worldDeltaPosition);
         float dy = Vector3.Dot(transform.forward, worldDeltaPosition);
         Vector2 deltaPosition = new Vector2(dx, dy);
 
-        // Low-pass filter the deltaMove
         float smooth = Mathf.Min(1.0f, Time.deltaTime / 0.15f);
         smoothDeltaPosition = Vector2.Lerp(smoothDeltaPosition, deltaPosition, smooth);
 
-        // Update velocity if time advances
-        if (Time.deltaTime > 1e-5f)
-            velocity = smoothDeltaPosition / Time.deltaTime;
+        velocity = smoothDeltaPosition / Time.deltaTime;
 
-        // Update animation parameters
-        if (agent.remainingDistance > agent.stoppingDistance)
-        {
-            animator.SetFloat("velocityX", velocity.x);
-            animator.SetFloat("velocityZ", velocity.y);
+        if (agent.remainingDistance <= agent.stoppingDistance) {
+            velocity = Vector2.Lerp(Vector2.zero, velocity, agent.remainingDistance / agent.stoppingDistance);
         }
-        else
-        {
-            animator.SetFloat("velocityX", 0);
-            animator.SetFloat("velocityZ", 0);
+
+        bool shouldMove = velocity.magnitude > 0.5f && agent.remainingDistance > agent.stoppingDistance;
+        animator.SetBool("shouldMove", shouldMove);
+        animator.SetFloat("velocityX", velocity.normalized.x);
+        animator.SetFloat("velocityZ", velocity.normalized.y);
+
+        float deltaMagnitude = worldDeltaPosition.magnitude;
+        if (deltaMagnitude > agent.radius / 2f) {
+            transform.position = Vector3.Lerp(animator.rootPosition, agent.nextPosition, smooth);
         }
 
         LookAt lookAt = GetComponent<LookAt>();
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
 
-
     }
 
     void OnAnimatorMove()
     {
-        // Update position to agent position
-        transform.position = agent.nextPosition;
+        Vector3 rootPosition = animator.rootPosition;
+
+        rootPosition.y = agent.nextPosition.y;
+        transform.position = rootPosition;
+        transform.rotation = animator.rootRotation;
+        agent.nextPosition = rootPosition;
     }
 }

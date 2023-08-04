@@ -78,6 +78,7 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
                 GameObject prefab = prefabs[Random.Range(0, prefabs.Length - 1)];
                 GameObject instantiatedPrefab = Instantiate(prefab, hitPosition + offsetFromGround, Quaternion.identity, gameObject.transform);
                 instantiatedPrefab.transform.rotation = Quaternion.FromToRotation(Vector3.up, finalRotation);
+                instantiatedPrefab.layer = gameObject.layer;
 
                 Vector3 scale = new Vector3(Random.Range(minScale, maxScale), Random.Range(minScale, maxScale), Random.Range(minScale, maxScale));
                 instantiatedPrefab.transform.localScale = scale;
