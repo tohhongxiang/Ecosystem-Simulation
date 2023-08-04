@@ -1,8 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(Animator))]
 public class LocomotionSimpleAgent : MonoBehaviour
 {
     Animator animator;
@@ -17,7 +15,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
 
         agent = GetComponent<NavMeshAgent>();
         agent.updatePosition = false;
-        agent.updateRotation = false;
+        // agent.updateRotation = false;
     }
 
     void Update()
@@ -52,6 +50,8 @@ public class LocomotionSimpleAgent : MonoBehaviour
         LookAt lookAt = GetComponent<LookAt>();
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
+
+        transform.rotation = agent.transform.rotation;
 
     }
 
