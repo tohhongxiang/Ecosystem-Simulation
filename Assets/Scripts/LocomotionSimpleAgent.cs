@@ -3,6 +3,8 @@ using UnityEngine.AI;
 
 public class LocomotionSimpleAgent : MonoBehaviour
 {
+    public float speed = 2;
+
     [Header("Wander Parameters")]
     public float wanderRadius = 10;
     public float wanderDistance = 20;
@@ -13,12 +15,16 @@ public class LocomotionSimpleAgent : MonoBehaviour
     Vector2 smoothDeltaPosition = Vector2.zero;
     Vector2 velocity = Vector2.zero;
 
-    Vector3 wanderTarget = Vector3.zero;
+    public enum Behavior { Pursue, Evade, Wander };
+    public Behavior behavior;
+    
+    public Transform target;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         animator.applyRootMotion = true;
+        animator.speed = speed;
 
         agent = GetComponent<NavMeshAgent>();
         agent.updatePosition = false;
@@ -27,7 +33,16 @@ public class LocomotionSimpleAgent : MonoBehaviour
 
     void Update()
     {
-        Wander();
+        if (behavior == Behavior.Pursue)
+        {
+            Pursue();
+        } else if (behavior == Behavior.Evade) {
+            Evade();
+        } else {
+            Wander();
+        }
+
+        // Wander();
         UpdateAnimation();
     }
 
@@ -79,17 +94,58 @@ public class LocomotionSimpleAgent : MonoBehaviour
         transform.rotation = agent.transform.rotation;
     }
 
-    void Seek(Vector3 target) {
-        agent.SetDestination(target);
+    void Seek(Vector3 location)
+    {
+        agent.SetDestination(location);
     }
 
-    void Wander() {
+    void Flee(Vector3 location)
+    {
+        Vector3 fleeVector = location - transform.position;
+        Seek(transform.position - fleeVector);
+    }
+
+    void Pursue()
+    {
+        Vector3 targetDirection = target.transform.position - transform.position;
+        float relativeHeading = Vector3.Angle(transform.forward, transform.TransformVector(target.transform.forward));
+        float toTarget = Vector3.Angle(transform.forward, transform.TransformVector(targetDirection));
+
+        NavMeshAgent targetAgent = target.GetComponent<NavMeshAgent>();
+        float targetSpeed = targetAgent == null ? 0 : targetAgent.speed;
+
+        if ((toTarget > 90 && relativeHeading < 20) || targetSpeed < 0.01f)
+        {
+            Seek(target.transform.position);
+            return;
+        }
+
+        float lookAhead = targetDirection.magnitude / (agent.speed + targetSpeed);
+        Seek(target.transform.position + target.transform.forward * lookAhead);
+    }
+
+    void Evade()
+    {
+        Vector3 targetDirection = target.transform.position - transform.position;
+
+        NavMeshAgent targetAgent = target.GetComponent<NavMeshAgent>();
+        float targetSpeed = targetAgent == null ? 0 : targetAgent.speed;
+
+        float lookAhead = targetDirection.magnitude / (agent.speed + targetSpeed);
+
+        Flee(target.transform.position + target.transform.forward * lookAhead);
+    }
+
+
+    Vector3 wanderTarget = Vector3.zero;
+    void Wander()
+    {
         wanderTarget += new Vector3(Random.Range(-1, 1) * wanderJitter, 0, Random.Range(-1, 1) * wanderJitter);
         wanderTarget.Normalize();
         wanderTarget *= wanderRadius;
 
         Vector3 targetLocal = wanderTarget + Vector3.forward * wanderDistance;
-        Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal);
+        Vector3 targetWorld = gameObject.transform.InverseTransformVector(targetLocal);
 
         Seek(targetWorld);
     }
