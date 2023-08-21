@@ -1,61 +1,54 @@
 using UnityEngine.AI;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class AgentBehavior : MonoBehaviour
 {
-    public float speed = 2;
-    public LayerMask layerMask = -1;
+    [SerializeField] private float speed = 2;
+    [SerializeField] private LayerMask layerMask = -1;
+    [SerializeField] private string foodTag = "";
+    [SerializeField] private float fovRange = 10f;
+    [SerializeField] private float interactRadius = 0.5f;
 
     [Header("Wander Parameters")]
-    public float wanderRadius = 10;
-    public float wanderDistance = 20;
-    public float wanderJitter = 0.2f;
+    [SerializeField] private float wanderRadius = 10;
+    [SerializeField] private float wanderDistance = 20;
+    [SerializeField] private float wanderJitter = 0.2f;
+    [SerializeField] private float wanderTimer = 5.0f;
 
     public enum Behavior { Pursue, Evade, Wander };
     public Behavior behavior;
-    public Transform target;
 
     private NavMeshAgent agent;
-
-    public float wanderTimer;
+    private Animator animator;
 
     // Start is called before the first frame update
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
         wanderCycleTimer = wanderTimer;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (behavior == Behavior.Pursue)
-        {
-            Pursue();
-        }
-        else if (behavior == Behavior.Evade)
-        {
-            Evade();
-        }
-        else
-        {
-            Wander();
-        }
     }
 
-    void Seek(Vector3 location)
+    public void Seek(Vector3 location)
     {
         agent.SetDestination(location);
     }
 
-    void Flee(Vector3 location)
+    public void Flee(Vector3 location)
     {
         Vector3 fleeVector = location - transform.position;
         Seek(transform.position - fleeVector);
     }
 
-    void Pursue()
+    public void Pursue(Transform target)
     {
         Vector3 targetDirection = target.transform.position - transform.position;
         float relativeHeading = Vector3.Angle(transform.forward, transform.TransformVector(target.transform.forward));
@@ -74,7 +67,7 @@ public class AgentBehavior : MonoBehaviour
         Seek(target.transform.position + target.transform.forward * lookAhead);
     }
 
-    void Evade()
+    public void Evade(Transform target)
     {
         Vector3 targetDirection = target.transform.position - transform.position;
 
@@ -88,7 +81,7 @@ public class AgentBehavior : MonoBehaviour
 
 
     private float wanderCycleTimer;
-    void Wander()
+    public void Wander()
     {
         wanderCycleTimer += Time.deltaTime;
 
@@ -100,7 +93,51 @@ public class AgentBehavior : MonoBehaviour
         }
     }
 
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layerMask)
+    public List<GameObject> FoodInFOVRange()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange);
+        List<GameObject> foods = new List<GameObject>();
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.gameObject.CompareTag(foodTag))
+            {
+                foods.Add(collider.gameObject);
+            }
+        }
+
+        return foods;
+    }
+
+    public bool IsTargetInteractable(GameObject target) {
+        return Vector3.Distance(transform.position, target.transform.position) <= interactRadius;
+    }
+
+    public void Consume(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        StartCoroutine(HandleEatingAnimations(target));
+    }
+
+    IEnumerator HandleEatingAnimations(GameObject target)
+    {
+        animator.SetBool("isEating", true);
+        yield return new WaitForSeconds(1);
+        
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        Destroy(target);
+        animator.SetBool("isEating", false);
+    }
+
+    private static Vector3 RandomNavSphere(Vector3 origin, float dist, int layerMask)
     {
         Vector3 randDirection = Random.insideUnitSphere * dist;
         randDirection += origin;
