@@ -2,24 +2,19 @@ using UnityEngine.AI;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class AgentBehavior : MonoBehaviour
 {
-    [SerializeField] private float speed = 2;
-    [SerializeField] private LayerMask layerMask = -1;
-    [SerializeField] private string foodTag = "";
+    [SerializeField] public string foodTag = "";
     [SerializeField] private float fovRange = 10f;
-    [SerializeField] private float interactRadius = 0.5f;
+    private float interactRadius;
 
     [Header("Wander Parameters")]
     [SerializeField] private float wanderRadius = 10;
-    [SerializeField] private float wanderDistance = 20;
-    [SerializeField] private float wanderJitter = 0.2f;
     [SerializeField] private float wanderTimer = 5.0f;
-
-    public enum Behavior { Pursue, Evade, Wander };
-    public Behavior behavior;
+    private float wanderCycleTimer;
 
     private NavMeshAgent agent;
     private Animator animator;
@@ -30,11 +25,7 @@ public class AgentBehavior : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         wanderCycleTimer = wanderTimer;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        interactRadius = agent.stoppingDistance + 0.1f;
     }
 
     public void Seek(Vector3 location)
@@ -79,8 +70,6 @@ public class AgentBehavior : MonoBehaviour
         Flee(target.transform.position + target.transform.forward * lookAhead);
     }
 
-
-    private float wanderCycleTimer;
     public void Wander()
     {
         wanderCycleTimer += Time.deltaTime;
@@ -93,24 +82,29 @@ public class AgentBehavior : MonoBehaviour
         }
     }
 
-    public List<GameObject> FoodInFOVRange()
+    public List<GameObject> GetFoodInFOVRange()
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange);
         List<GameObject> foods = new List<GameObject>();
 
         foreach (Collider collider in colliders)
         {
-            if (collider.gameObject.CompareTag(foodTag))
+            if (collider.gameObject.CompareTag(foodTag) && NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, 0.1f, NavMesh.AllAreas))
             {
                 foods.Add(collider.gameObject);
             }
         }
 
+        foods = foods.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
         return foods;
     }
 
     public bool IsTargetInteractable(GameObject target) {
         return Vector3.Distance(transform.position, target.transform.position) <= interactRadius;
+    }
+
+    public bool IsAtDestination() {
+        return agent.remainingDistance <= agent.stoppingDistance;
     }
 
     public void Consume(GameObject target)
@@ -120,12 +114,13 @@ public class AgentBehavior : MonoBehaviour
             return;
         }
 
-        StartCoroutine(HandleEatingAnimations(target));
+        StartCoroutine(HandleConsume(target));
     }
 
-    IEnumerator HandleEatingAnimations(GameObject target)
+    IEnumerator HandleConsume(GameObject target)
     {
         animator.SetBool("isEating", true);
+
         yield return new WaitForSeconds(1);
         
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished

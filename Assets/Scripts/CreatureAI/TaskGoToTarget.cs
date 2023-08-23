@@ -17,6 +17,13 @@ public class TaskGoToTarget : Node
     public override NodeState Evaluate() {
         GameObject g = (GameObject)GetData("target");
 
+        if (g == null || !g.CompareTag(_agentBehavior.foodTag)) { // food is being interacted with by something else
+            ClearData("target");
+
+            state = NodeState.FAILURE;
+            return state;
+        }
+
         Transform target = g.transform;
         _agentBehavior.Seek(target.position);
 

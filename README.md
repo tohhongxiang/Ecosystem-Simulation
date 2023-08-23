@@ -32,4 +32,5 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [Root Motion NavMeshAgent Animation | AI Series Part 42 | Unity Tutorial](https://www.youtube.com/watch?v=uAGjKxH4sDQ)
 - [Autonomously Moving Agents](https://learn.unity.com/project/autonomously-moving-agents?uv=2021.3)
 - [Create an AI with behaviour trees [Unity/C# tutorial]](https://www.youtube.com/watch?v=aR6wt5BlE-E)
+- [AI in Unity Turorial. Behavior Trees.](https://www.youtube.com/watch?v=F-3nxJ2ANXg)
 - [Unity null check not working](http://anja-haumann.de/unity-null-check-not-working/)

@@ -14,9 +14,15 @@ public class TaskConsume : Node
     public override NodeState Evaluate() {
         GameObject target = (GameObject)GetData("target");
 
+        target.tag = "Untagged";
         _agentBehavior.Consume(target);
 
-        ClearData("target");
+        if (target == null) {
+            ClearData("target");
+            state = NodeState.SUCCESS;
+            return state;
+        }
+
         state = NodeState.RUNNING;
         return state;
     }

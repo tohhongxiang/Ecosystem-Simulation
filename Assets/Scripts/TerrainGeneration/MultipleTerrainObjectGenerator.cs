@@ -3,6 +3,7 @@ using UnityEngine;
 public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 {
     public GameObject[] prefabs;
+    [TagSelector] public string newTag;
 
     [Header("Constraints")]
     [Range(0, 1)] public float minimumSpawnHeight = 0;
@@ -13,9 +14,9 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
     [Tooltip("Total prefabs to spawn per meter square")] public float numberOfPrefabsPer100MetersSquared = 1;
     public float minScale = 1;
     public float maxScale = 1;
-    [Tooltip("Max randomised offset rotation from the normal")] 
+    [Tooltip("Max randomised offset rotation from the normal")]
     public Vector3 maxRotationOffset = new Vector3(0, 360, 0);
-    [Tooltip("Offset from intersection with ground to spawn prefab in")] 
+    [Tooltip("Offset from intersection with ground to spawn prefab in")]
     public Vector3 offsetFromGround = new Vector3(0, 0, 0);
 
     const int maxTries = 10;
@@ -79,6 +80,12 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
                 GameObject instantiatedPrefab = Instantiate(prefab, hitPosition + offsetFromGround, Quaternion.identity, gameObject.transform);
                 instantiatedPrefab.transform.rotation = Quaternion.FromToRotation(Vector3.up, finalRotation);
                 instantiatedPrefab.layer = gameObject.layer;
+                if (newTag.Length > 0)
+                {
+                    instantiatedPrefab.tag = newTag;
+                } else {
+                    instantiatedPrefab.tag = "Untagged";
+                }
 
                 Vector3 scale = new Vector3(Random.Range(minScale, maxScale), Random.Range(minScale, maxScale), Random.Range(minScale, maxScale));
                 instantiatedPrefab.transform.localScale = scale;

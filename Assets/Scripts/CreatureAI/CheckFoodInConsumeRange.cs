@@ -13,16 +13,24 @@ public class CheckFoodInConsumeRange : Node
     }
 
     public override NodeState Evaluate() {
-        object t = GetData("target");
+        GameObject target = (GameObject)GetData("target");
 
-        if ((t as Object) == null) {
+        if (target == null) {
             state = NodeState.FAILURE;
             return state;
         }
 
-        GameObject target = (GameObject)t;
         if (_agentBehavior.IsTargetInteractable(target)) {
             state = NodeState.SUCCESS;
+            return state;
+        }
+
+        if (_agentBehavior.IsAtDestination() && !_agentBehavior.IsTargetInteractable(target)) {
+            // give up as target is no longer interactable
+            target.tag = "Untagged"; // remove target from being a valid target
+            ClearData("target");
+
+            state = NodeState.FAILURE;
             return state;
         }
 
