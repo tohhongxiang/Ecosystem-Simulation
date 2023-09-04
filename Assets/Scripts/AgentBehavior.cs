@@ -16,6 +16,12 @@ public class AgentBehavior : MonoBehaviour
     [SerializeField] private float wanderTimer = 5.0f;
     private float wanderCycleTimer;
 
+    [Header("Stats")]
+    [SerializeField] private float health = 100;
+    [SerializeField] private int healthDecayRate = 1;
+    [SerializeField] private float stamina = 100;
+    [SerializeField] private float staminaDecayRate = 1;
+
     private NavMeshAgent agent;
     private Animator animator;
 
@@ -26,6 +32,30 @@ public class AgentBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         wanderCycleTimer = wanderTimer;
         interactRadius = agent.stoppingDistance + 0.1f;
+    }
+
+    void Update() {
+        health -= Time.deltaTime * healthDecayRate;
+        if (health <= 0) {
+            Die();
+        }
+    }
+
+    public void Die() {
+        StartCoroutine(HandleDeath());
+    }
+
+    IEnumerator HandleDeath() {
+        animator.SetBool("isDead", true);
+
+        yield return new WaitForSeconds(1);
+        
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        Destroy(gameObject);
     }
 
     public void Seek(Vector3 location)
