@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using System.ComponentModel;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class AgentBehavior : MonoBehaviour
@@ -17,8 +18,10 @@ public class AgentBehavior : MonoBehaviour
     private float wanderCycleTimer;
 
     [Header("Stats")]
-    [SerializeField] private float health = 100;
+    [SerializeField] private float maxHealth = 100;
     [SerializeField] private int healthDecayRate = 1;
+    private float health;
+    float foodHealthReplenish = 20; // TODO: Move this to each individual food
     [SerializeField] private float stamina = 100;
     [SerializeField] private float staminaDecayRate = 1;
 
@@ -32,6 +35,7 @@ public class AgentBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         wanderCycleTimer = wanderTimer;
         interactRadius = agent.stoppingDistance + 0.1f;
+        health = maxHealth;
     }
 
     void Update() {
@@ -137,17 +141,17 @@ public class AgentBehavior : MonoBehaviour
         return agent.remainingDistance <= agent.stoppingDistance;
     }
 
-    public void Consume(GameObject target)
+    public void Eat(GameObject target)
     {
-        if (target == null)
+        if (target == null || animator.GetBool("isEating")) // make sure that the current creature is not already consuming
         {
             return;
         }
 
-        StartCoroutine(HandleConsume(target));
+        StartCoroutine(HandleEat(target));
     }
 
-    IEnumerator HandleConsume(GameObject target)
+    IEnumerator HandleEat(GameObject target)
     {
         animator.SetBool("isEating", true);
 
@@ -160,6 +164,7 @@ public class AgentBehavior : MonoBehaviour
 
         Destroy(target);
         animator.SetBool("isEating", false);
+        health = Mathf.Min(health + foodHealthReplenish, maxHealth);
     }
 
     private static Vector3 RandomNavSphere(Vector3 origin, float dist, int layerMask)

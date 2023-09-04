@@ -4,10 +4,10 @@ using UnityEngine;
 
 using BehaviorTree;
 
-public class TaskConsume : Node
+public class TaskEat : Node
 {
     private AgentBehavior _agentBehavior;
-    public TaskConsume(AgentBehavior agentBehavior) {
+    public TaskEat(AgentBehavior agentBehavior) {
         _agentBehavior = agentBehavior;
     }
 
@@ -15,7 +15,7 @@ public class TaskConsume : Node
         GameObject target = (GameObject)GetData("target");
 
         target.tag = "Untagged";
-        _agentBehavior.Consume(target);
+        _agentBehavior.Eat(target);
 
         if (target == null) {
             ClearData("target");

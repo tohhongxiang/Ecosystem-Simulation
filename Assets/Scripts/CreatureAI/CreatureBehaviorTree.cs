@@ -11,8 +11,8 @@ public class CreatureBehaviorTree : BehaviorTree.Tree
 
         Node root = new Selector(new List<Node>{
             new Sequence(new List<Node> {
-                new CheckFoodInConsumeRange(agentBehavior),
-                new TaskConsume(agentBehavior),
+                new CheckFoodInEatRange(agentBehavior),
+                new TaskEat(agentBehavior),
             }),
             new Sequence(new List<Node> {
                 new CheckFoodInFOVRange(agentBehavior),

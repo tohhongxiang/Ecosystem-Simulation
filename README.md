@@ -34,3 +34,4 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [Create an AI with behaviour trees [Unity/C# tutorial]](https://www.youtube.com/watch?v=aR6wt5BlE-E)
 - [AI in Unity Turorial. Behavior Trees.](https://www.youtube.com/watch?v=F-3nxJ2ANXg)
 - [Unity null check not working](http://anja-haumann.de/unity-null-check-not-working/)
+- [Show Only Attribute in Unity](https://discussions.unity.com/t/how-to-make-a-readonly-property-in-inspector/75448/4)

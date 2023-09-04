@@ -4,11 +4,11 @@ using UnityEngine;
 
 using BehaviorTree;
 
-public class CheckFoodInConsumeRange : Node
+public class CheckFoodInEatRange : Node
 {
     private AgentBehavior _agentBehavior;
 
-    public CheckFoodInConsumeRange(AgentBehavior agentBehavior) {
+    public CheckFoodInEatRange(AgentBehavior agentBehavior) {
         _agentBehavior = agentBehavior;
     }
 
