@@ -11,12 +11,21 @@ public class CreatureBehaviorTree : BehaviorTree.Tree
 
         Node root = new Selector(new List<Node>{
             new Sequence(new List<Node> {
-                new CheckFoodInEatRange(agentBehavior),
+                new CheckMateInInteractableRange(agentBehavior),
+                new TaskMate(agentBehavior),
+            }),
+            new Sequence(new List<Node> {
+                new CheckCanMate(agentBehavior),
+                new CheckMateInFOVRange(agentBehavior),
+                new TaskGoToMate(agentBehavior),
+            }),
+            new Sequence(new List<Node> {
+                new CheckFoodInInteractableRange(agentBehavior),
                 new TaskEat(agentBehavior),
             }),
             new Sequence(new List<Node> {
                 new CheckFoodInFOVRange(agentBehavior),
-                new TaskGoToTarget(agentBehavior),
+                new TaskGoToFood(agentBehavior),
             }),
             new TaskWander(agentBehavior)
         });

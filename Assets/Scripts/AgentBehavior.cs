@@ -11,6 +11,7 @@ public class AgentBehavior : MonoBehaviour
     [SerializeField] public string foodTag = "";
     [SerializeField] private float fovRange = 10f;
     private float interactRadius;
+    private float reproduceRadius;
 
     [Header("Wander Parameters")]
     [SerializeField] private float wanderRadius = 10;
@@ -22,11 +23,24 @@ public class AgentBehavior : MonoBehaviour
     [SerializeField] private int healthDecayRate = 1;
     private float health;
     float foodHealthReplenish = 20; // TODO: Move this to each individual food
-    [SerializeField] private float stamina = 100;
-    [SerializeField] private float staminaDecayRate = 1;
+    [SerializeField] private float matingCooldownSeconds = 30;
+    public enum AgentGender { MALE, FEMALE };
+    [SerializeField] private AgentGender agentGender;
+    public AgentGender getAgentGender()
+    {
+        return agentGender;
+    }
 
     private NavMeshAgent agent;
     private Animator animator;
+
+    public enum AgentState { EATING, DONE_EATING, MATING, DONE_MATING, WANDERING, DEAD };
+    private AgentState agentState = AgentState.WANDERING;
+
+    public AgentState getAgentState()
+    {
+        return agentState;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -35,25 +49,31 @@ public class AgentBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         wanderCycleTimer = wanderTimer;
         interactRadius = agent.stoppingDistance + 0.1f;
+        reproduceRadius = agent.stoppingDistance + 2 * agent.radius;
         health = maxHealth;
     }
 
-    void Update() {
+    void Update()
+    {
         health -= Time.deltaTime * healthDecayRate;
-        if (health <= 0) {
+        if (health <= 0)
+        {
             Die();
         }
     }
 
-    public void Die() {
+    public void Die()
+    {
         StartCoroutine(HandleDeath());
     }
 
-    IEnumerator HandleDeath() {
+    IEnumerator HandleDeath()
+    {
+        agentState = AgentState.DEAD;
         animator.SetBool("isDead", true);
 
         yield return new WaitForSeconds(1);
-        
+
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
         {
             yield return new WaitForSeconds(0.1f);
@@ -106,6 +126,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Wander()
     {
+        agentState = AgentState.WANDERING;
         wanderCycleTimer += Time.deltaTime;
 
         if (wanderCycleTimer >= wanderTimer || agent.remainingDistance <= agent.stoppingDistance)
@@ -123,7 +144,7 @@ public class AgentBehavior : MonoBehaviour
 
         foreach (Collider collider in colliders)
         {
-            if (collider.gameObject.CompareTag(foodTag) && NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, 0.1f, NavMesh.AllAreas))
+            if (collider.gameObject.CompareTag(foodTag) && NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, agent.stoppingDistance + 0.1f, NavMesh.AllAreas))
             {
                 foods.Add(collider.gameObject);
             }
@@ -133,17 +154,24 @@ public class AgentBehavior : MonoBehaviour
         return foods;
     }
 
-    public bool IsTargetInteractable(GameObject target) {
+    public bool IsTargetInteractable(GameObject target)
+    {
         return Vector3.Distance(transform.position, target.transform.position) <= interactRadius;
     }
 
-    public bool IsAtDestination() {
+    public bool IsTargetInReproduceRange(GameObject target)
+    {
+        return Vector3.Distance(transform.position, target.transform.position) <= reproduceRadius;
+    }
+
+    public bool IsAtDestination()
+    {
         return agent.remainingDistance <= agent.stoppingDistance;
     }
 
     public void Eat(GameObject target)
     {
-        if (target == null || animator.GetBool("isEating")) // make sure that the current creature is not already consuming
+        if (target == null || agentState == AgentState.EATING) // make sure that the current creature is not already consuming
         {
             return;
         }
@@ -153,10 +181,12 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleEat(GameObject target)
     {
+        agentState = AgentState.EATING;
         animator.SetBool("isEating", true);
+        target.tag = "Untagged";
 
         yield return new WaitForSeconds(1);
-        
+
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
         {
             yield return new WaitForSeconds(0.1f);
@@ -165,6 +195,7 @@ public class AgentBehavior : MonoBehaviour
         Destroy(target);
         animator.SetBool("isEating", false);
         health = Mathf.Min(health + foodHealthReplenish, maxHealth);
+        agentState = AgentState.DONE_EATING;
     }
 
     private static Vector3 RandomNavSphere(Vector3 origin, float dist, int layerMask)
@@ -175,5 +206,75 @@ public class AgentBehavior : MonoBehaviour
         NavMeshHit navHit;
         NavMesh.SamplePosition(randDirection, out navHit, dist, layerMask);
         return navHit.position;
+    }
+
+    public List<GameObject> GetMatesInFOVRange()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange);
+        List<GameObject> mates = new List<GameObject>();
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.gameObject == gameObject)
+            { // dont get itself
+                continue;
+            }
+
+            if (collider.gameObject.TryGetComponent<AgentBehavior>(out var partnerAgentBehavior) && partnerAgentBehavior.CanMate() && partnerAgentBehavior.getAgentGender() != agentGender)
+            {
+                mates.Add(collider.gameObject);
+            }
+        }
+
+        mates = mates.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
+        return mates;
+    }
+
+    public void Mate(GameObject mate)
+    {
+        if (mate == null || agentState == AgentState.MATING) // make sure that the current creature is not already consuming
+        {
+            return;
+        }
+
+        StartCoroutine(HandleMatingCooldown(mate));
+        StartCoroutine(HandleMating(mate));
+    }
+
+    public bool CanMate()
+    {
+        return !gameObject.CompareTag("Mated");
+    }
+
+    IEnumerator HandleMating(GameObject mate)
+    {
+        agentState = AgentState.MATING;
+        animator.SetBool("isMating", true);
+
+        yield return new WaitForSeconds(1);
+
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        animator.SetBool("isMating", false);
+
+        gameObject.tag = "Mated";
+        mate.tag = "Mated";
+        agentState = AgentState.DONE_MATING;
+
+        if (agentGender == AgentGender.FEMALE)
+        {
+            Instantiate(gameObject, gameObject.transform.parent);
+        }
+    }
+
+    IEnumerator HandleMatingCooldown(GameObject mate)
+    {
+        yield return new WaitForSeconds(matingCooldownSeconds);
+
+        mate.tag = "Untagged";
+        gameObject.tag = "Untagged";
     }
 }
