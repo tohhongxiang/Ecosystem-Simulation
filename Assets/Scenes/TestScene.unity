@@ -1477,6 +1477,10 @@ PrefabInstance:
       propertyPath: agentGender
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.gender
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

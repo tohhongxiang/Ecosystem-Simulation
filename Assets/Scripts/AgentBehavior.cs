@@ -3,7 +3,60 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
-using System.ComponentModel;
+
+public enum Gender { MALE, FEMALE };
+
+[System.Serializable]
+public class AgentStats
+{
+    public float maxHealth = 100;
+    public float healthDecayRate = 1;
+    public float matingCooldownSeconds = 30;
+    public float growIntoAdultDurationSeconds = 30;
+    public Gender gender = Gender.MALE;
+
+    private readonly float maxMaxHealth = 200;
+    private readonly float minMaxHealth = 50;
+    private readonly float maxHealthDecayRate = 10;
+    private readonly float minHealthDecayRate = 1;
+    private readonly float maxMatingCooldownSeconds = 100;
+    private readonly float minMatingCooldownSeconds = 5;
+    private readonly float maxGrowIntoAdultDurationSeconds = 100;
+    private readonly float minGrowIntoAdultDurationSeconds = 5;
+
+    public AgentStats(float maxHealth, float healthDecayRate, float matingCooldownSeconds, float growIntoAdultDurationSeconds, Gender gender)
+    {
+        this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
+        this.healthDecayRate = Mathf.Clamp(healthDecayRate, minHealthDecayRate, maxHealthDecayRate);
+        this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
+        this.growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
+        this.gender = gender;
+    }
+
+    public AgentStats(AgentStats parent1, AgentStats parent2)
+    {
+        AgentStats[] parents = { parent1, parent2 };
+
+        // choose from one of the parents
+        gender = (Gender)Random.Range(0, System.Enum.GetValues(typeof(Gender)).Length); // random gender
+        maxHealth = parents[Random.Range(0, parents.Length)].maxHealth;
+        healthDecayRate = parents[Random.Range(0, parents.Length)].healthDecayRate;
+        matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
+        growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
+
+        // random perturbations
+        maxHealth += Random.Range(-5, 5);
+        healthDecayRate += Random.Range(-0.5f, 0.5f);
+        matingCooldownSeconds += Random.Range(-5, 5);
+        growIntoAdultDurationSeconds += Random.Range(-5, 5);
+
+        // clamp
+        maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
+        healthDecayRate = Mathf.Clamp(healthDecayRate, minHealthDecayRate, maxHealthDecayRate);
+        matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
+        growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
+    }
+}
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class AgentBehavior : MonoBehaviour
@@ -19,17 +72,17 @@ public class AgentBehavior : MonoBehaviour
     private float wanderCycleTimer;
 
     [Header("Stats")]
-    [SerializeField] private float maxHealth = 100;
-    [SerializeField] private int healthDecayRate = 1;
+    // [SerializeField] private float maxHealth = 100;
+    // [SerializeField] private int healthDecayRate = 1;
+    // [SerializeField] private float matingCooldownSeconds = 30;
+    // [SerializeField] private Gender agentGender;
+    // [SerializeField] private float growIntoAdultDurationSeconds = 30;
+    public AgentStats stats;
     private float health;
-    float foodHealthReplenish = 20; // TODO: Move this to each individual food
-    [SerializeField] private float matingCooldownSeconds = 30;
-    public enum AgentGender { MALE, FEMALE };
-    [SerializeField] private AgentGender agentGender;
-    public AgentGender getAgentGender()
-    {
-        return agentGender;
-    }
+    private readonly float foodHealthReplenish = 20; // TODO: Move this to each individual food
+    private bool isChild = false;
+    private float childCounter = 0;
+    private const float childScale = 0.5f;
 
     private NavMeshAgent agent;
     private Animator animator;
@@ -37,25 +90,23 @@ public class AgentBehavior : MonoBehaviour
     public enum AgentState { EATING, DONE_EATING, MATING, DONE_MATING, WANDERING, DEAD };
     private AgentState agentState = AgentState.WANDERING;
 
-    public AgentState getAgentState()
+    public AgentState GetAgentState()
     {
         return agentState;
     }
 
-    [SerializeField] private bool isChild = false;
-    private float childCounter = 0;
-    private float growIntoAdultDurationSeconds = 30;
-    private const float childScale = 0.5f;
+
 
     // Start is called before the first frame update
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+
         wanderCycleTimer = wanderTimer;
         interactRadius = agent.stoppingDistance + 0.1f;
         reproduceRadius = agent.stoppingDistance + 2 * agent.radius;
-        health = maxHealth;
+        health = stats.maxHealth;
     }
 
     void Update()
@@ -66,23 +117,26 @@ public class AgentBehavior : MonoBehaviour
 
     private void HandleHealthUpdate()
     {
-        health -= Time.deltaTime * healthDecayRate;
+        health -= Time.deltaTime * stats.healthDecayRate;
         if (health <= 0)
         {
             Die();
         }
     }
 
-    private void HandleGrowIntoAdultUpdate() {
-        if (isChild) {
+    private void HandleGrowIntoAdultUpdate()
+    {
+        if (isChild)
+        {
             childCounter += Time.deltaTime;
-            float progressToAdult = childCounter / growIntoAdultDurationSeconds;
+            float progressToAdult = childCounter / stats.growIntoAdultDurationSeconds;
 
             float size = Mathf.Lerp(childScale, 1, progressToAdult);
             transform.localScale = new Vector3(size, size, size);
         }
 
-        if (childCounter >= growIntoAdultDurationSeconds) {
+        if (childCounter >= stats.growIntoAdultDurationSeconds)
+        {
             isChild = false;
             transform.localScale = new Vector3(1, 1, 1);
             childCounter = 0;
@@ -221,7 +275,7 @@ public class AgentBehavior : MonoBehaviour
 
         Destroy(target);
         animator.SetBool("isEating", false);
-        health = Mathf.Min(health + foodHealthReplenish, maxHealth);
+        health = Mathf.Min(health + foodHealthReplenish, stats.maxHealth);
         agentState = AgentState.DONE_EATING;
     }
 
@@ -247,7 +301,7 @@ public class AgentBehavior : MonoBehaviour
                 continue;
             }
 
-            if (collider.gameObject.TryGetComponent<AgentBehavior>(out var partnerAgentBehavior) && partnerAgentBehavior.CanMate() && partnerAgentBehavior.getAgentGender() != agentGender)
+            if (collider.gameObject.TryGetComponent<AgentBehavior>(out var partnerAgentBehavior) && partnerAgentBehavior.CanMate() && partnerAgentBehavior.stats.gender != stats.gender)
             {
                 mates.Add(collider.gameObject);
             }
@@ -291,18 +345,22 @@ public class AgentBehavior : MonoBehaviour
         mate.tag = "Mated";
         agentState = AgentState.DONE_MATING;
 
-        if (agentGender == AgentGender.FEMALE)
+        if (stats.gender == Gender.FEMALE)
         {
             GameObject child = Instantiate(gameObject, gameObject.transform.parent);
+            child.tag = "Untagged";
+            
             AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
             childAgentBehavior.isChild = true;
-            child.tag = "Untagged";
+            childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
+            Debug.Log(childAgentBehavior.stats.ToString());
+
         }
     }
 
     IEnumerator HandleMatingCooldown(GameObject mate)
     {
-        yield return new WaitForSeconds(matingCooldownSeconds);
+        yield return new WaitForSeconds(stats.matingCooldownSeconds);
 
         mate.tag = "Untagged";
         gameObject.tag = "Untagged";

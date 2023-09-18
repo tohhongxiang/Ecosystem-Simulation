@@ -17,7 +17,7 @@ public class TaskEat : Node
         GameObject target = (GameObject)GetData("target");
         _agentBehavior.Eat(target);
 
-        if (_agentBehavior.getAgentState() == AgentBehavior.AgentState.DONE_EATING)
+        if (_agentBehavior.GetAgentState() == AgentBehavior.AgentState.DONE_EATING)
         {
             ClearData("target");
             state = NodeState.SUCCESS;

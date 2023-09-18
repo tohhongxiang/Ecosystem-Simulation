@@ -17,7 +17,7 @@ public class TaskMate : Node
         GameObject target = (GameObject)GetData("mate");
         _agentBehavior.Mate(target);
 
-        if (_agentBehavior.getAgentState() == AgentBehavior.AgentState.DONE_MATING)
+        if (_agentBehavior.GetAgentState() == AgentBehavior.AgentState.DONE_MATING)
         {
             ClearData("mate");
             state = NodeState.SUCCESS;
