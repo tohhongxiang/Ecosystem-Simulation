@@ -42,6 +42,11 @@ public class AgentBehavior : MonoBehaviour
         return agentState;
     }
 
+    [SerializeField] private bool isChild = false;
+    private float childCounter = 0;
+    private float growIntoAdultDurationSeconds = 30;
+    private const float childScale = 0.5f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -55,10 +60,32 @@ public class AgentBehavior : MonoBehaviour
 
     void Update()
     {
+        HandleHealthUpdate();
+        HandleGrowIntoAdultUpdate();
+    }
+
+    private void HandleHealthUpdate()
+    {
         health -= Time.deltaTime * healthDecayRate;
         if (health <= 0)
         {
             Die();
+        }
+    }
+
+    private void HandleGrowIntoAdultUpdate() {
+        if (isChild) {
+            childCounter += Time.deltaTime;
+            float progressToAdult = childCounter / growIntoAdultDurationSeconds;
+
+            float size = Mathf.Lerp(childScale, 1, progressToAdult);
+            transform.localScale = new Vector3(size, size, size);
+        }
+
+        if (childCounter >= growIntoAdultDurationSeconds) {
+            isChild = false;
+            transform.localScale = new Vector3(1, 1, 1);
+            childCounter = 0;
         }
     }
 
@@ -243,7 +270,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool CanMate()
     {
-        return !gameObject.CompareTag("Mated");
+        return !gameObject.CompareTag("Mated") && !isChild;
     }
 
     IEnumerator HandleMating(GameObject mate)
@@ -266,7 +293,10 @@ public class AgentBehavior : MonoBehaviour
 
         if (agentGender == AgentGender.FEMALE)
         {
-            Instantiate(gameObject, gameObject.transform.parent);
+            GameObject child = Instantiate(gameObject, gameObject.transform.parent);
+            AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
+            childAgentBehavior.isChild = true;
+            child.tag = "Untagged";
         }
     }
 
