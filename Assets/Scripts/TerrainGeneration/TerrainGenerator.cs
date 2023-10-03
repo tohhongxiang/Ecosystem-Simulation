@@ -12,12 +12,12 @@ public class TerrainGenerator : MonoBehaviour
     void Start()
     {
         Bounds chunkBounds = SpawnChunks();
+        
+        surface.BuildNavMesh();
 
         foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners) {
             terrainObjectSpawner.SpawnObjects(chunkBounds);
         }
-
-        surface.BuildNavMesh();
     }
 
     Bounds SpawnChunks()

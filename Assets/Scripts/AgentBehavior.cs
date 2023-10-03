@@ -72,11 +72,6 @@ public class AgentBehavior : MonoBehaviour
     private float wanderCycleTimer;
 
     [Header("Stats")]
-    // [SerializeField] private float maxHealth = 100;
-    // [SerializeField] private int healthDecayRate = 1;
-    // [SerializeField] private float matingCooldownSeconds = 30;
-    // [SerializeField] private Gender agentGender;
-    // [SerializeField] private float growIntoAdultDurationSeconds = 30;
     public AgentStats stats;
     private float health;
     private readonly float foodHealthReplenish = 20; // TODO: Move this to each individual food
@@ -95,7 +90,7 @@ public class AgentBehavior : MonoBehaviour
         return agentState;
     }
 
-
+    private readonly HashSet<GameObject> blacklistedTargets = new HashSet<GameObject>();
 
     // Start is called before the first frame update
     void Start()
@@ -225,7 +220,11 @@ public class AgentBehavior : MonoBehaviour
 
         foreach (Collider collider in colliders)
         {
-            if (collider.gameObject.CompareTag(foodTag) && NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, agent.stoppingDistance + 0.1f, NavMesh.AllAreas))
+            if (
+                collider.gameObject.CompareTag(foodTag) && 
+                NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, agent.stoppingDistance + 0.1f, NavMesh.AllAreas) &&
+                !blacklistedTargets.Contains(collider.gameObject)
+            )
             {
                 foods.Add(collider.gameObject);
             }
@@ -353,8 +352,6 @@ public class AgentBehavior : MonoBehaviour
             AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
             childAgentBehavior.isChild = true;
             childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
-            Debug.Log(childAgentBehavior.stats.ToString());
-
         }
     }
 
@@ -364,5 +361,9 @@ public class AgentBehavior : MonoBehaviour
 
         mate.tag = "Untagged";
         gameObject.tag = "Untagged";
+    }
+
+    public void BlacklistTarget(GameObject target) {
+        blacklistedTargets.Add(target);
     }
 }

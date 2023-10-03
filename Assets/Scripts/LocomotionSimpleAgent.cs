@@ -26,6 +26,10 @@ public class LocomotionSimpleAgent : MonoBehaviour
 
     void OnAnimatorMove()
     {
+        if (animator == null) { // animator not ready yet
+            return;
+        }
+
         Vector3 rootPosition = animator.rootPosition;
 
         rootPosition.y = agent.nextPosition.y;
