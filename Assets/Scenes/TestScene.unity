@@ -320,6 +320,26 @@ PrefabInstance:
       propertyPath: isChild
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.healthDecayRate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.matingCooldownSeconds
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.reproductionTimeSeconds
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.growIntoAdultDurationSeconds
+      value: 30
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1480,6 +1500,26 @@ PrefabInstance:
     - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
       propertyPath: stats.gender
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.healthDecayRate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.matingCooldownSeconds
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.reproductionTimeSeconds
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720048742410825604, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
+      propertyPath: stats.growIntoAdultDurationSeconds
+      value: 30
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

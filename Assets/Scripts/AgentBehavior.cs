@@ -12,6 +12,7 @@ public class AgentStats
     public float maxHealth = 100;
     public float healthDecayRate = 1;
     public float matingCooldownSeconds = 30;
+    public float reproductionTimeSeconds = 5;
     public float growIntoAdultDurationSeconds = 30;
     public Gender gender = Gender.MALE;
 
@@ -21,14 +22,17 @@ public class AgentStats
     private readonly float minHealthDecayRate = 1;
     private readonly float maxMatingCooldownSeconds = 100;
     private readonly float minMatingCooldownSeconds = 5;
+    private readonly float minReproductionTimeSeconds = 3;
+    private readonly float maxReproductionTimeSeconds = 10;
     private readonly float maxGrowIntoAdultDurationSeconds = 100;
     private readonly float minGrowIntoAdultDurationSeconds = 5;
 
-    public AgentStats(float maxHealth, float healthDecayRate, float matingCooldownSeconds, float growIntoAdultDurationSeconds, Gender gender)
+    public AgentStats(float maxHealth, float healthDecayRate, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
         this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         this.healthDecayRate = Mathf.Clamp(healthDecayRate, minHealthDecayRate, maxHealthDecayRate);
         this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
+        this.reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         this.growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
         this.gender = gender;
     }
@@ -42,18 +46,22 @@ public class AgentStats
         maxHealth = parents[Random.Range(0, parents.Length)].maxHealth;
         healthDecayRate = parents[Random.Range(0, parents.Length)].healthDecayRate;
         matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
+        reproductionTimeSeconds = parents[Random.Range(0, parents.Length)].reproductionTimeSeconds;
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
 
         // random perturbations
+        // TODO Turn this to multiply
         maxHealth += Random.Range(-5, 5);
         healthDecayRate += Random.Range(-0.5f, 0.5f);
         matingCooldownSeconds += Random.Range(-5, 5);
+        reproductionTimeSeconds += Random.Range(-0.5f, 0.5f);
         growIntoAdultDurationSeconds += Random.Range(-5, 5);
 
         // clamp
         maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         healthDecayRate = Mathf.Clamp(healthDecayRate, minHealthDecayRate, maxHealthDecayRate);
         matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
+        reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
     }
 }
@@ -241,7 +249,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool IsTargetInReproduceRange(GameObject target)
     {
-        return Vector3.Distance(transform.position, target.transform.position) <= reproduceRadius;
+        return Vector3.Distance(transform.position, target.transform.position) <= reproduceRadius * 2f;
     }
 
     public bool IsAtDestination()
@@ -331,7 +339,13 @@ public class AgentBehavior : MonoBehaviour
         agentState = AgentState.MATING;
         animator.SetBool("isMating", true);
 
-        yield return new WaitForSeconds(1);
+        // make both look at each other
+        transform.LookAt(mate.transform);
+        mate.transform.LookAt(transform);
+
+        // we will choose the maximum of both parents
+        // float reproductionTimeSeconds = Mathf.Max(stats.reproductionTimeSeconds, mate.GetComponent<AgentBehavior>().stats.reproductionTimeSeconds);
+        yield return new WaitForSeconds(5);
 
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
         {
@@ -344,7 +358,7 @@ public class AgentBehavior : MonoBehaviour
         mate.tag = "Mated";
         agentState = AgentState.DONE_MATING;
 
-        if (stats.gender == Gender.FEMALE)
+        if (stats.gender == Gender.FEMALE) // make only the female spawn the child
         {
             GameObject child = Instantiate(gameObject, gameObject.transform.parent);
             child.tag = "Untagged";
