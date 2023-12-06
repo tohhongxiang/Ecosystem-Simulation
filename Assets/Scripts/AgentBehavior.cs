@@ -176,7 +176,7 @@ public class AgentBehavior : MonoBehaviour
         Vector3 fleeVector = location - transform.position;
         Seek(transform.position - fleeVector);
     }
-
+    
     public void Pursue(Transform target)
     {
         Vector3 targetDirection = target.transform.position - transform.position;
@@ -336,6 +336,10 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleMating(GameObject mate)
     {
+        if (mate == null) {
+            yield break;
+        }
+        
         agentState = AgentState.MATING;
         animator.SetBool("isMating", true);
 
@@ -350,6 +354,10 @@ public class AgentBehavior : MonoBehaviour
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
         {
             yield return new WaitForSeconds(0.1f);
+        }
+
+        if (mate == null) {
+            yield break;
         }
 
         animator.SetBool("isMating", false);
@@ -372,6 +380,10 @@ public class AgentBehavior : MonoBehaviour
     IEnumerator HandleMatingCooldown(GameObject mate)
     {
         yield return new WaitForSeconds(stats.matingCooldownSeconds);
+
+        if (mate == null) { // died
+            yield break;
+        }
 
         mate.tag = "Untagged";
         gameObject.tag = "Untagged";
