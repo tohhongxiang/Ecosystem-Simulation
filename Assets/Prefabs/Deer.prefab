@@ -625,7 +625,7 @@ Transform:
   m_Children:
   - {fileID: 5318637522906328149}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &2081536253131843359
 Animator:
@@ -715,10 +715,13 @@ MonoBehaviour:
   fovRange: 10
   wanderRadius: 10
   wanderTimer: 5
-  maxHealth: 100
-  healthDecayRate: 1
-  matingCooldownSeconds: 30
-  agentGender: 0
+  stats:
+    maxHealth: 0
+    healthDecayRate: 0
+    matingCooldownSeconds: 0
+    reproductionTimeSeconds: 0
+    growIntoAdultDurationSeconds: 0
+    gender: 0
 --- !u!114 &6623421330202707926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1563,7 +1566,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6784510055038635566}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c30f000bdaf7f83419f21f688fc19539, type: 3}
   m_Name: 
