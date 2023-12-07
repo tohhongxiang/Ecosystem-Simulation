@@ -100,12 +100,12 @@ public class StatsLogger : MonoBehaviour
             output = File.AppendText(fullFileName);
         } else {
             output = File.CreateText(fullFileName);
-            output.Write(string.Join(", ", keys) + "\n");
+            output.Write(string.Join(",", keys) + "\n");
         }
 
         for (int i = 0; i < data[keys[0]].Count; i++) {
             object[] currentRowData = keys.Select(x => data[x][i].ToString()).ToArray();
-            output.Write(string.Join(", ", currentRowData) + "\n");
+            output.Write(string.Join(",", currentRowData) + "\n");
         }
 
 		output.Close();
