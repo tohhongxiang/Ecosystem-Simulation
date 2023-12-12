@@ -9,8 +9,8 @@ public enum Gender { MALE, FEMALE };
 [System.Serializable]
 public class AgentStats
 {
+    // stats that can change between instances
     public float maxHealth = 100;
-    public float healthDecayRate = 1;
     public float matingCooldownSeconds = 30;
     public float reproductionTimeSeconds = 5;
     public float growIntoAdultDurationSeconds = 30;
@@ -18,8 +18,6 @@ public class AgentStats
 
     private readonly float maxMaxHealth = 200;
     private readonly float minMaxHealth = 50;
-    private readonly float maxHealthDecayRate = 10;
-    private readonly float minHealthDecayRate = 1;
     private readonly float maxMatingCooldownSeconds = 100;
     private readonly float minMatingCooldownSeconds = 5;
     private readonly float minReproductionTimeSeconds = 3;
@@ -27,10 +25,9 @@ public class AgentStats
     private readonly float maxGrowIntoAdultDurationSeconds = 100;
     private readonly float minGrowIntoAdultDurationSeconds = 5;
 
-    public AgentStats(float maxHealth, float healthDecayRate, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
+    public AgentStats(float maxHealth, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
         this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
-        this.healthDecayRate = Mathf.Clamp(healthDecayRate, minHealthDecayRate, maxHealthDecayRate);
         this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         this.reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         this.growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
@@ -44,7 +41,6 @@ public class AgentStats
         // choose from one of the parents
         gender = (Gender)Random.Range(0, System.Enum.GetValues(typeof(Gender)).Length); // random gender
         maxHealth = parents[Random.Range(0, parents.Length)].maxHealth;
-        healthDecayRate = parents[Random.Range(0, parents.Length)].healthDecayRate;
         matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
         reproductionTimeSeconds = parents[Random.Range(0, parents.Length)].reproductionTimeSeconds;
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
@@ -52,14 +48,12 @@ public class AgentStats
         // random perturbations
         // TODO Turn this to multiply
         maxHealth += Random.Range(-5, 5);
-        healthDecayRate += Random.Range(-0.5f, 0.5f);
         matingCooldownSeconds += Random.Range(-5, 5);
         reproductionTimeSeconds += Random.Range(-0.5f, 0.5f);
         growIntoAdultDurationSeconds += Random.Range(-5, 5);
 
         // clamp
         maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
-        healthDecayRate = Mathf.Clamp(healthDecayRate, minHealthDecayRate, maxHealthDecayRate);
         matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
@@ -120,7 +114,7 @@ public class AgentBehavior : MonoBehaviour
 
     private void HandleHealthUpdate()
     {
-        health -= Time.deltaTime * stats.healthDecayRate;
+        health -= Time.deltaTime;
         if (health <= 0)
         {
             Die();

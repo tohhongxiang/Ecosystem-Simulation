@@ -15,7 +15,6 @@ public class StatsLogger : MonoBehaviour
 
     private List<object> populationHealth = new List<object>();
     private List<object> populationCount = new List<object>();
-    private List<object> populationHealthDecayRate = new List<object>();
     private List<object> populationMatingCooldownSeconds = new List<object>();
     private List<object> populationReproductionTimeSeconds = new List<object>();
     private List<object> populationGrowIntoAdultDurationSeconds = new List<object>();
@@ -37,7 +36,6 @@ public class StatsLogger : MonoBehaviour
             {
                 { "population", populationCount },
                 { "health", populationHealth },
-                { "health_decay_rate", populationHealthDecayRate },
                 { "mating_cooldown_seconds", populationMatingCooldownSeconds },
                 { "reproduction_time_seconds", populationReproductionTimeSeconds },
                 { "grow_into_adult_duration_seconds", populationGrowIntoAdultDurationSeconds },
@@ -49,7 +47,6 @@ public class StatsLogger : MonoBehaviour
             // clear out all current data
             populationCount.Clear();
             populationHealth.Clear();
-            populationHealthDecayRate.Clear();
             populationMatingCooldownSeconds.Clear();
             populationReproductionTimeSeconds.Clear();
             populationGrowIntoAdultDurationSeconds.Clear();
@@ -67,9 +64,6 @@ public class StatsLogger : MonoBehaviour
             populationHealth.Add(averageMaxHealth);
 
             populationCount.Add(childrenAgentBehavior.Count());
-
-            float averageHealthDecayRate = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.healthDecayRate).ToList().Average();
-            populationHealthDecayRate.Add(averageHealthDecayRate);
 
             float averageMatingCooldownSeconds = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.matingCooldownSeconds).ToList().Average();
             populationMatingCooldownSeconds.Add(averageMatingCooldownSeconds);
