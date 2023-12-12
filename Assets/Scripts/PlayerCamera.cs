@@ -21,8 +21,8 @@ public class PlayerCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float mouseX = Input.GetAxisRaw("Mouse X") * sensX * Time.deltaTime;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * sensY * Time.deltaTime;
+        float mouseX = Input.GetAxisRaw("Mouse X") * sensX * Time.unscaledDeltaTime;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * sensY * Time.unscaledDeltaTime;
 
         yRotation += mouseX;
         xRotation -= mouseY;
@@ -30,9 +30,9 @@ public class PlayerCamera : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
 
-        float xAxisValue = Input.GetAxisRaw("Horizontal") * movementSpeed * Time.deltaTime;
-        float yAxisValue = Input.GetAxisRaw("Jump") * movementSpeed * Time.deltaTime;
-        float zAxisValue = Input.GetAxisRaw("Vertical") * movementSpeed * Time.deltaTime;
+        float xAxisValue = Input.GetAxisRaw("Horizontal") * movementSpeed * Time.unscaledDeltaTime;
+        float yAxisValue = Input.GetAxisRaw("Jump") * movementSpeed * Time.unscaledDeltaTime;
+        float zAxisValue = Input.GetAxisRaw("Vertical") * movementSpeed * Time.unscaledDeltaTime;
         transform.Translate(new Vector3(xAxisValue, yAxisValue, zAxisValue));
     }
 }
