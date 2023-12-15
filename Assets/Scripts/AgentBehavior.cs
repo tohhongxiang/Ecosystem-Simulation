@@ -91,8 +91,19 @@ public class AgentBehavior : MonoBehaviour
     [Header("Stats")]
     public AgentStats stats;
     private float health;
+    public float GetHealth() {
+        return health;
+    }
+
     private float hunger;
+    public float GetHunger() {
+        return hunger;
+    }
+
     private float thirst;
+    public float GetThirst() {
+        return thirst;
+    }
     private readonly float foodHealthReplenish = 20; // TODO: Move this to each individual food
     private readonly float waterHealthReplenish = 20;
     private bool isChild = false;
