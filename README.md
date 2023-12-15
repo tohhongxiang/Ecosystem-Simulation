@@ -36,5 +36,10 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [Unity null check not working](http://anja-haumann.de/unity-null-check-not-working/)
 - [Show Only Attribute in Unity](https://discussions.unity.com/t/how-to-make-a-readonly-property-in-inspector/75448/4)
 
+## UI
+
+- [Unity Tutorial - How to make Enemy Healthbars](https://www.youtube.com/watch?v=ZYeXmze5gxg)
+- [How to make a HEALTH BAR in Unity!](https://www.youtube.com/watch?v=BLfNP4Sc_iA)
+
 TODO:
 - After mating, should create a child with parameters from both parents
