@@ -9,6 +9,7 @@ TagManager:
   - Animal
   - Targeted
   - Mated
+  - Water
   layers:
   - Default
   - TransparentFX

@@ -11,6 +11,8 @@ public class AgentStats
 {
     // stats that can change between instances
     public float maxHealth = 100;
+    public float maxHunger = 20;
+    public float maxThirst = 20;
     public float matingCooldownSeconds = 30;
     public float reproductionTimeSeconds = 5;
     public float growIntoAdultDurationSeconds = 30;
@@ -18,6 +20,10 @@ public class AgentStats
 
     private readonly float maxMaxHealth = 200;
     private readonly float minMaxHealth = 50;
+    private readonly float maxMaxHunger = 50;
+    private readonly float minMaxHunger = 10;
+    private readonly float maxMaxThirst = 50;
+    private readonly float minMaxThirst = 10;
     private readonly float maxMatingCooldownSeconds = 100;
     private readonly float minMatingCooldownSeconds = 5;
     private readonly float minReproductionTimeSeconds = 3;
@@ -25,9 +31,11 @@ public class AgentStats
     private readonly float maxGrowIntoAdultDurationSeconds = 100;
     private readonly float minGrowIntoAdultDurationSeconds = 5;
 
-    public AgentStats(float maxHealth, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
+    public AgentStats(float maxHealth, float maxHunger, float maxThirst, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
         this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
+        this.maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
+        this.maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
         this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         this.reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         this.growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
@@ -40,7 +48,10 @@ public class AgentStats
 
         // choose from one of the parents
         gender = (Gender)Random.Range(0, System.Enum.GetValues(typeof(Gender)).Length); // random gender
+
         maxHealth = parents[Random.Range(0, parents.Length)].maxHealth;
+        maxHunger = parents[Random.Range(0, parents.Length)].maxHunger;
+        maxThirst = parents[Random.Range(0, parents.Length)].maxThirst;
         matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
         reproductionTimeSeconds = parents[Random.Range(0, parents.Length)].reproductionTimeSeconds;
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
@@ -48,12 +59,16 @@ public class AgentStats
         // random perturbations
         // TODO Turn this to multiply
         maxHealth += Random.Range(-5, 5);
+        maxHunger += Random.Range(-5, 5);
+        maxThirst += Random.Range(-5, 5);
         matingCooldownSeconds += Random.Range(-5, 5);
         reproductionTimeSeconds += Random.Range(-0.5f, 0.5f);
         growIntoAdultDurationSeconds += Random.Range(-5, 5);
 
         // clamp
         maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
+        maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
+        maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
         matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
@@ -76,7 +91,10 @@ public class AgentBehavior : MonoBehaviour
     [Header("Stats")]
     public AgentStats stats;
     private float health;
+    private float hunger;
+    private float thirst;
     private readonly float foodHealthReplenish = 20; // TODO: Move this to each individual food
+    private readonly float waterHealthReplenish = 20;
     private bool isChild = false;
     private float childCounter = 0;
     private const float childScale = 0.5f;
@@ -84,7 +102,7 @@ public class AgentBehavior : MonoBehaviour
     private NavMeshAgent agent;
     private Animator animator;
 
-    public enum AgentState { EATING, DONE_EATING, MATING, DONE_MATING, WANDERING, DEAD };
+    public enum AgentState { EATING, DONE_EATING, DRINKING, DONE_DRINKING, MATING, DONE_MATING, WANDERING, DEAD };
     private AgentState agentState = AgentState.WANDERING;
 
     public AgentState GetAgentState()
@@ -103,7 +121,10 @@ public class AgentBehavior : MonoBehaviour
         wanderCycleTimer = wanderTimer;
         interactRadius = agent.stoppingDistance + 0.1f;
         reproduceRadius = agent.stoppingDistance + 2 * agent.radius;
+
         health = stats.maxHealth;
+        hunger = stats.maxHunger;
+        thirst = stats.maxThirst;
     }
 
     void Update()
@@ -114,7 +135,18 @@ public class AgentBehavior : MonoBehaviour
 
     private void HandleHealthUpdate()
     {
-        health -= Time.deltaTime;
+        // decrease hunger and thirst all the time, stopping at 0
+        hunger = Mathf.Max(hunger - Time.deltaTime, 0);
+        thirst = Mathf.Max(thirst - Time.deltaTime, 0);
+
+        if (hunger <= 0) {
+            health -= Time.deltaTime;
+        }
+
+        if (thirst <= 0) {
+            health -= Time.deltaTime;
+        }
+
         if (health <= 0)
         {
             Die();
@@ -276,8 +308,25 @@ public class AgentBehavior : MonoBehaviour
 
         Destroy(target);
         animator.SetBool("isEating", false);
-        health = Mathf.Min(health + foodHealthReplenish, stats.maxHealth);
+        hunger = Mathf.Min(hunger + foodHealthReplenish, stats.maxHunger);
         agentState = AgentState.DONE_EATING;
+    }
+
+    IEnumerator HandleDrink() // TODO handle drinking
+    {
+        agentState = AgentState.DRINKING;
+        animator.SetBool("isDrinking", true);
+
+        yield return new WaitForSeconds(1);
+
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        animator.SetBool("isDrinking", false);
+        thirst = Mathf.Min(thirst + waterHealthReplenish, stats.maxThirst);
+        agentState = AgentState.DONE_DRINKING;
     }
 
     private static Vector3 RandomNavSphere(Vector3 origin, float dist, int layerMask)
