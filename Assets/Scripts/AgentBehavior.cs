@@ -79,7 +79,9 @@ public class AgentStats
 public class AgentBehavior : MonoBehaviour
 {
     [SerializeField] public string foodTag = "";
+    [SerializeField] public string waterTag = "Water";
     [SerializeField] private float fovRange = 10f;
+    [SerializeField] private float fovAngle = 90f;
     private float interactRadius;
     private float reproduceRadius;
 
@@ -91,17 +93,20 @@ public class AgentBehavior : MonoBehaviour
     [Header("Stats")]
     public AgentStats stats;
     private float health;
-    public float GetHealth() {
+    public float GetHealth()
+    {
         return health;
     }
 
     private float hunger;
-    public float GetHunger() {
+    public float GetHunger()
+    {
         return hunger;
     }
 
     private float thirst;
-    public float GetThirst() {
+    public float GetThirst()
+    {
         return thirst;
     }
     private readonly float foodHealthReplenish = 20; // TODO: Move this to each individual food
@@ -130,7 +135,7 @@ public class AgentBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
 
         wanderCycleTimer = wanderTimer;
-        interactRadius = agent.stoppingDistance + 0.1f;
+        interactRadius = agent.stoppingDistance + agent.radius + 0.1f;
         reproduceRadius = agent.stoppingDistance + 2 * agent.radius;
 
         health = stats.maxHealth;
@@ -150,11 +155,13 @@ public class AgentBehavior : MonoBehaviour
         hunger = Mathf.Max(hunger - Time.deltaTime, 0);
         thirst = Mathf.Max(thirst - Time.deltaTime, 0);
 
-        if (hunger <= 0) {
+        if (hunger <= 0)
+        {
             health -= Time.deltaTime;
         }
 
-        if (thirst <= 0) {
+        if (thirst <= 0)
+        {
             health -= Time.deltaTime;
         }
 
@@ -213,7 +220,7 @@ public class AgentBehavior : MonoBehaviour
         Vector3 fleeVector = location - transform.position;
         Seek(transform.position - fleeVector);
     }
-    
+
     public void Pursue(Transform target)
     {
         Vector3 targetDirection = target.transform.position - transform.position;
@@ -266,7 +273,7 @@ public class AgentBehavior : MonoBehaviour
         foreach (Collider collider in colliders)
         {
             if (
-                collider.gameObject.CompareTag(foodTag) && 
+                collider.gameObject.CompareTag(foodTag) &&
                 NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, agent.stoppingDistance + 0.1f, NavMesh.AllAreas) &&
                 !blacklistedTargets.Contains(collider.gameObject)
             )
@@ -279,9 +286,33 @@ public class AgentBehavior : MonoBehaviour
         return foods;
     }
 
+    public List<Vector3> GetWaterInFOVRange() // since water is just a single entity, we want to get positions of where we can reach
+    {
+        List<Vector3> waters = WaterGenerator.Instance.GetAccessibleWaterPoints();
+        waters = waters.OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
+        return waters;
+        // Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange);
+        // List<Vector3> waters = new List<Vector3>();
+
+        // foreach (Collider collider in colliders)
+        // {
+        //     if (collider.gameObject.CompareTag(waterTag))
+        //     {
+        //         waters.Add(collider.ClosestPointOnBounds(transform.position));
+        //     }
+        // }
+
+        // waters = waters.OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
+        // return waters;
+    }
+
     public bool IsTargetInteractable(GameObject target)
     {
         return Vector3.Distance(transform.position, target.transform.position) <= interactRadius;
+    }
+
+    public bool IsCoordinateInteractable(Vector3 coordinate) {
+        return Vector3.Distance(transform.position, coordinate) <= interactRadius * 3;
     }
 
     public bool IsTargetInReproduceRange(GameObject target)
@@ -323,7 +354,17 @@ public class AgentBehavior : MonoBehaviour
         agentState = AgentState.DONE_EATING;
     }
 
-    IEnumerator HandleDrink() // TODO handle drinking
+    public void Drink()
+    {
+        if (agentState == AgentState.DRINKING)
+        {
+            return;
+        }
+
+        StartCoroutine(HandleDrink());
+    }
+
+    IEnumerator HandleDrink()
     {
         agentState = AgentState.DRINKING;
         animator.SetBool("isDrinking", true);
@@ -390,10 +431,11 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleMating(GameObject mate)
     {
-        if (mate == null) {
+        if (mate == null)
+        {
             yield break;
         }
-        
+
         agentState = AgentState.MATING;
         animator.SetBool("isMating", true);
 
@@ -410,7 +452,8 @@ public class AgentBehavior : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        if (mate == null) {
+        if (mate == null)
+        {
             yield break;
         }
 
@@ -424,7 +467,7 @@ public class AgentBehavior : MonoBehaviour
         {
             GameObject child = Instantiate(gameObject, gameObject.transform.parent);
             child.tag = "Untagged";
-            
+
             AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
             childAgentBehavior.isChild = true;
             childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
@@ -435,7 +478,8 @@ public class AgentBehavior : MonoBehaviour
     {
         yield return new WaitForSeconds(stats.matingCooldownSeconds);
 
-        if (mate == null) { // died
+        if (mate == null)
+        { // died
             yield break;
         }
 
@@ -443,7 +487,8 @@ public class AgentBehavior : MonoBehaviour
         gameObject.tag = "Untagged";
     }
 
-    public void BlacklistTarget(GameObject target) {
+    public void BlacklistTarget(GameObject target)
+    {
         blacklistedTargets.Add(target);
     }
 }

@@ -990,7 +990,7 @@ GameObject:
   - component: {fileID: 475938227}
   - component: {fileID: 475938226}
   - component: {fileID: 475938230}
-  m_Layer: 4
+  m_Layer: 3
   m_Name: Water
   m_TagString: Water
   m_Icon: {fileID: 0}
@@ -1076,7 +1076,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 475938225}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 14.708188, y: -6.91, z: 8.3346}
+  m_LocalPosition: {x: 3.93, y: -6.84, z: 6.46}
   m_LocalScale: {x: 2.96, y: 0.93, z: 4.34}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1094,7 +1094,7 @@ NavMeshObstacle:
   serializedVersion: 3
   m_Shape: 1
   m_Extents: {x: 0.5, y: 0.5, z: 0.5}
-  m_MoveThreshold: 0.1
+  m_MoveThreshold: 0
   m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
@@ -2382,7 +2382,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2330943641183566389, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 10.69
+      value: 13.77
       objectReference: {fileID: 0}
     - target: {fileID: 2330943641183566389, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2390,7 +2390,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2330943641183566389, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.15
+      value: 16.24
       objectReference: {fileID: 0}
     - target: {fileID: 2330943641183566389, guid: bf8f23cc1b6633c4b93efeabaf092b5f, type: 3}
       propertyPath: m_LocalRotation.w
