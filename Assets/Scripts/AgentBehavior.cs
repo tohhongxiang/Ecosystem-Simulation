@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public enum Gender { MALE, FEMALE };
 
@@ -11,8 +12,8 @@ public class AgentStats
 {
     // stats that can change between instances
     public float maxHealth = 100;
-    public float maxHunger = 20;
-    public float maxThirst = 20;
+    public float maxHunger = 100;
+    public float maxThirst = 100;
     public float matingCooldownSeconds = 30;
     public float reproductionTimeSeconds = 5;
     public float growIntoAdultDurationSeconds = 30;
@@ -81,7 +82,6 @@ public class AgentBehavior : MonoBehaviour
     [SerializeField] public string foodTag = "";
     [SerializeField] public string waterTag = "Water";
     [SerializeField] private float fovRange = 10f;
-    [SerializeField] private float fovAngle = 90f;
     private float interactRadius;
     private float reproduceRadius;
 
@@ -109,8 +109,8 @@ public class AgentBehavior : MonoBehaviour
     {
         return thirst;
     }
-    private readonly float foodHealthReplenish = 20; // TODO: Move this to each individual food
-    private readonly float waterHealthReplenish = 20;
+    private readonly float foodHealthReplenish = 80;
+    private readonly float waterHealthReplenish = 80;
     private bool isChild = false;
     private float childCounter = 0;
     private const float childScale = 0.5f;

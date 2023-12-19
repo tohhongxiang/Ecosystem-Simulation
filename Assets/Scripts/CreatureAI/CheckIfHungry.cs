@@ -4,10 +4,10 @@ using UnityEngine;
 
 using BehaviorTree;
 
-public class CheckThirstLowerThanHunger : Node
+public class CheckIfHungry : Node
 {
     private AgentBehavior _agentBehavior;
-    public CheckThirstLowerThanHunger(AgentBehavior _agentBehavior)
+    public CheckIfHungry(AgentBehavior _agentBehavior)
     {
         this._agentBehavior = _agentBehavior;
     }
@@ -16,9 +16,9 @@ public class CheckThirstLowerThanHunger : Node
     public override NodeState Evaluate()
     {
         float currentHunger = _agentBehavior.GetHunger();
-        float currentThirst = _agentBehavior.GetThirst();
+        float maxHunger = _agentBehavior.stats.maxHunger;
 
-        state = currentThirst <= currentHunger ? NodeState.SUCCESS : NodeState.FAILURE;
+        state = currentHunger <= 0.5f * maxHunger ? NodeState.SUCCESS : NodeState.FAILURE;
         return state;
     }
 }

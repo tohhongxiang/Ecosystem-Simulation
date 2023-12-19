@@ -20,20 +20,22 @@ public class CreatureBehaviorTree : BehaviorTree.Tree
             //     new TaskGoToMate(agentBehavior),
             // }),
             new Sequence(new List<Node> {
+                new CheckIfHungry(agentBehavior),
                 new CheckFoodInInteractableRange(agentBehavior),
                 new TaskEat(agentBehavior),
             }),
             new Sequence(new List<Node> {
-                new CheckHungerLowerThanThirst(agentBehavior),
+                new CheckIfHungry(agentBehavior),
                 new CheckFoodInFOVRange(agentBehavior),
                 new TaskGoToFood(agentBehavior),
             }),
             new Sequence(new List<Node> {
+                new CheckIfThirsty(agentBehavior),
                 new CheckWaterInInteractableRange(agentBehavior),
                 new TaskDrink(agentBehavior),
             }),
             new Sequence(new List<Node> {
-                new CheckThirstLowerThanHunger(agentBehavior),
+                new CheckIfThirsty(agentBehavior), // check again in case agent is already there
                 new CheckWaterInFOVRange(agentBehavior),
                 new TaskGoToWater(agentBehavior),
             }),
