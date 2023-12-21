@@ -99,18 +99,28 @@ public class AgentBehavior : MonoBehaviour
     }
 
     private float hunger;
+    private readonly float hungerThresholdPercentage = 0.5f;
     public float GetHunger()
     {
         return hunger;
     }
+    public bool IsHungry() {
+        return hunger <= hungerThresholdPercentage * stats.maxHunger;
+    }
 
     private float thirst;
+    private readonly float thirstThresholdPercentage = 0.5f;
     public float GetThirst()
     {
         return thirst;
     }
+    public bool IsThirsty() {
+        return thirst <= thirstThresholdPercentage * stats.maxThirst;
+    }
+
     private readonly float foodHealthReplenish = 80;
     private readonly float waterHealthReplenish = 80;
+
     private bool isChild = false;
     private float childCounter = 0;
     private const float childScale = 0.5f;
@@ -163,6 +173,11 @@ public class AgentBehavior : MonoBehaviour
         if (thirst <= 0)
         {
             health -= Time.deltaTime;
+        }
+
+        if (!IsHungry() && !IsThirsty()) {
+            health += Time.deltaTime;
+            health = Mathf.Min(health, stats.maxHealth);
         }
 
         if (health <= 0)
@@ -289,21 +304,10 @@ public class AgentBehavior : MonoBehaviour
     public List<Vector3> GetWaterInFOVRange() // since water is just a single entity, we want to get positions of where we can reach
     {
         List<Vector3> waters = WaterGenerator.Instance.GetAccessibleWaterPoints();
-        waters = waters.OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
+        waters = waters
+            .Where((d) => (d - transform.position).sqrMagnitude <= fovRange * fovRange)
+            .OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
         return waters;
-        // Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange);
-        // List<Vector3> waters = new List<Vector3>();
-
-        // foreach (Collider collider in colliders)
-        // {
-        //     if (collider.gameObject.CompareTag(waterTag))
-        //     {
-        //         waters.Add(collider.ClosestPointOnBounds(transform.position));
-        //     }
-        // }
-
-        // waters = waters.OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
-        // return waters;
     }
 
     public bool IsTargetInteractable(GameObject target)
@@ -311,7 +315,8 @@ public class AgentBehavior : MonoBehaviour
         return Vector3.Distance(transform.position, target.transform.position) <= interactRadius;
     }
 
-    public bool IsCoordinateInteractable(Vector3 coordinate) {
+    public bool IsCoordinateInteractable(Vector3 coordinate)
+    {
         return Vector3.Distance(transform.position, coordinate) <= interactRadius * 3;
     }
 

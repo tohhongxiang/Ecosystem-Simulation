@@ -15,10 +15,7 @@ public class CheckIfHungry : Node
     // Update is called once per frame
     public override NodeState Evaluate()
     {
-        float currentHunger = _agentBehavior.GetHunger();
-        float maxHunger = _agentBehavior.stats.maxHunger;
-
-        state = currentHunger <= 0.5f * maxHunger ? NodeState.SUCCESS : NodeState.FAILURE;
+        state = _agentBehavior.IsHungry() ? NodeState.SUCCESS : NodeState.FAILURE;
         return state;
     }
 }

@@ -15,10 +15,7 @@ public class CheckIfThirsty : Node
     // Update is called once per frame
     public override NodeState Evaluate()
     {
-        float currentThirst = _agentBehavior.GetThirst();
-        float maxThirst = _agentBehavior.stats.maxThirst;
-
-        state = currentThirst <= 0.5f * maxThirst ? NodeState.SUCCESS : NodeState.FAILURE;
+        state = _agentBehavior.IsThirsty() ? NodeState.SUCCESS : NodeState.FAILURE;
         return state;
     }
 }

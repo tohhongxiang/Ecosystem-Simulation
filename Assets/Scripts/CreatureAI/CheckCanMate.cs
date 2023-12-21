@@ -16,9 +16,9 @@ public class CheckCanMate : Node
         if (!_agentBehavior.CanMate()) {
             state = NodeState.FAILURE;
             return state;
-        } else {
-            state = NodeState.SUCCESS;
-            return state;
         }
+
+        state = NodeState.SUCCESS;
+        return state;
     }
 }
