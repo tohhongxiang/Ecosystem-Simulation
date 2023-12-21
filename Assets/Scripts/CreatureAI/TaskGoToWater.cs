@@ -21,7 +21,6 @@ public class TaskGoToWater : Node
             return state;
         }
         Vector3 g = (Vector3)GetData("water");
-        Debug.DrawLine(_agentBehavior.gameObject.transform.position, g, Color.black, 0.5f);
         _agentBehavior.Seek(g);
 
         state = NodeState.RUNNING;

@@ -58,13 +58,12 @@ public class AgentStats
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
 
         // random perturbations
-        // TODO Turn this to multiply
-        maxHealth += Random.Range(-5, 5);
-        maxHunger += Random.Range(-5, 5);
-        maxThirst += Random.Range(-5, 5);
-        matingCooldownSeconds += Random.Range(-5, 5);
-        reproductionTimeSeconds += Random.Range(-0.5f, 0.5f);
-        growIntoAdultDurationSeconds += Random.Range(-5, 5);
+        maxHealth *= Random.Range(0.95f, 1.05f);
+        maxHunger *= Random.Range(0.95f, 1.05f);
+        maxThirst *= Random.Range(0.95f, 1.05f);
+        matingCooldownSeconds *= Random.Range(0.95f, 1.05f);
+        reproductionTimeSeconds *= Random.Range(0.95f, 1.05f);
+        growIntoAdultDurationSeconds *= Random.Range(0.95f, 1.05f);
 
         // clamp
         maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
@@ -282,7 +281,7 @@ public class AgentBehavior : MonoBehaviour
 
     public List<GameObject> GetFoodInFOVRange()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange, LayerMask.GetMask("Food"));
         List<GameObject> foods = new List<GameObject>();
 
         foreach (Collider collider in colliders)

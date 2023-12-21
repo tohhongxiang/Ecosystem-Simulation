@@ -73,8 +73,6 @@ public class WaterGenerator : TerrainObjectGenerator
                 Vector3 raycastStart = new Vector3(minX + i * gridXSpace, highYCoordinate, minZ + j * gridZSpace);
                 Ray ray = new Ray(raycastStart, Vector3.down);
 
-                // Debug.DrawRay(raycastStart, Vector3.down * highYCoordinate, Color.yellow, 5.0f);
-
                 // if no ground, retry
                 if (!Physics.Raycast(ray, out RaycastHit info, highYCoordinate + 2))
                 {
