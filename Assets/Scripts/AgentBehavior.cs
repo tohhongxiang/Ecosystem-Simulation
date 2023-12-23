@@ -117,6 +117,14 @@ public class AgentBehavior : MonoBehaviour
         return thirst <= thirstThresholdPercentage * stats.maxThirst;
     }
 
+    private bool justMatedRecently = false;
+    public bool IsJustMatedRecently() {
+        return justMatedRecently;
+    }
+    public void SetMated(bool mated) {
+        justMatedRecently = mated;
+    }
+
     private readonly float foodHealthReplenish = 80;
     private readonly float waterHealthReplenish = 80;
 
@@ -430,7 +438,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool CanMate()
     {
-        return !gameObject.CompareTag("Mated") && !isChild;
+        return !justMatedRecently && !isChild;
     }
 
     IEnumerator HandleMating(GameObject mate)
@@ -448,8 +456,8 @@ public class AgentBehavior : MonoBehaviour
         mate.transform.LookAt(transform);
 
         // we will choose the maximum of both parents
-        // float reproductionTimeSeconds = Mathf.Max(stats.reproductionTimeSeconds, mate.GetComponent<AgentBehavior>().stats.reproductionTimeSeconds);
-        yield return new WaitForSeconds(5);
+        float reproductionTimeSeconds = Mathf.Max(stats.reproductionTimeSeconds, mate.GetComponent<AgentBehavior>().stats.reproductionTimeSeconds);
+        yield return new WaitForSeconds(reproductionTimeSeconds);
 
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
         {
@@ -463,8 +471,8 @@ public class AgentBehavior : MonoBehaviour
 
         animator.SetBool("isMating", false);
 
-        gameObject.tag = "Mated";
-        mate.tag = "Mated";
+        SetMated(true);
+
         agentState = AgentState.DONE_MATING;
 
         if (stats.gender == Gender.FEMALE) // make only the female spawn the child
@@ -486,9 +494,8 @@ public class AgentBehavior : MonoBehaviour
         { // died
             yield break;
         }
-
-        mate.tag = "Untagged";
-        gameObject.tag = "Untagged";
+        
+        SetMated(false);
     }
 
     public void BlacklistTarget(GameObject target)
