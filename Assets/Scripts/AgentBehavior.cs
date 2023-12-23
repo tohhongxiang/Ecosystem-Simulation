@@ -91,6 +91,7 @@ public class AgentBehavior : MonoBehaviour
 
     [Header("Stats")]
     public AgentStats stats;
+    public string species = "";
     private float health;
     public float GetHealth()
     {
@@ -415,7 +416,16 @@ public class AgentBehavior : MonoBehaviour
                 continue;
             }
 
-            if (collider.gameObject.TryGetComponent<AgentBehavior>(out var partnerAgentBehavior) && partnerAgentBehavior.CanMate() && partnerAgentBehavior.stats.gender != stats.gender)
+            AgentBehavior partnerAgentBehavior = collider.gameObject.GetComponent<AgentBehavior>();
+            if (!partnerAgentBehavior) {
+                continue;
+            }
+
+            bool sameSpecies = partnerAgentBehavior.species == species;
+            bool sameGender = partnerAgentBehavior.stats.gender == stats.gender;
+            bool partnerCanMate = partnerAgentBehavior.CanMate();
+
+            if (sameSpecies && partnerCanMate && !sameGender)
             {
                 mates.Add(collider.gameObject);
             }

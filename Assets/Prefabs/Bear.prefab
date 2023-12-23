@@ -605,6 +605,7 @@ MonoBehaviour:
     reproductionTimeSeconds: 5
     growIntoAdultDurationSeconds: 120
     gender: 0
+  species: Bear
 --- !u!65 &4980049071281608964
 BoxCollider:
   m_ObjectHideFlags: 0
