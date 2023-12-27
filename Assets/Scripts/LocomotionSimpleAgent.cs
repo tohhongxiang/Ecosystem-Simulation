@@ -8,6 +8,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
     NavMeshAgent agent;
     Vector2 smoothDeltaPosition = Vector2.zero;
     Vector2 velocity = Vector2.zero;
+    LookAt lookAt;
 
 
     void Start()
@@ -17,6 +18,8 @@ public class LocomotionSimpleAgent : MonoBehaviour
 
         agent = GetComponent<NavMeshAgent>();
         agent.updatePosition = false;
+
+        lookAt = GetComponent<LookAt>();
     }
 
     void Update()
@@ -69,7 +72,6 @@ public class LocomotionSimpleAgent : MonoBehaviour
             transform.position = Vector3.Lerp(animator.rootPosition, agent.nextPosition, smooth);
         }
 
-        LookAt lookAt = GetComponent<LookAt>();
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
 
