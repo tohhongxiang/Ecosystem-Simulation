@@ -592,7 +592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c376363941c15f4ba1365539ecb3e60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foodTag: Plant
+  foodTag: Deer
   waterTag: Water
   fovRange: 10
   wanderRadius: 10

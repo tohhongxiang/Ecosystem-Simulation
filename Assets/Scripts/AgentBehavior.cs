@@ -196,14 +196,15 @@ public class AgentBehavior : MonoBehaviour
 
     private void HandleGrowIntoAdultUpdate()
     {
-        if (isChild)
-        {
-            childCounter += Time.deltaTime;
-            float progressToAdult = childCounter / stats.growIntoAdultDurationSeconds;
-
-            float size = Mathf.Lerp(childScale, 1, progressToAdult);
-            transform.localScale = new Vector3(size, size, size);
+        if (!isChild) {
+            return;
         }
+        
+        childCounter += Time.deltaTime;
+        float progressToAdult = childCounter / stats.growIntoAdultDurationSeconds;
+
+        float size = Mathf.Lerp(childScale, 1, progressToAdult);
+        transform.localScale = new Vector3(size, size, size);
 
         if (childCounter >= stats.growIntoAdultDurationSeconds)
         {
@@ -290,13 +291,12 @@ public class AgentBehavior : MonoBehaviour
 
     public List<GameObject> GetFoodInFOVRange()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange, LayerMask.GetMask("Food"));
+        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange, LayerMask.GetMask(foodTag));
         List<GameObject> foods = new List<GameObject>();
 
         foreach (Collider collider in colliders)
         {
             if (
-                collider.gameObject.CompareTag(foodTag) &&
                 NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, agent.stoppingDistance + 0.1f, NavMesh.AllAreas) &&
                 !blacklistedTargets.Contains(collider.gameObject)
             )
@@ -352,7 +352,7 @@ public class AgentBehavior : MonoBehaviour
     {
         agentState = AgentState.EATING;
         animator.SetBool("isEating", true);
-        target.tag = "Untagged";
+        target.layer = LayerMask.NameToLayer("Default");
 
         yield return new WaitForSeconds(1);
 

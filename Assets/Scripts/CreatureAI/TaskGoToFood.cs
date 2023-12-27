@@ -17,7 +17,8 @@ public class TaskGoToFood : Node
     public override NodeState Evaluate() {
         GameObject g = (GameObject)GetData("target");
 
-        if (g == null || !g.CompareTag(_agentBehavior.foodTag)) { // food is being interacted with by something else
+        
+        if (g == null || g.layer != LayerMask.NameToLayer(_agentBehavior.foodTag)) { // food is being interacted with by something else
             ClearData("target");
 
             state = NodeState.FAILURE;
