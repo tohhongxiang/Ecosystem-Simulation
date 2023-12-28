@@ -9,6 +9,7 @@ public class StatsLogger : MonoBehaviour
 {
     public float getAverageIntervalSeconds = 10;
     public float writeToCSVIntervalSeconds = 180;
+    public string fileNamePrefix = "";
 
     private float getAverageIntervalCounter = 0;
     private float writeToCSVIntervalCounter = 0;
@@ -43,7 +44,8 @@ public class StatsLogger : MonoBehaviour
                 { "grow_into_adult_duration_seconds", populationGrowIntoAdultDurationSeconds },
             };
 
-            WriteFile("Statistics", data);
+            string fileName = fileNamePrefix.Length > 0 ? "Statistics-" + fileNamePrefix : "Statistics";
+            WriteFile(fileName, data);
             writeToCSVIntervalCounter = 0;
 
             // clear out all current data
