@@ -18,6 +18,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
 
         agent = GetComponent<NavMeshAgent>();
         agent.updatePosition = false;
+        agent.updateRotation = true;
 
         lookAt = GetComponent<LookAt>();
     }
@@ -33,12 +34,16 @@ public class LocomotionSimpleAgent : MonoBehaviour
             return;
         }
 
-        Vector3 rootPosition = animator.rootPosition;
+        // pull animator towards agent (agent controls position, will cause leg sliding)
+        animator.rootPosition = agent.nextPosition;
 
-        rootPosition.y = agent.nextPosition.y;
-        transform.position = rootPosition;
-        transform.rotation = animator.rootRotation;
-        agent.nextPosition = rootPosition;
+        // pull agent towards animator (animator controls position)
+        // Vector3 rootPosition = animator.rootPosition;
+
+        // rootPosition.y = agent.nextPosition.y;
+        // transform.position = rootPosition;
+        // transform.rotation = animator.rootRotation;
+        // agent.nextPosition = rootPosition;
     }
 
     void UpdateAnimation()

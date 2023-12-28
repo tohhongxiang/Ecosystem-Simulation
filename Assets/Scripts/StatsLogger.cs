@@ -13,13 +13,14 @@ public class StatsLogger : MonoBehaviour
     private float getAverageIntervalCounter = 0;
     private float writeToCSVIntervalCounter = 0;
 
+    private List<object> populationSpeed = new List<object>();
     private List<object> populationHealth = new List<object>();
     private List<object> populationCount = new List<object>();
     private List<object> populationMatingCooldownSeconds = new List<object>();
     private List<object> populationReproductionTimeSeconds = new List<object>();
     private List<object> populationGrowIntoAdultDurationSeconds = new List<object>();
 
-    private String startOfExperiment;
+    private string startOfExperiment;
 
     void Start() {
         startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss-ffff");
@@ -36,6 +37,7 @@ public class StatsLogger : MonoBehaviour
             {
                 { "population", populationCount },
                 { "health", populationHealth },
+                { "speed", populationSpeed },
                 { "mating_cooldown_seconds", populationMatingCooldownSeconds },
                 { "reproduction_time_seconds", populationReproductionTimeSeconds },
                 { "grow_into_adult_duration_seconds", populationGrowIntoAdultDurationSeconds },
@@ -47,6 +49,7 @@ public class StatsLogger : MonoBehaviour
             // clear out all current data
             populationCount.Clear();
             populationHealth.Clear();
+            populationSpeed.Clear();
             populationMatingCooldownSeconds.Clear();
             populationReproductionTimeSeconds.Clear();
             populationGrowIntoAdultDurationSeconds.Clear();
@@ -59,6 +62,9 @@ public class StatsLogger : MonoBehaviour
             if (childrenAgentBehavior.Length == 0) { // everything is dead
                 return;
             }
+
+            float averageSpeed = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.speed).ToList().Average();
+            populationSpeed.Add(averageSpeed);
 
             float averageMaxHealth = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.maxHealth).ToList().Average();
             populationHealth.Add(averageMaxHealth);

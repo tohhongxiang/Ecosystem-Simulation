@@ -11,6 +11,7 @@ public enum Gender { MALE, FEMALE };
 public class AgentStats
 {
     // stats that can change between instances
+    public float speed = 1;
     public float maxHealth = 100;
     public float maxHunger = 100;
     public float maxThirst = 100;
@@ -19,6 +20,8 @@ public class AgentStats
     public float growIntoAdultDurationSeconds = 30;
     public Gender gender = Gender.MALE;
 
+    private readonly float maxSpeed = 5.0f;
+    private readonly float minSpeed = 0.2f;
     private readonly float maxMaxHealth = 200;
     private readonly float minMaxHealth = 50;
     private readonly float maxMaxHunger = 50;
@@ -32,8 +35,9 @@ public class AgentStats
     private readonly float maxGrowIntoAdultDurationSeconds = 100;
     private readonly float minGrowIntoAdultDurationSeconds = 5;
 
-    public AgentStats(float maxHealth, float maxHunger, float maxThirst, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
+    public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
+        this.speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
         this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         this.maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
         this.maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
@@ -50,6 +54,7 @@ public class AgentStats
         // choose from one of the parents
         gender = (Gender)Random.Range(0, System.Enum.GetValues(typeof(Gender)).Length); // random gender
 
+        speed = parents[Random.Range(0, parents.Length)].speed;
         maxHealth = parents[Random.Range(0, parents.Length)].maxHealth;
         maxHunger = parents[Random.Range(0, parents.Length)].maxHunger;
         maxThirst = parents[Random.Range(0, parents.Length)].maxThirst;
@@ -58,14 +63,19 @@ public class AgentStats
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
 
         // random perturbations
-        maxHealth *= Random.Range(0.95f, 1.05f);
-        maxHunger *= Random.Range(0.95f, 1.05f);
-        maxThirst *= Random.Range(0.95f, 1.05f);
-        matingCooldownSeconds *= Random.Range(0.95f, 1.05f);
-        reproductionTimeSeconds *= Random.Range(0.95f, 1.05f);
-        growIntoAdultDurationSeconds *= Random.Range(0.95f, 1.05f);
+        float minPerturbation = 0.95f;
+        float maxPerturbation = 1.05f;
+        
+        speed *= Random.Range(minPerturbation, maxPerturbation);
+        maxHealth *= Random.Range(minPerturbation, maxPerturbation);
+        maxHunger *= Random.Range(minPerturbation, maxPerturbation);
+        maxThirst *= Random.Range(minPerturbation, maxPerturbation);
+        matingCooldownSeconds *= Random.Range(minPerturbation, maxPerturbation);
+        reproductionTimeSeconds *= Random.Range(minPerturbation, maxPerturbation);
+        growIntoAdultDurationSeconds *= Random.Range(minPerturbation, maxPerturbation);
 
         // clamp
+        speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
         maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
         maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
@@ -150,6 +160,10 @@ public class AgentBehavior : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        agent.speed = stats.speed * agent.speed;
+        agent.angularSpeed *= agent.speed;
+        agent.acceleration *= agent.speed;
+        
         animator = GetComponent<Animator>();
 
         wanderCycleTimer = wanderTimer;
