@@ -3,7 +3,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public enum Gender { MALE, FEMALE };
 
@@ -138,6 +137,7 @@ public class AgentBehavior : MonoBehaviour
 
     private readonly float foodHealthReplenish = 80;
     private readonly float waterHealthReplenish = 80;
+    private readonly float damagePerAttack = 20;
 
     private bool isChild = false;
     private float childCounter = 0;
@@ -146,7 +146,7 @@ public class AgentBehavior : MonoBehaviour
     private NavMeshAgent agent;
     private Animator animator;
 
-    public enum AgentState { EATING, DONE_EATING, DRINKING, DONE_DRINKING, MATING, DONE_MATING, WANDERING, DEAD };
+    public enum AgentState { EATING, DONE_EATING, DRINKING, DONE_DRINKING, MATING, DONE_MATING, ATTACKING, DONE_ATTACKING, WANDERING, DEAD };
     private AgentState agentState = AgentState.WANDERING;
 
     public AgentState GetAgentState()
@@ -236,6 +236,7 @@ public class AgentBehavior : MonoBehaviour
     IEnumerator HandleDeath()
     {
         agentState = AgentState.DEAD;
+        agent.isStopped = true;
         animator.SetBool("isDead", true);
 
         yield return new WaitForSeconds(1);
@@ -335,6 +336,11 @@ public class AgentBehavior : MonoBehaviour
     public bool IsTargetInteractable(GameObject target)
     {
         return Vector3.Distance(transform.position, target.transform.position) <= interactRadius;
+    }
+
+    public bool IsTargetInAttackRange(GameObject target)
+    {
+        return Vector3.Distance(transform.position, target.transform.position) <= interactRadius * 2;
     }
 
     public bool IsCoordinateInteractable(Vector3 coordinate)
@@ -522,8 +528,49 @@ public class AgentBehavior : MonoBehaviour
         SetMated(false);
     }
 
+    public void Attack(GameObject target)
+    {
+        if (agentState == AgentState.ATTACKING)
+        {
+            return;
+        }
+
+        StartCoroutine(HandleAttack(target));
+    }
+
+    IEnumerator HandleAttack(GameObject target)
+    {
+        agentState = AgentState.ATTACKING;
+
+        transform.LookAt(target.transform);
+        agent.ResetPath(); // stop moving to attack
+
+        animator.SetBool("isAttacking", true);
+
+        yield return new WaitForSeconds(1);
+
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        if (target != null) {
+            target.GetComponent<AgentBehavior>().TakeDamage(damagePerAttack);
+        }
+
+        animator.SetBool("isAttacking", false);
+        hunger = Mathf.Min(hunger + damagePerAttack, stats.maxHunger);
+        agentState = AgentState.DONE_ATTACKING;
+    }
+
+    public void TakeDamage(float damagePerAttack) {
+        health -= damagePerAttack;
+    }
+
     public void BlacklistTarget(GameObject target)
     {
         blacklistedTargets.Add(target);
     }
+
+    
 }

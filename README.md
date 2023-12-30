@@ -23,6 +23,7 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [How to Animate Characters in Unity 3D | Animation Transitions With Booleans](https://www.youtube.com/watch?v=FF6kezDQZ7s)
 - [How to Animate Characters in Unity 3D | Blend Trees Explained: One Dimensional](https://www.youtube.com/watch?v=m8rGyoStfgQ)
 - [How To Animate Characters In Unity 3D | Animation Layers Explained](https://www.youtube.com/watch?v=W0eRZGS6dhQ)
+- [Make Animation Loop](https://discussions.unity.com/t/animation-loop/34663)
 
 ## NavMesh and Autonomous Agents
 
@@ -40,6 +41,3 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 
 - [Unity Tutorial - How to make Enemy Healthbars](https://www.youtube.com/watch?v=ZYeXmze5gxg)
 - [How to make a HEALTH BAR in Unity!](https://www.youtube.com/watch?v=BLfNP4Sc_iA)
-
-TODO:
-- After mating, should create a child with parameters from both parents

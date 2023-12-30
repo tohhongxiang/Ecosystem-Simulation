@@ -22,13 +22,13 @@ public class BearBehaviorTree : BehaviorTree.Tree
             }),
             new Sequence(new List<Node> {
                 new CheckIfHungry(agentBehavior),
-                new CheckFoodInInteractableRange(agentBehavior),
-                new TaskEat(agentBehavior),
+                new CheckFoodInAttackRange(agentBehavior),
+                new TaskAttack(agentBehavior),
             }),
             new Sequence(new List<Node> {
                 new CheckIfHungry(agentBehavior),
                 new CheckFoodInFOVRange(agentBehavior),
-                new TaskGoToFood(agentBehavior),
+                new TaskPursueFood(agentBehavior),
             }),
             new Sequence(new List<Node> {
                 new CheckIfThirsty(agentBehavior),
