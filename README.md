@@ -42,3 +42,5 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 
 - [Unity Tutorial - How to make Enemy Healthbars](https://www.youtube.com/watch?v=ZYeXmze5gxg)
 - [How to make a HEALTH BAR in Unity!](https://www.youtube.com/watch?v=BLfNP4Sc_iA)
+
+TODO: Bears atatcking should not increase their hunger meter up. Only when the bear kills the deer

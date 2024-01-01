@@ -26,18 +26,24 @@ public class BearBehaviorTree : BehaviorTree.Tree
                 new TaskAttack(agentBehavior),
             }),
             new Sequence(new List<Node> {
-                new CheckIfHungry(agentBehavior),
-                new Inverter(new CheckIfRecovering(agentBehavior)),
-                new CheckFoodInFOVRange(agentBehavior),
-                new TaskPursueFood(agentBehavior),
-            }),
-            new Sequence(new List<Node> {
                 new CheckIfThirsty(agentBehavior),
                 new CheckWaterInInteractableRange(agentBehavior),
                 new TaskDrink(agentBehavior),
             }),
             new Sequence(new List<Node> {
-                new CheckIfThirsty(agentBehavior), // check again in case agent is already there
+                new Selector(new List<Node> {
+                    new CheckIfHungry(agentBehavior),
+                    new Inverter(new CheckIfNeedWater(agentBehavior)),
+                }),
+                new Inverter(new CheckIfRecovering(agentBehavior)),
+                new CheckFoodInFOVRange(agentBehavior),
+                new TaskPursueFood(agentBehavior),
+            }),
+            new Sequence(new List<Node> {
+                new Selector(new List<Node> {
+                    new CheckIfThirsty(agentBehavior),
+                    new Inverter(new CheckIfNeedFood(agentBehavior)),
+                }),
                 new CheckWaterInFOVRange(agentBehavior),
                 new TaskGoToWater(agentBehavior),
             }),

@@ -20,8 +20,17 @@ public class TaskGoToWater : Node
             state = NodeState.FAILURE;
             return state;
         }
+
         Vector3 g = (Vector3)GetData("water");
-        _agentBehavior.Seek(g);
+        
+        // water is too far already
+        if (Vector3.Distance(g, _agentBehavior.gameObject.transform.position) > _agentBehavior.stats.fovRange) {
+            ClearData("water");
+            state = NodeState.FAILURE;
+            return state;
+        }
+        
+        _agentBehavior.GoToWater(g);
 
         state = NodeState.RUNNING;
         return state;

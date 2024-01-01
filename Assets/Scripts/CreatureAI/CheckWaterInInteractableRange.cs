@@ -19,7 +19,16 @@ public class CheckWaterInInteractableRange : Node
             return state;
         }
 
-        if (_agentBehavior.IsAtDestination() && _agentBehavior.IsCoordinateInteractable((Vector3)GetData("water"))) {
+        Vector3 waterPoint = (Vector3)GetData("water");
+        if (_agentBehavior.IsAtDestination() && !_agentBehavior.IsCoordinateInteractable(waterPoint)) {
+            _agentBehavior.BlacklistWaterPoint(waterPoint); // water point is unreachable, hence blacklist it
+            ClearData("water");
+
+            state = NodeState.FAILURE;
+            return state;
+        }
+
+        if (_agentBehavior.IsAtDestination() && _agentBehavior.IsCoordinateInteractable(waterPoint)) {
             state = NodeState.SUCCESS;
             return state;
         }

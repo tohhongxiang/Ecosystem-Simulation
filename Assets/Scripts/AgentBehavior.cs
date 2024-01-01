@@ -149,7 +149,7 @@ public class AgentBehavior : MonoBehaviour
     public bool GetIsRecovering() {
         return isRecovering;
     }
-    private readonly float staminaRecoveryThreshold = 0.5f;
+    private readonly float staminaRecoveryThreshold = 0.9f;
 
     private bool justMatedRecently = false;
     public bool IsJustMatedRecently() {
@@ -170,7 +170,13 @@ public class AgentBehavior : MonoBehaviour
     private NavMeshAgent agent;
     private Animator animator;
 
-    public enum AgentState { EATING, DONE_EATING, DRINKING, DONE_DRINKING, MATING, DONE_MATING, ATTACKING, DONE_ATTACKING, WANDERING, RUNNING, DEAD };
+    public enum AgentState { 
+        EATING, DONE_EATING, 
+        DRINKING, DONE_DRINKING, 
+        MATING, DONE_MATING, 
+        ATTACKING, DONE_ATTACKING, 
+        WANDERING, GOING_TO_FOOD, GOING_TO_WATER, RUNNING, DEAD 
+    };
     private AgentState agentState = AgentState.WANDERING;
 
     public AgentState GetAgentState()
@@ -179,6 +185,7 @@ public class AgentBehavior : MonoBehaviour
     }
 
     private readonly HashSet<GameObject> blacklistedTargets = new HashSet<GameObject>();
+    private readonly HashSet<Vector3> blacklistedWaterPoints = new HashSet<Vector3>();
 
     // Start is called before the first frame update
     void Start()
@@ -272,7 +279,7 @@ public class AgentBehavior : MonoBehaviour
         }
     }
 
-    public void Die()
+    private void Die()
     {
         StartCoroutine(HandleDeath());
     }
@@ -293,15 +300,25 @@ public class AgentBehavior : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Seek(Vector3 location)
+    private void Seek(Vector3 location)
     {
         agent.SetDestination(location);
     }
 
-    public void Flee(Vector3 location)
+    private void Flee(Vector3 location)
     {
         Vector3 fleeVector = location - transform.position;
         Seek(transform.position - fleeVector);
+    }
+
+    public void GoToFood(GameObject target) {
+        agentState = AgentState.GOING_TO_FOOD;
+        Seek(target.transform.position);
+    }
+
+    public void GoToWater(Vector3 waterLocation) {
+        agentState = AgentState.GOING_TO_WATER;
+        Seek(waterLocation);
     }
 
     public void Pursue(Transform target)
@@ -374,7 +391,7 @@ public class AgentBehavior : MonoBehaviour
     {
         List<Vector3> waters = WaterGenerator.Instance.GetAccessibleWaterPoints();
         waters = waters
-            .Where((d) => (d - transform.position).sqrMagnitude <= stats.fovRange * stats.fovRange)
+            .Where((d) => (d - transform.position).sqrMagnitude <= stats.fovRange * stats.fovRange && !blacklistedWaterPoints.Contains(d))
             .OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
         return waters;
     }
@@ -614,16 +631,19 @@ public class AgentBehavior : MonoBehaviour
         }
 
         if (target != null) {
-            target.GetComponent<AgentBehavior>().TakeDamage(damagePerAttack);
+            float remainingHealth = target.GetComponent<AgentBehavior>().TakeDamage(damagePerAttack);
+            if (remainingHealth < 0) {
+                hunger = Mathf.Min(hunger + foodHealthReplenish * 2, stats.maxHunger);
+            }
         }
 
         animator.SetBool("isAttacking", false);
-        hunger = Mathf.Min(hunger + damagePerAttack, stats.maxHunger);
         agentState = AgentState.DONE_ATTACKING;
     }
 
-    public void TakeDamage(float damagePerAttack) {
+    public float TakeDamage(float damagePerAttack) {
         health -= damagePerAttack;
+        return health;
     }
 
     public void BlacklistTarget(GameObject target)
@@ -631,5 +651,7 @@ public class AgentBehavior : MonoBehaviour
         blacklistedTargets.Add(target);
     }
 
-    
+    public void BlacklistWaterPoint(Vector3 target) {
+        blacklistedWaterPoints.Add(target);
+    }
 }
