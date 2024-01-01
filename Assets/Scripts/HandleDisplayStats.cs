@@ -50,28 +50,34 @@ public class HandleDisplayStats : MonoBehaviour
     {
         switch (agentState)
         {
+            case AgentBehavior.AgentState.GOING_TO_FOOD:
+                return "To Food";
             case AgentBehavior.AgentState.EATING:
                 return "Eating";
             case AgentBehavior.AgentState.DONE_EATING:
                 return "Done Eating";
+
+            case AgentBehavior.AgentState.GOING_TO_WATER:
+                return "To Water";
             case AgentBehavior.AgentState.DRINKING:
                 return "Drinking";
             case AgentBehavior.AgentState.DONE_DRINKING:
                 return "Done Drinking";
+
+            case AgentBehavior.AgentState.GOING_TO_MATE:
+                return "To Mate";
             case AgentBehavior.AgentState.MATING:
                 return "Mating";
             case AgentBehavior.AgentState.DONE_MATING:
                 return "Done Mating";
+
             case AgentBehavior.AgentState.ATTACKING:
                 return "Attacking";
             case AgentBehavior.AgentState.DONE_ATTACKING:
                 return "Done attacking";
+                
             case AgentBehavior.AgentState.WANDERING:
                 return "Wandering";
-            case AgentBehavior.AgentState.GOING_TO_FOOD:
-                return "To Food";
-            case AgentBehavior.AgentState.GOING_TO_WATER:
-                return "To Water";
             case AgentBehavior.AgentState.RUNNING:
                 return "Running";
             case AgentBehavior.AgentState.DEAD:

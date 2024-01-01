@@ -22,23 +22,23 @@ public class AgentStats
     public Gender gender = Gender.MALE;
 
     private readonly float maxSpeed = 5.0f;
-    private readonly float minSpeed = 0.2f;
-    private readonly float maxMaxHealth = 200;
-    private readonly float minMaxHealth = 50;
-    private readonly float maxMaxHunger = 50;
+    private readonly float minSpeed = 0.1f;
+    private readonly float maxMaxHealth = 1000;
+    private readonly float minMaxHealth = 10;
+    private readonly float maxMaxHunger = 1000;
     private readonly float minMaxHunger = 10;
-    private readonly float maxMaxThirst = 50;
+    private readonly float maxMaxThirst = 1000;
     private readonly float minMaxThirst = 10;
-    private readonly float minMaxStamina = 10;
     private readonly float maxMaxStamina = 1000;
-    private readonly float minFovRange = 1;
+    private readonly float minMaxStamina = 10;
     private readonly float maxFovRange = 100;
-    private readonly float maxMatingCooldownSeconds = 100;
-    private readonly float minMatingCooldownSeconds = 5;
-    private readonly float minReproductionTimeSeconds = 3;
+    private readonly float minFovRange = 1;
+    private readonly float maxMatingCooldownSeconds = 1000;
+    private readonly float minMatingCooldownSeconds = 10;
     private readonly float maxReproductionTimeSeconds = 10;
-    private readonly float maxGrowIntoAdultDurationSeconds = 100;
-    private readonly float minGrowIntoAdultDurationSeconds = 5;
+    private readonly float minReproductionTimeSeconds = 1;
+    private readonly float maxGrowIntoAdultDurationSeconds = 1000;
+    private readonly float minGrowIntoAdultDurationSeconds = 10;
 
     public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float maxStamina, float fovRange, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
@@ -72,8 +72,8 @@ public class AgentStats
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
 
         // random perturbations
-        float minPerturbation = 0.95f;
-        float maxPerturbation = 1.05f;
+        float minPerturbation = 0.5f;
+        float maxPerturbation = 1.5f;
         
         speed *= Random.Range(minPerturbation, maxPerturbation);
         maxHealth *= Random.Range(minPerturbation, maxPerturbation);
@@ -106,11 +106,6 @@ public class AgentBehavior : MonoBehaviour
     [SerializeField] public string predatorTag = "";
     private float interactRadius;
     private float reproduceRadius;
-
-    [Header("Wander Parameters")]
-    [SerializeField] private float wanderRadius = 10;
-    [SerializeField] private float wanderTimer = 5.0f;
-    private float wanderCycleTimer;
 
     [Header("Stats")]
     public AgentStats stats;
@@ -161,7 +156,7 @@ public class AgentBehavior : MonoBehaviour
 
     private readonly float foodHealthReplenish = 80;
     private readonly float waterHealthReplenish = 80;
-    private readonly float damagePerAttack = 20;
+    private readonly float damagePerAttack = 200;
 
     private bool isChild = false;
     private float childCounter = 0;
@@ -171,11 +166,11 @@ public class AgentBehavior : MonoBehaviour
     private Animator animator;
 
     public enum AgentState { 
-        EATING, DONE_EATING, 
-        DRINKING, DONE_DRINKING, 
-        MATING, DONE_MATING, 
+        GOING_TO_FOOD, EATING, DONE_EATING, 
+        GOING_TO_WATER, DRINKING, DONE_DRINKING, 
+        GOING_TO_MATE, MATING, DONE_MATING, 
         ATTACKING, DONE_ATTACKING, 
-        WANDERING, GOING_TO_FOOD, GOING_TO_WATER, RUNNING, DEAD 
+        WANDERING, RUNNING, DEAD 
     };
     private AgentState agentState = AgentState.WANDERING;
 
@@ -195,7 +190,6 @@ public class AgentBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         animator.SetFloat("speed", stats.speed);
 
-        wanderCycleTimer = wanderTimer;
         interactRadius = agent.stoppingDistance + agent.radius + 0.1f;
         reproduceRadius = agent.stoppingDistance + 2 * agent.radius;
 
@@ -292,11 +286,6 @@ public class AgentBehavior : MonoBehaviour
 
         yield return new WaitForSeconds(1);
 
-        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
-
         Destroy(gameObject);
     }
 
@@ -319,6 +308,11 @@ public class AgentBehavior : MonoBehaviour
     public void GoToWater(Vector3 waterLocation) {
         agentState = AgentState.GOING_TO_WATER;
         Seek(waterLocation);
+    }
+
+    public void GoToMate(GameObject mate) {
+        agentState = AgentState.GOING_TO_MATE;
+        Seek(mate.transform.position);
     }
 
     public void Pursue(Transform target)
@@ -357,13 +351,10 @@ public class AgentBehavior : MonoBehaviour
     public void Wander()
     {
         agentState = AgentState.WANDERING;
-        wanderCycleTimer += Time.deltaTime;
-
-        if (wanderCycleTimer >= wanderTimer || agent.remainingDistance <= agent.stoppingDistance)
+        if (agent.remainingDistance <= agent.stoppingDistance)
         {
-            Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
+            Vector3 newPos = RandomNavSphere(transform.position, stats.fovRange);
             agent.SetDestination(newPos);
-            wanderCycleTimer = 0;
         }
     }
 
@@ -491,13 +482,12 @@ public class AgentBehavior : MonoBehaviour
         agentState = AgentState.DONE_DRINKING;
     }
 
-    private static Vector3 RandomNavSphere(Vector3 origin, float dist, int layerMask)
+    private static Vector3 RandomNavSphere(Vector3 origin, float dist)
     {
         Vector3 randDirection = Random.insideUnitSphere * dist;
         randDirection += origin;
 
-        NavMeshHit navHit;
-        NavMesh.SamplePosition(randDirection, out navHit, dist, layerMask);
+        NavMesh.SamplePosition(randDirection, out NavMeshHit navHit, dist, NavMesh.AllAreas);
         return navHit.position;
     }
 

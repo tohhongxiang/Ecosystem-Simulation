@@ -24,8 +24,7 @@ public class TaskGoToMate : Node
             return state;
         }
 
-        Transform target = g.transform;
-        _agentBehavior.Pursue(target.transform);
+        _agentBehavior.GoToMate(g);
 
         state = NodeState.RUNNING;
         return state;

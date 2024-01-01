@@ -37,6 +37,7 @@ public class TerrainGenerator : MonoBehaviour
                 meshObject.transform.parent = gameObject.transform;
                 meshObject.transform.localScale = Vector3.one * meshSettings.scale;
                 meshObject.tag = "Terrain";
+                meshObject.layer = gameObject.layer;
 
                 // create meshrenderer to apply material
                 MeshRenderer meshRenderer = meshObject.AddComponent<MeshRenderer>();

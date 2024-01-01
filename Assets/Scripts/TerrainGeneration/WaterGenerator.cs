@@ -36,6 +36,7 @@ public class WaterGenerator : TerrainObjectGenerator
 
         Vector3 chunkCenterWithoutVertical = new Vector3(bounds.center.x, bounds.center.y, bounds.center.z);
         GameObject spawnedWater = Instantiate(waterPrefab, chunkCenterWithoutVertical, Quaternion.identity, gameObject.transform);
+        spawnedWater.layer = gameObject.layer;
 
         // a plane with the same scale as a cube, is 10 times as large
         Vector3 spawnedWaterScale = bounds.size / planeSizeMultiplier;

@@ -14,10 +14,13 @@ public class StatsLogger : MonoBehaviour
     private float getAverageIntervalCounter = 0;
     private float writeToCSVIntervalCounter = 0;
 
+    private List<object> populationCount = new List<object>();
     private List<object> populationSpeed = new List<object>();
     private List<object> populationHealth = new List<object>();
+    private List<object> populationHunger = new List<object>();
+    private List<object> populationThirst = new List<object>();
+    private List<object> populationStamina = new List<object>();
     private List<object> populationFovRange = new List<object>();
-    private List<object> populationCount = new List<object>();
     private List<object> populationMatingCooldownSeconds = new List<object>();
     private List<object> populationReproductionTimeSeconds = new List<object>();
     private List<object> populationGrowIntoAdultDurationSeconds = new List<object>();
@@ -39,8 +42,11 @@ public class StatsLogger : MonoBehaviour
             Dictionary<string, List<object>> data = new Dictionary<string, List<object>>
             {
                 { "population", populationCount },
-                { "health", populationHealth },
                 { "speed", populationSpeed },
+                { "health", populationHealth },
+                { "hunger", populationHunger },
+                { "thirst", populationThirst },
+                { "stamina", populationStamina },
                 { "fovRange", populationFovRange },
                 { "mating_cooldown_seconds", populationMatingCooldownSeconds },
                 { "reproduction_time_seconds", populationReproductionTimeSeconds },
@@ -52,8 +58,11 @@ public class StatsLogger : MonoBehaviour
 
             // clear out all current data
             populationCount.Clear();
-            populationHealth.Clear();
             populationSpeed.Clear();
+            populationHealth.Clear();
+            populationHunger.Clear();
+            populationThirst.Clear();
+            populationStamina.Clear();
             populationFovRange.Clear();
             populationMatingCooldownSeconds.Clear();
             populationReproductionTimeSeconds.Clear();
@@ -68,13 +77,22 @@ public class StatsLogger : MonoBehaviour
                 return;
             }
 
+            populationCount.Add(childrenAgentBehavior.Count());
+
             float averageSpeed = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.speed).ToList().Average();
             populationSpeed.Add(averageSpeed);
 
             float averageMaxHealth = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.maxHealth).ToList().Average();
             populationHealth.Add(averageMaxHealth);
 
-            populationCount.Add(childrenAgentBehavior.Count());
+            float averageMaxHunger = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.maxHunger).ToList().Average();
+            populationHunger.Add(averageMaxHunger);
+
+            float averageMaxThirst = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.maxThirst).ToList().Average();
+            populationThirst.Add(averageMaxThirst);
+
+            float averageMaxStamina = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.maxStamina).ToList().Average();
+            populationStamina.Add(averageMaxStamina);
 
             float averageFovRange = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.fovRange).ToList().Average();
             populationFovRange.Add(averageFovRange);

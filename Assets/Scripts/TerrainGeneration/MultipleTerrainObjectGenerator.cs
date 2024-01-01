@@ -142,6 +142,10 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 
     public override void ClearObjects()
     {
+        if (transform == null || transform.childCount == 0) {
+            return;
+        }
+        
         while (transform.childCount != 0)
         {
             DestroyImmediate(transform.GetChild(0).gameObject);

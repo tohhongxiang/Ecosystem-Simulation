@@ -1452,8 +1452,6 @@ MonoBehaviour:
   foodTag: Food
   waterTag: Water
   predatorTag: Bear
-  wanderRadius: 10
-  wanderTimer: 5
   stats:
     speed: 0
     maxHealth: 100
@@ -3397,7 +3395,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terainMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 512
 --- !u!1 &6857969378000975686
 GameObject:
   m_ObjectHideFlags: 0
