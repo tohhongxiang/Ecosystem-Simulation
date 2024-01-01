@@ -14,6 +14,7 @@ public class AgentStats
     public float maxHealth = 100;
     public float maxHunger = 100;
     public float maxThirst = 100;
+    public float fovRange = 10;
     public float matingCooldownSeconds = 30;
     public float reproductionTimeSeconds = 5;
     public float growIntoAdultDurationSeconds = 30;
@@ -27,6 +28,8 @@ public class AgentStats
     private readonly float minMaxHunger = 10;
     private readonly float maxMaxThirst = 50;
     private readonly float minMaxThirst = 10;
+    private readonly float minFovRange = 1;
+    private readonly float maxFovRange = 100;
     private readonly float maxMatingCooldownSeconds = 100;
     private readonly float minMatingCooldownSeconds = 5;
     private readonly float minReproductionTimeSeconds = 3;
@@ -34,12 +37,13 @@ public class AgentStats
     private readonly float maxGrowIntoAdultDurationSeconds = 100;
     private readonly float minGrowIntoAdultDurationSeconds = 5;
 
-    public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
+    public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float fovRange, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
         this.speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
         this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         this.maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
         this.maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
+        this.fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
         this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         this.reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         this.growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
@@ -57,6 +61,7 @@ public class AgentStats
         maxHealth = parents[Random.Range(0, parents.Length)].maxHealth;
         maxHunger = parents[Random.Range(0, parents.Length)].maxHunger;
         maxThirst = parents[Random.Range(0, parents.Length)].maxThirst;
+        fovRange = parents[Random.Range(0, parents.Length)].fovRange;
         matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
         reproductionTimeSeconds = parents[Random.Range(0, parents.Length)].reproductionTimeSeconds;
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
@@ -69,6 +74,7 @@ public class AgentStats
         maxHealth *= Random.Range(minPerturbation, maxPerturbation);
         maxHunger *= Random.Range(minPerturbation, maxPerturbation);
         maxThirst *= Random.Range(minPerturbation, maxPerturbation);
+        fovRange *= Random.Range(minPerturbation, maxPerturbation);
         matingCooldownSeconds *= Random.Range(minPerturbation, maxPerturbation);
         reproductionTimeSeconds *= Random.Range(minPerturbation, maxPerturbation);
         growIntoAdultDurationSeconds *= Random.Range(minPerturbation, maxPerturbation);
@@ -78,6 +84,7 @@ public class AgentStats
         maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
         maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
+        fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
         matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
@@ -90,7 +97,6 @@ public class AgentBehavior : MonoBehaviour
     [SerializeField] public string foodTag = "";
     [SerializeField] public string waterTag = "Water";
     [SerializeField] public string predatorTag = "";
-    [SerializeField] public float fovRange = 10f; // TODO move fovRange to stats
     private float interactRadius;
     private float reproduceRadius;
 
@@ -309,7 +315,7 @@ public class AgentBehavior : MonoBehaviour
 
     public List<GameObject> GetFoodInFOVRange()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange, LayerMask.GetMask(foodTag));
+        Collider[] colliders = Physics.OverlapSphere(transform.position, stats.fovRange, LayerMask.GetMask(foodTag));
         List<GameObject> foods = new List<GameObject>();
 
         foreach (Collider collider in colliders)
@@ -331,14 +337,14 @@ public class AgentBehavior : MonoBehaviour
     {
         List<Vector3> waters = WaterGenerator.Instance.GetAccessibleWaterPoints();
         waters = waters
-            .Where((d) => (d - transform.position).sqrMagnitude <= fovRange * fovRange)
+            .Where((d) => (d - transform.position).sqrMagnitude <= stats.fovRange * stats.fovRange)
             .OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
         return waters;
     }
 
     public List<GameObject> GetPredatorsInFOVRange()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange, LayerMask.GetMask(predatorTag));
+        Collider[] colliders = Physics.OverlapSphere(transform.position, stats.fovRange, LayerMask.GetMask(predatorTag));
         List<GameObject> predators = new List<GameObject>();
 
         foreach (Collider collider in colliders)
@@ -443,7 +449,8 @@ public class AgentBehavior : MonoBehaviour
 
     public List<GameObject> GetMatesInFOVRange()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange);
+        // Convert layer to layerMask https://docs.unity3d.com/Manual/layermask-set.html#:~:text=Convert%20from%20a%20layer,that%20represents%20the%20single%20layer.
+        Collider[] colliders = Physics.OverlapSphere(transform.position, stats.fovRange, 1 << gameObject.layer); // same species will be on same layer
         List<GameObject> mates = new List<GameObject>();
 
         foreach (Collider collider in colliders)
@@ -457,12 +464,10 @@ public class AgentBehavior : MonoBehaviour
             if (!partnerAgentBehavior) {
                 continue;
             }
-
-            bool sameSpecies = partnerAgentBehavior.species == species;
             bool sameGender = partnerAgentBehavior.stats.gender == stats.gender;
             bool partnerCanMate = partnerAgentBehavior.CanMate();
 
-            if (sameSpecies && partnerCanMate && !sameGender)
+            if (partnerCanMate && !sameGender)
             {
                 mates.Add(collider.gameObject);
             }

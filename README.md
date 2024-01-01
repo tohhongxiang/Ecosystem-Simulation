@@ -36,6 +36,7 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [AI in Unity Turorial. Behavior Trees.](https://www.youtube.com/watch?v=F-3nxJ2ANXg)
 - [Unity null check not working](http://anja-haumann.de/unity-null-check-not-working/)
 - [Show Only Attribute in Unity](https://discussions.unity.com/t/how-to-make-a-readonly-property-in-inspector/75448/4)
+- [Unity Navmesh AI Tutorial : Flee from Enemy](https://www.youtube.com/watch?v=Zjlg9F3FRJs)
 
 ## UI
 

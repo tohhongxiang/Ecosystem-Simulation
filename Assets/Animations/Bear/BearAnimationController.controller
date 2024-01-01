@@ -118,7 +118,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 1e03a631a11c66244b0da025f14f5845, type: 2}
-    m_Threshold: 0.2
+    m_Threshold: 0.125
     m_Position: {x: 0, y: 1}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -126,7 +126,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 32eab0b62d0fe6f4b95a5b3ca3781cae, type: 2}
-    m_Threshold: 0.4
+    m_Threshold: 0.25
     m_Position: {x: -1, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -134,7 +134,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 2892279c4c7e1784495f47984cf2fc0a, type: 2}
-    m_Threshold: 0.6
+    m_Threshold: 0.375
     m_Position: {x: 1, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -142,7 +142,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 574cd587e6bc800448fb904195a01263, type: 2}
-    m_Threshold: 0.8
+    m_Threshold: 0.5
     m_Position: {x: -0.72, y: 0.72}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -150,8 +150,32 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 44d657e60ad162342b67cd151f62616a, type: 2}
-    m_Threshold: 1
+    m_Threshold: 0.625
     m_Position: {x: 0.72, y: 0.72}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: velocityX
+    m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 7400000, guid: a37ca5c6dea5602449d0458a36c11ac9, type: 2}
+    m_Threshold: 0.75
+    m_Position: {x: 0, y: 2}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: velocityX
+    m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 7400000, guid: 972813abe59601b45a2853809358b551, type: 2}
+    m_Threshold: 0.875
+    m_Position: {x: -1.28, y: 1.67}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: velocityX
+    m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 7400000, guid: 4245281626f96364ab43dac9a47d2458, type: 2}
+    m_Threshold: 1
+    m_Position: {x: 1.28, y: 1.67}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: velocityX

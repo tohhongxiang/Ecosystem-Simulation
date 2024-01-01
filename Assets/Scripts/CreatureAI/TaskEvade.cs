@@ -17,7 +17,7 @@ public class TaskEvade : Node
         GameObject predator = (GameObject)GetData("predator");
         _agentBehavior.Evade(predator);
 
-        if (Vector3.Distance(_agentBehavior.gameObject.transform.position, predator.transform.position) > _agentBehavior.fovRange)
+        if (Vector3.Distance(_agentBehavior.gameObject.transform.position, predator.transform.position) > _agentBehavior.stats.fovRange)
         {
             ClearData("predator");
             state = NodeState.SUCCESS;

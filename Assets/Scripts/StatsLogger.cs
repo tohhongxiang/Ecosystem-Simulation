@@ -16,6 +16,7 @@ public class StatsLogger : MonoBehaviour
 
     private List<object> populationSpeed = new List<object>();
     private List<object> populationHealth = new List<object>();
+    private List<object> populationFovRange = new List<object>();
     private List<object> populationCount = new List<object>();
     private List<object> populationMatingCooldownSeconds = new List<object>();
     private List<object> populationReproductionTimeSeconds = new List<object>();
@@ -32,6 +33,7 @@ public class StatsLogger : MonoBehaviour
     {
         writeToCSVIntervalCounter += Time.deltaTime;
         if (writeToCSVIntervalCounter > writeToCSVIntervalSeconds) {
+            writeToCSVIntervalCounter = 0;
             Debug.Log("Write to csv");
 
             Dictionary<string, List<object>> data = new Dictionary<string, List<object>>
@@ -39,6 +41,7 @@ public class StatsLogger : MonoBehaviour
                 { "population", populationCount },
                 { "health", populationHealth },
                 { "speed", populationSpeed },
+                { "fovRange", populationFovRange },
                 { "mating_cooldown_seconds", populationMatingCooldownSeconds },
                 { "reproduction_time_seconds", populationReproductionTimeSeconds },
                 { "grow_into_adult_duration_seconds", populationGrowIntoAdultDurationSeconds },
@@ -46,12 +49,12 @@ public class StatsLogger : MonoBehaviour
 
             string fileName = fileNamePrefix.Length > 0 ? "Statistics-" + fileNamePrefix : "Statistics";
             WriteFile(fileName, data);
-            writeToCSVIntervalCounter = 0;
 
             // clear out all current data
             populationCount.Clear();
             populationHealth.Clear();
             populationSpeed.Clear();
+            populationFovRange.Clear();
             populationMatingCooldownSeconds.Clear();
             populationReproductionTimeSeconds.Clear();
             populationGrowIntoAdultDurationSeconds.Clear();
@@ -72,6 +75,9 @@ public class StatsLogger : MonoBehaviour
             populationHealth.Add(averageMaxHealth);
 
             populationCount.Add(childrenAgentBehavior.Count());
+
+            float averageFovRange = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.fovRange).ToList().Average();
+            populationFovRange.Add(averageFovRange);
 
             float averageMatingCooldownSeconds = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.matingCooldownSeconds).ToList().Average();
             populationMatingCooldownSeconds.Add(averageMatingCooldownSeconds);
