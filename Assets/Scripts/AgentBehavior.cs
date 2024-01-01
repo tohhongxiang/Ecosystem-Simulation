@@ -160,11 +160,9 @@ public class AgentBehavior : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = stats.speed * agent.speed;
-        agent.angularSpeed *= agent.speed;
-        agent.acceleration *= agent.speed;
         
         animator = GetComponent<Animator>();
+        animator.SetFloat("speed", stats.speed);
 
         wanderCycleTimer = wanderTimer;
         interactRadius = agent.stoppingDistance + agent.radius + 0.1f;

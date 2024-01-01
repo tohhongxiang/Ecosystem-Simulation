@@ -35,15 +35,15 @@ public class LocomotionSimpleAgent : MonoBehaviour
         }
 
         // pull animator towards agent (agent controls position, will cause leg sliding)
-        animator.rootPosition = agent.nextPosition;
+        // animator.rootPosition = agent.nextPosition;
 
         // pull agent towards animator (animator controls position)
-        // Vector3 rootPosition = animator.rootPosition;
+        Vector3 rootPosition = animator.rootPosition;
 
-        // rootPosition.y = agent.nextPosition.y;
-        // transform.position = rootPosition;
-        // transform.rotation = animator.rootRotation;
-        // agent.nextPosition = rootPosition;
+        rootPosition.y = agent.nextPosition.y;
+        transform.position = rootPosition;
+        transform.rotation = animator.rootRotation;
+        agent.nextPosition = rootPosition;
     }
 
     void UpdateAnimation()
