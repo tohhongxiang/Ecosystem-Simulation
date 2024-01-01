@@ -14,6 +14,7 @@ public class AgentStats
     public float maxHealth = 100;
     public float maxHunger = 100;
     public float maxThirst = 100;
+    public float maxStamina = 100;
     public float fovRange = 10;
     public float matingCooldownSeconds = 30;
     public float reproductionTimeSeconds = 5;
@@ -28,6 +29,8 @@ public class AgentStats
     private readonly float minMaxHunger = 10;
     private readonly float maxMaxThirst = 50;
     private readonly float minMaxThirst = 10;
+    private readonly float minMaxStamina = 10;
+    private readonly float maxMaxStamina = 1000;
     private readonly float minFovRange = 1;
     private readonly float maxFovRange = 100;
     private readonly float maxMatingCooldownSeconds = 100;
@@ -37,12 +40,13 @@ public class AgentStats
     private readonly float maxGrowIntoAdultDurationSeconds = 100;
     private readonly float minGrowIntoAdultDurationSeconds = 5;
 
-    public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float fovRange, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
+    public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float maxStamina, float fovRange, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
         this.speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
         this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         this.maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
         this.maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
+        this.maxStamina = Mathf.Clamp(maxStamina, minMaxStamina, maxMaxStamina);
         this.fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
         this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         this.reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
@@ -61,6 +65,7 @@ public class AgentStats
         maxHealth = parents[Random.Range(0, parents.Length)].maxHealth;
         maxHunger = parents[Random.Range(0, parents.Length)].maxHunger;
         maxThirst = parents[Random.Range(0, parents.Length)].maxThirst;
+        maxStamina = parents[Random.Range(0, parents.Length)].maxStamina;
         fovRange = parents[Random.Range(0, parents.Length)].fovRange;
         matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
         reproductionTimeSeconds = parents[Random.Range(0, parents.Length)].reproductionTimeSeconds;
@@ -74,6 +79,7 @@ public class AgentStats
         maxHealth *= Random.Range(minPerturbation, maxPerturbation);
         maxHunger *= Random.Range(minPerturbation, maxPerturbation);
         maxThirst *= Random.Range(minPerturbation, maxPerturbation);
+        maxStamina *= Random.Range(minPerturbation, maxPerturbation);
         fovRange *= Random.Range(minPerturbation, maxPerturbation);
         matingCooldownSeconds *= Random.Range(minPerturbation, maxPerturbation);
         reproductionTimeSeconds *= Random.Range(minPerturbation, maxPerturbation);
@@ -84,6 +90,7 @@ public class AgentStats
         maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
         maxHunger = Mathf.Clamp(maxHunger, minMaxHunger, maxMaxHunger);
         maxThirst = Mathf.Clamp(maxThirst, minMaxThirst, maxMaxThirst);
+        maxStamina = Mathf.Clamp(maxStamina, minMaxStamina, maxMaxStamina);
         fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
         matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
@@ -134,6 +141,16 @@ public class AgentBehavior : MonoBehaviour
         return thirst <= thirstThresholdPercentage * stats.maxThirst;
     }
 
+    private float stamina;
+    public float GetStamina() {
+        return stamina;
+    }
+    private bool isRecovering = false;
+    public bool GetIsRecovering() {
+        return isRecovering;
+    }
+    private readonly float staminaRecoveryThreshold = 0.5f;
+
     private bool justMatedRecently = false;
     public bool IsJustMatedRecently() {
         return justMatedRecently;
@@ -178,6 +195,7 @@ public class AgentBehavior : MonoBehaviour
         health = stats.maxHealth;
         hunger = stats.maxHunger;
         thirst = stats.maxThirst;
+        stamina = stats.maxStamina;
     }
 
     void Update()
@@ -189,10 +207,21 @@ public class AgentBehavior : MonoBehaviour
     private void HandleStatsUpdate()
     {
         // TODO scale hunger and thirst relative to speed and size
-        // TODO add stamina
         // decrease hunger and thirst all the time, stopping at 0
         hunger = Mathf.Max(hunger - Time.deltaTime, 0);
         thirst = Mathf.Max(thirst - Time.deltaTime, 0);
+
+        if (agentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f) {
+            stamina = Mathf.Max(stamina - Time.deltaTime, 0);
+            if (stamina == 0) {
+                if (!isRecovering) {
+                    isRecovering = true;
+                    StartCoroutine(HandleCheckIfRecovered());
+                }
+            }
+        } else {
+            stamina = Mathf.Min(stamina + Time.deltaTime, stats.maxStamina);
+        }
 
         if (hunger <= 0)
         {
@@ -213,6 +242,14 @@ public class AgentBehavior : MonoBehaviour
         {
             Die();
         }
+    }
+
+    IEnumerator HandleCheckIfRecovered() {
+        while (stamina < staminaRecoveryThreshold * stats.maxStamina) {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        isRecovering = false;
     }
 
     private void HandleGrowIntoAdultUpdate()

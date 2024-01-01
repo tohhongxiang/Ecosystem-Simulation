@@ -11,6 +11,7 @@ public class HandleDisplayStats : MonoBehaviour
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Slider hungerSlider;
     [SerializeField] private Slider thirstSlider;
+    [SerializeField] private Slider staminaSlider;
     [SerializeField] private TMP_Text stateText;
 
     void Start()
@@ -22,6 +23,7 @@ public class HandleDisplayStats : MonoBehaviour
         healthSlider.maxValue = agentBehavior.stats.maxHealth;
         hungerSlider.maxValue = agentBehavior.stats.maxHunger;
         thirstSlider.maxValue = agentBehavior.stats.maxThirst;
+        staminaSlider.maxValue = agentBehavior.stats.maxStamina;
 
         if (stateText != null)
         {
@@ -36,6 +38,7 @@ public class HandleDisplayStats : MonoBehaviour
         healthSlider.value = agentBehavior.GetHealth();
         hungerSlider.value = agentBehavior.GetHunger();
         thirstSlider.value = agentBehavior.GetThirst();
+        staminaSlider.value = agentBehavior.GetStamina();
 
         if (stateText != null)
         {
@@ -53,6 +56,8 @@ public class HandleDisplayStats : MonoBehaviour
                 return "Attacking";
             case AgentBehavior.AgentState.DONE_ATTACKING:
                 return "Done attacking";
+            case AgentBehavior.AgentState.RUNNING:
+                return "Running";
             default:
                 return "Default";
         }

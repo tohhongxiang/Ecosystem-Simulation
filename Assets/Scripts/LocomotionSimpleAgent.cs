@@ -70,7 +70,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
         }
 
         bool isWalking = velocity.magnitude > 0.5f && agent.remainingDistance > agent.stoppingDistance;
-        int velocityMultiplier = agentBehavior.GetAgentState() == AgentBehavior.AgentState.RUNNING ? 2 : 1;
+        int velocityMultiplier = agentBehavior.GetAgentState() == AgentBehavior.AgentState.RUNNING && !agentBehavior.GetIsRecovering() ? 2 : 1;
         animator.SetBool("isWalking", isWalking);
         animator.SetFloat("velocityX", velocity.normalized.x * velocityMultiplier);
         animator.SetFloat("velocityZ", velocity.normalized.y * velocityMultiplier);

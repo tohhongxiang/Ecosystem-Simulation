@@ -27,6 +27,7 @@ public class BearBehaviorTree : BehaviorTree.Tree
             }),
             new Sequence(new List<Node> {
                 new CheckIfHungry(agentBehavior),
+                new Inverter(new CheckIfRecovering(agentBehavior)),
                 new CheckFoodInFOVRange(agentBehavior),
                 new TaskPursueFood(agentBehavior),
             }),
