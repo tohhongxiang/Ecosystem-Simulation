@@ -21,6 +21,10 @@ public class DeerBehaviorTree : BehaviorTree.Tree
                 new TaskGoToMate(agentBehavior),
             }),
             new Sequence(new List<Node> {
+                new CheckPredatorsInRange(agentBehavior),
+                new TaskEvade(agentBehavior)
+            }),
+            new Sequence(new List<Node> {
                 new CheckIfHungry(agentBehavior),
                 new CheckFoodInInteractableRange(agentBehavior),
                 new TaskEat(agentBehavior),

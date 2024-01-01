@@ -1226,6 +1226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   foodTag: Food
   waterTag: Water
+  predatorTag: Bear
   fovRange: 10
   wanderRadius: 10
   wanderTimer: 5
@@ -1289,6 +1290,7 @@ MonoBehaviour:
   healthSlider: {fileID: 5537982809799791953}
   hungerSlider: {fileID: 6042360054065962338}
   thirstSlider: {fileID: 7718464477441704209}
+  stateText: {fileID: 0}
 --- !u!1 &2322646064995053252
 GameObject:
   m_ObjectHideFlags: 0

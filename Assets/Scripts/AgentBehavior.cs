@@ -89,7 +89,8 @@ public class AgentBehavior : MonoBehaviour
 {
     [SerializeField] public string foodTag = "";
     [SerializeField] public string waterTag = "Water";
-    [SerializeField] private float fovRange = 10f;
+    [SerializeField] public string predatorTag = "";
+    [SerializeField] public float fovRange = 10f; // TODO move fovRange to stats
     private float interactRadius;
     private float reproduceRadius;
 
@@ -146,7 +147,7 @@ public class AgentBehavior : MonoBehaviour
     private NavMeshAgent agent;
     private Animator animator;
 
-    public enum AgentState { EATING, DONE_EATING, DRINKING, DONE_DRINKING, MATING, DONE_MATING, ATTACKING, DONE_ATTACKING, WANDERING, DEAD };
+    public enum AgentState { EATING, DONE_EATING, DRINKING, DONE_DRINKING, MATING, DONE_MATING, ATTACKING, DONE_ATTACKING, WANDERING, RUNNING, DEAD };
     private AgentState agentState = AgentState.WANDERING;
 
     public AgentState GetAgentState()
@@ -175,12 +176,14 @@ public class AgentBehavior : MonoBehaviour
 
     void Update()
     {
-        HandleHealthUpdate();
+        HandleStatsUpdate();
         HandleGrowIntoAdultUpdate();
     }
 
-    private void HandleHealthUpdate()
+    private void HandleStatsUpdate()
     {
+        // TODO scale hunger and thirst relative to speed and size
+        // TODO add stamina
         // decrease hunger and thirst all the time, stopping at 0
         hunger = Mathf.Max(hunger - Time.deltaTime, 0);
         thirst = Mathf.Max(thirst - Time.deltaTime, 0);
@@ -260,6 +263,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Pursue(Transform target)
     {
+        agentState = AgentState.RUNNING;
         Vector3 targetDirection = target.transform.position - transform.position;
         float relativeHeading = Vector3.Angle(transform.forward, transform.TransformVector(target.transform.forward));
         float toTarget = Vector3.Angle(transform.forward, transform.TransformVector(targetDirection));
@@ -277,8 +281,9 @@ public class AgentBehavior : MonoBehaviour
         Seek(target.transform.position + target.transform.forward * lookAhead);
     }
 
-    public void Evade(Transform target)
+    public void Evade(GameObject target)
     {
+        agentState = AgentState.RUNNING;
         Vector3 targetDirection = target.transform.position - transform.position;
 
         NavMeshAgent targetAgent = target.GetComponent<NavMeshAgent>();
@@ -329,6 +334,20 @@ public class AgentBehavior : MonoBehaviour
             .Where((d) => (d - transform.position).sqrMagnitude <= fovRange * fovRange)
             .OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
         return waters;
+    }
+
+    public List<GameObject> GetPredatorsInFOVRange()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRange, LayerMask.GetMask(predatorTag));
+        List<GameObject> predators = new List<GameObject>();
+
+        foreach (Collider collider in colliders)
+        {
+            // TODO add if predator is chasing self
+            predators.Add(collider.gameObject);        }
+
+        predators = predators.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
+        return predators;
     }
 
     public bool IsTargetInteractable(GameObject target)
