@@ -29,6 +29,7 @@ public class StatsLogger : MonoBehaviour
 
     void Start() {
         startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss-ffff");
+        getAverageIntervalCounter = getAverageIntervalSeconds; // trigger collecting data from t = 0
     }
 
     // Update is called once per frame

@@ -4,6 +4,7 @@ using UnityEngine;
 
 using BehaviorTree;
 using Unity.VisualScripting;
+using UnityEngine.AI;
 
 public class CheckWaterInInteractableRange : Node
 {
@@ -20,7 +21,12 @@ public class CheckWaterInInteractableRange : Node
         }
 
         Vector3 waterPoint = (Vector3)GetData("water");
-        if (_agentBehavior.IsAtDestination() && !_agentBehavior.IsCoordinateInteractable(waterPoint)) {
+        if (_agentBehavior.IsCoordinateInteractable(waterPoint)) {
+            state = NodeState.SUCCESS;
+            return state;
+        }
+
+        if (_agentBehavior.IsAtDestination()) {
             _agentBehavior.BlacklistWaterPoint(waterPoint); // water point is unreachable, hence blacklist it
             ClearData("water");
 
@@ -28,10 +34,6 @@ public class CheckWaterInInteractableRange : Node
             return state;
         }
 
-        if (_agentBehavior.IsAtDestination() && _agentBehavior.IsCoordinateInteractable(waterPoint)) {
-            state = NodeState.SUCCESS;
-            return state;
-        }
 
         state = NodeState.FAILURE;
         return state;

@@ -13,7 +13,7 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
     [Range(0, 1)] public float maximumSpawnHeight = 1;
 
     [Header("Randomisation Parameters")]
-    [Tooltip("Total prefabs to spawn")] public float count = 1;
+    [Tooltip("Total prefabs to spawn")] public int count = 1;
     const int maxTries = 10;
 
     public override void SpawnObjects(Bounds spawnAreaBounds)

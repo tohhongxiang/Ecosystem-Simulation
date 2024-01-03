@@ -30,7 +30,7 @@ public class AgentStats
     private readonly float maxMaxThirst = 1000;
     private readonly float minMaxThirst = 10;
     private readonly float maxMaxStamina = 1000;
-    private readonly float minMaxStamina = 10;
+    private readonly float minMaxStamina = 1;
     private readonly float maxFovRange = 100;
     private readonly float minFovRange = 1;
     private readonly float maxMatingCooldownSeconds = 1000;
@@ -344,8 +344,13 @@ public class AgentBehavior : MonoBehaviour
         float targetSpeed = targetAgent == null ? 0 : targetAgent.speed;
 
         float lookAhead = targetDirection.magnitude / (agent.speed + targetSpeed);
+        Vector3 targetToRunTo = target.transform.position + target.transform.forward * lookAhead;
 
-        Flee(target.transform.position + target.transform.forward * lookAhead);
+        if (Vector3.Distance(targetToRunTo, transform.position) < 1.0f) { // if stuck, choose a random direction to run towards
+            targetToRunTo = RandomNavSphere(target.transform.position, stats.fovRange);
+        }
+
+        Flee(targetToRunTo);
     }
 
     public void Wander()
@@ -482,12 +487,12 @@ public class AgentBehavior : MonoBehaviour
         agentState = AgentState.DONE_DRINKING;
     }
 
-    private static Vector3 RandomNavSphere(Vector3 origin, float dist)
+    private Vector3 RandomNavSphere(Vector3 origin, float dist)
     {
         Vector3 randDirection = Random.insideUnitSphere * dist;
         randDirection += origin;
 
-        NavMesh.SamplePosition(randDirection, out NavMeshHit navHit, dist, NavMesh.AllAreas);
+        NavMesh.SamplePosition(randDirection, out NavMeshHit navHit, 2 * agent.height, NavMesh.AllAreas);
         return navHit.position;
     }
 
@@ -534,7 +539,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool CanMate()
     {
-        return !justMatedRecently && !isChild;
+        return !justMatedRecently && !isChild && !IsHungry() && !IsThirsty();
     }
 
     IEnumerator HandleMating(GameObject mate)
@@ -636,12 +641,27 @@ public class AgentBehavior : MonoBehaviour
         return health;
     }
 
+    private readonly float forgetTime = 30f;
     public void BlacklistTarget(GameObject target)
     {
         blacklistedTargets.Add(target);
+        StartCoroutine(ForgetBlacklistedTarget(target));
+    }
+
+    IEnumerator ForgetBlacklistedTarget(GameObject target) {
+        yield return new WaitForSeconds(forgetTime);
+
+        blacklistedTargets.Remove(target);
     }
 
     public void BlacklistWaterPoint(Vector3 target) {
         blacklistedWaterPoints.Add(target);
+        StartCoroutine(ForgetBlacklistedWaterPoint(target));
+    }
+
+    IEnumerator ForgetBlacklistedWaterPoint(Vector3 target) {
+        yield return new WaitForSeconds(forgetTime);
+
+        blacklistedWaterPoints.Remove(target);
     }
 }

@@ -4,7 +4,6 @@ using System.Collections;
 public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 {
     public GameObject[] prefabs;
-    [TagSelector] public string newTag;
 
     [Header("Constraints")]
     [Range(0, 1)] public float minimumSpawnHeight = 0;
@@ -122,14 +121,6 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
             GameObject instantiatedPrefab = Instantiate(prefab, hitPosition + offsetFromGround, Quaternion.identity, gameObject.transform);
             instantiatedPrefab.transform.rotation = Quaternion.FromToRotation(Vector3.up, finalRotation);
             instantiatedPrefab.layer = gameObject.layer;
-            if (newTag.Length > 0)
-            {
-                instantiatedPrefab.tag = newTag;
-            }
-            else
-            {
-                instantiatedPrefab.tag = "Untagged";
-            }
 
             Vector3 scale = new Vector3(Random.Range(minScale, maxScale), Random.Range(minScale, maxScale), Random.Range(minScale, maxScale));
             instantiatedPrefab.transform.localScale = scale;
@@ -142,7 +133,7 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 
     public override void ClearObjects()
     {
-        if (transform == null || transform.childCount == 0) {
+        if (transform == null) {
             return;
         }
         

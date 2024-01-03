@@ -25,8 +25,8 @@ public class CheckFoodInInteractableRange : Node
             return state;
         }
 
-        if (_agentBehavior.IsAtDestination() && !_agentBehavior.IsTargetInteractable(target)) {
-            _agentBehavior.BlacklistTarget(target); // target is unreachable, hence blacklist it
+        if (_agentBehavior.IsAtDestination()) {
+            _agentBehavior.BlacklistTarget(target); // we are there, but cannot interact
             ClearData("target");
 
             state = NodeState.FAILURE;
