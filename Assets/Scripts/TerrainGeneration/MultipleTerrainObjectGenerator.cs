@@ -133,7 +133,7 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 
     public override void ClearObjects()
     {
-        if (transform == null) {
+        if (gameObject == null) {
             return;
         }
         

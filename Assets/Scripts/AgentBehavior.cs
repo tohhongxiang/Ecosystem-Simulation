@@ -74,7 +74,7 @@ public class AgentStats
         // random perturbations
         float minPerturbation = 0.5f;
         float maxPerturbation = 1.5f;
-        
+
         speed *= Random.Range(minPerturbation, maxPerturbation);
         maxHealth *= Random.Range(minPerturbation, maxPerturbation);
         maxHunger *= Random.Range(minPerturbation, maxPerturbation);
@@ -122,7 +122,8 @@ public class AgentBehavior : MonoBehaviour
     {
         return hunger;
     }
-    public bool IsHungry() {
+    public bool IsHungry()
+    {
         return hunger <= hungerThresholdPercentage * stats.maxHunger;
     }
 
@@ -132,25 +133,30 @@ public class AgentBehavior : MonoBehaviour
     {
         return thirst;
     }
-    public bool IsThirsty() {
+    public bool IsThirsty()
+    {
         return thirst <= thirstThresholdPercentage * stats.maxThirst;
     }
 
     private float stamina;
-    public float GetStamina() {
+    public float GetStamina()
+    {
         return stamina;
     }
     private bool isRecovering = false;
-    public bool GetIsRecovering() {
+    public bool GetIsRecovering()
+    {
         return isRecovering;
     }
     private readonly float staminaRecoveryThreshold = 0.9f;
 
     private bool justMatedRecently = false;
-    public bool IsJustMatedRecently() {
+    public bool IsJustMatedRecently()
+    {
         return justMatedRecently;
     }
-    public void SetMated(bool mated) {
+    public void SetMated(bool mated)
+    {
         justMatedRecently = mated;
     }
 
@@ -162,15 +168,18 @@ public class AgentBehavior : MonoBehaviour
     private float childCounter = 0;
     private const float childScale = 0.5f;
 
+    private readonly int maxCandidates = 10;
+
     private NavMeshAgent agent;
     private Animator animator;
 
-    public enum AgentState { 
-        GOING_TO_FOOD, EATING, DONE_EATING, 
-        GOING_TO_WATER, DRINKING, DONE_DRINKING, 
-        GOING_TO_MATE, MATING, DONE_MATING, 
-        ATTACKING, DONE_ATTACKING, 
-        WANDERING, RUNNING, DEAD 
+    public enum AgentState
+    {
+        GOING_TO_FOOD, EATING, DONE_EATING,
+        GOING_TO_WATER, DRINKING, DONE_DRINKING,
+        GOING_TO_MATE, MATING, DONE_MATING,
+        ATTACKING, DONE_ATTACKING,
+        WANDERING, RUNNING, DEAD
     };
     private AgentState agentState = AgentState.WANDERING;
 
@@ -186,7 +195,7 @@ public class AgentBehavior : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        
+
         animator = GetComponent<Animator>();
         animator.SetFloat("speed", stats.speed);
 
@@ -212,15 +221,20 @@ public class AgentBehavior : MonoBehaviour
         hunger = Mathf.Max(hunger - Time.deltaTime, 0);
         thirst = Mathf.Max(thirst - Time.deltaTime, 0);
 
-        if (agentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f) {
+        if (agentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f)
+        {
             stamina = Mathf.Max(stamina - Time.deltaTime, 0);
-            if (stamina == 0) {
-                if (!isRecovering) {
+            if (stamina == 0)
+            {
+                if (!isRecovering)
+                {
                     isRecovering = true;
                     StartCoroutine(HandleCheckIfRecovered());
                 }
             }
-        } else {
+        }
+        else
+        {
             stamina = Mathf.Min(stamina + Time.deltaTime, stats.maxStamina);
         }
 
@@ -234,7 +248,8 @@ public class AgentBehavior : MonoBehaviour
             health -= Time.deltaTime;
         }
 
-        if (!IsHungry() && !IsThirsty()) {
+        if (!IsHungry() && !IsThirsty())
+        {
             health += Time.deltaTime;
             health = Mathf.Min(health, stats.maxHealth);
         }
@@ -245,8 +260,10 @@ public class AgentBehavior : MonoBehaviour
         }
     }
 
-    IEnumerator HandleCheckIfRecovered() {
-        while (stamina < staminaRecoveryThreshold * stats.maxStamina) {
+    IEnumerator HandleCheckIfRecovered()
+    {
+        while (stamina < staminaRecoveryThreshold * stats.maxStamina)
+        {
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -255,10 +272,11 @@ public class AgentBehavior : MonoBehaviour
 
     private void HandleGrowIntoAdultUpdate()
     {
-        if (!isChild) {
+        if (!isChild)
+        {
             return;
         }
-        
+
         childCounter += Time.deltaTime;
         float progressToAdult = childCounter / stats.growIntoAdultDurationSeconds;
 
@@ -300,17 +318,20 @@ public class AgentBehavior : MonoBehaviour
         Seek(transform.position - fleeVector);
     }
 
-    public void GoToFood(GameObject target) {
+    public void GoToFood(GameObject target)
+    {
         agentState = AgentState.GOING_TO_FOOD;
         Seek(target.transform.position);
     }
 
-    public void GoToWater(Vector3 waterLocation) {
+    public void GoToWater(Vector3 waterLocation)
+    {
         agentState = AgentState.GOING_TO_WATER;
         Seek(waterLocation);
     }
 
-    public void GoToMate(GameObject mate) {
+    public void GoToMate(GameObject mate)
+    {
         agentState = AgentState.GOING_TO_MATE;
         Seek(mate.transform.position);
     }
@@ -346,7 +367,8 @@ public class AgentBehavior : MonoBehaviour
         float lookAhead = targetDirection.magnitude / (agent.speed + targetSpeed);
         Vector3 targetToRunTo = target.transform.position + target.transform.forward * lookAhead;
 
-        if (Vector3.Distance(targetToRunTo, transform.position) < 1.0f) { // if stuck, choose a random direction to run towards
+        if (Vector3.Distance(targetToRunTo, transform.position) < 1.0f)
+        { // if stuck, choose a random direction to run towards
             targetToRunTo = RandomNavSphere(target.transform.position, stats.fovRange);
         }
 
@@ -356,7 +378,7 @@ public class AgentBehavior : MonoBehaviour
     public void Wander()
     {
         agentState = AgentState.WANDERING;
-        if (agent.remainingDistance <= agent.stoppingDistance)
+        if (agent.remainingDistance <= agent.stoppingDistance * 5)
         {
             Vector3 newPos = RandomNavSphere(transform.position, stats.fovRange);
             agent.SetDestination(newPos);
@@ -365,12 +387,14 @@ public class AgentBehavior : MonoBehaviour
 
     public List<GameObject> GetFoodInFOVRange()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, stats.fovRange, LayerMask.GetMask(foodTag));
+        Collider[] colliders = new Collider[maxCandidates];
+        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, colliders, LayerMask.GetMask(foodTag));
         List<GameObject> foods = new List<GameObject>();
 
         foreach (Collider collider in colliders)
         {
             if (
+                collider != null &&
                 NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, agent.stoppingDistance + 0.1f, NavMesh.AllAreas) &&
                 !blacklistedTargets.Contains(collider.gameObject)
             )
@@ -394,13 +418,18 @@ public class AgentBehavior : MonoBehaviour
 
     public List<GameObject> GetPredatorsInFOVRange()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, stats.fovRange, LayerMask.GetMask(predatorTag));
+        Collider[] colliders = new Collider[maxCandidates];
+        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, colliders, LayerMask.GetMask(predatorTag));
         List<GameObject> predators = new List<GameObject>();
 
         foreach (Collider collider in colliders)
         {
+            if (collider == null) {
+                continue;
+            }
             // TODO add if predator is chasing self
-            predators.Add(collider.gameObject);        }
+            predators.Add(collider.gameObject);
+        }
 
         predators = predators.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
         return predators;
@@ -499,18 +528,20 @@ public class AgentBehavior : MonoBehaviour
     public List<GameObject> GetMatesInFOVRange()
     {
         // Convert layer to layerMask https://docs.unity3d.com/Manual/layermask-set.html#:~:text=Convert%20from%20a%20layer,that%20represents%20the%20single%20layer.
-        Collider[] colliders = Physics.OverlapSphere(transform.position, stats.fovRange, 1 << gameObject.layer); // same species will be on same layer
+        Collider[] colliders = new Collider[maxCandidates];
+        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, colliders, 1 << gameObject.layer); // same species will be on same layer
         List<GameObject> mates = new List<GameObject>();
 
         foreach (Collider collider in colliders)
         {
-            if (collider.gameObject == gameObject)
+            if (collider == null || collider.gameObject == gameObject)
             { // dont get itself
                 continue;
             }
 
             AgentBehavior partnerAgentBehavior = collider.gameObject.GetComponent<AgentBehavior>();
-            if (!partnerAgentBehavior) {
+            if (!partnerAgentBehavior)
+            {
                 continue;
             }
             bool sameGender = partnerAgentBehavior.stats.gender == stats.gender;
@@ -595,7 +626,7 @@ public class AgentBehavior : MonoBehaviour
         { // died
             yield break;
         }
-        
+
         SetMated(false);
     }
 
@@ -625,9 +656,11 @@ public class AgentBehavior : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        if (target != null) {
+        if (target != null)
+        {
             float remainingHealth = target.GetComponent<AgentBehavior>().TakeDamage(damagePerAttack);
-            if (remainingHealth < 0) {
+            if (remainingHealth < 0)
+            {
                 hunger = Mathf.Min(hunger + foodHealthReplenish * 2, stats.maxHunger);
             }
         }
@@ -636,7 +669,8 @@ public class AgentBehavior : MonoBehaviour
         agentState = AgentState.DONE_ATTACKING;
     }
 
-    public float TakeDamage(float damagePerAttack) {
+    public float TakeDamage(float damagePerAttack)
+    {
         health -= damagePerAttack;
         return health;
     }
@@ -648,18 +682,21 @@ public class AgentBehavior : MonoBehaviour
         StartCoroutine(ForgetBlacklistedTarget(target));
     }
 
-    IEnumerator ForgetBlacklistedTarget(GameObject target) {
+    IEnumerator ForgetBlacklistedTarget(GameObject target)
+    {
         yield return new WaitForSeconds(forgetTime);
 
         blacklistedTargets.Remove(target);
     }
 
-    public void BlacklistWaterPoint(Vector3 target) {
+    public void BlacklistWaterPoint(Vector3 target)
+    {
         blacklistedWaterPoints.Add(target);
         StartCoroutine(ForgetBlacklistedWaterPoint(target));
     }
 
-    IEnumerator ForgetBlacklistedWaterPoint(Vector3 target) {
+    IEnumerator ForgetBlacklistedWaterPoint(Vector3 target)
+    {
         yield return new WaitForSeconds(forgetTime);
 
         blacklistedWaterPoints.Remove(target);

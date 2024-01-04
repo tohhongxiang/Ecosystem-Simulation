@@ -27,7 +27,7 @@ public class BearBehaviorTree : BehaviorTree.Tree
             }),
             new Sequence(new List<Node> {
                 new CheckIfThirsty(agentBehavior),
-                new CheckWaterInInteractableRange(agentBehavior),
+                new CheckIfAtDestination(agentBehavior),
                 new TaskDrink(agentBehavior),
             }),
             new Sequence(new List<Node> {

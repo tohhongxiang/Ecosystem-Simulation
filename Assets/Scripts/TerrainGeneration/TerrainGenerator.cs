@@ -14,6 +14,10 @@ public class TerrainGenerator : MonoBehaviour
         Bounds chunkBounds = SpawnChunks();
         
         foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners) {
+            if (terrainObjectSpawner == null) {
+                continue;
+            }
+            
             terrainObjectSpawner.SpawnObjects(chunkBounds);
         }
 
