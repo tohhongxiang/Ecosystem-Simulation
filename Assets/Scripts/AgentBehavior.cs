@@ -72,8 +72,8 @@ public class AgentStats
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
 
         // random perturbations
-        float minPerturbation = 0.5f;
-        float maxPerturbation = 1.5f;
+        float minPerturbation = 0.75f;
+        float maxPerturbation = 1.25f;
 
         speed *= Random.Range(minPerturbation, maxPerturbation);
         maxHealth *= Random.Range(minPerturbation, maxPerturbation);
@@ -516,13 +516,24 @@ public class AgentBehavior : MonoBehaviour
         agentState = AgentState.DONE_DRINKING;
     }
 
+    private static readonly int numberOfTries = 30;
     private Vector3 RandomNavSphere(Vector3 origin, float dist)
     {
         Vector3 randDirection = Random.insideUnitSphere * dist;
         randDirection += origin;
 
-        NavMesh.SamplePosition(randDirection, out NavMeshHit navHit, 2 * agent.height, NavMesh.AllAreas);
-        return navHit.position;
+        NavMeshHit hit;
+        for (int i = 0; i < numberOfTries; i++)
+        {
+            Vector3 randomPoint = origin + Random.insideUnitSphere * dist;
+            if (NavMesh.SamplePosition(randomPoint, out hit, 2 * agent.height, NavMesh.AllAreas))
+            {
+                return hit.position;
+            }
+        }
+
+        NavMesh.SamplePosition(randDirection, out hit, 2 * agent.height, NavMesh.AllAreas);
+        return hit.position;
     }
 
     public List<GameObject> GetMatesInFOVRange()

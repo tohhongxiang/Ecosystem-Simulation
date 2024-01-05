@@ -11,6 +11,11 @@ public class DeerBehaviorTree : BehaviorTree.Tree
 
         Node root = new Selector(new List<Node>{
             new Sequence(new List<Node> {
+                new CheckPredatorsInRange(agentBehavior),
+                new Inverter(new CheckIfRecovering(agentBehavior)),
+                new TaskEvade(agentBehavior)
+            }),
+            new Sequence(new List<Node> {
                 new CheckCanMate(agentBehavior),
                 new CheckMateInInteractableRange(agentBehavior),
                 new TaskMate(agentBehavior),
@@ -19,10 +24,6 @@ public class DeerBehaviorTree : BehaviorTree.Tree
                 new CheckCanMate(agentBehavior),
                 new CheckMateInFOVRange(agentBehavior),
                 new TaskGoToMate(agentBehavior),
-            }),
-            new Sequence(new List<Node> {
-                new CheckPredatorsInRange(agentBehavior),
-                new TaskEvade(agentBehavior)
             }),
             new Sequence(new List<Node> {
                 new CheckIfHungry(agentBehavior),
