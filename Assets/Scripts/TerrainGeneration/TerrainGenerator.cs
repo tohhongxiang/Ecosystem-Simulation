@@ -8,11 +8,12 @@ public class TerrainGenerator : MonoBehaviour
     public MeshSettings meshSettings;
     public Material terrainMaterial;
     public TerrainObjectGenerator[] terrainObjectSpawners;
+    public TerrainAgentGenerator[] terrainAgentGenerators;
 
     void Start()
     {
         Bounds chunkBounds = SpawnChunks();
-        
+
         foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners) {
             if (terrainObjectSpawner == null) {
                 continue;
@@ -22,6 +23,14 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         surface.BuildNavMesh();
+
+        foreach (TerrainAgentGenerator terrainAgentGenerator in terrainAgentGenerators) {
+            if (terrainAgentGenerator == null) {
+                continue;
+            }
+            
+            terrainAgentGenerator.SpawnObjects(chunkBounds);
+        }
     }
 
     Bounds SpawnChunks()

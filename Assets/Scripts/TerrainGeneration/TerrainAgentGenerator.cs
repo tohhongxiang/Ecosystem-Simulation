@@ -56,14 +56,13 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
                 }
 
                 // rotate object on y axis
-                Vector3 finalRotation = Quaternion.Euler(
+                Quaternion finalRotation = Quaternion.Euler(
                     0,
                     Random.Range(-180, 180),
                     0
-                ) * info.normal;
+                );
 
-                GameObject instantiatedPrefab = Instantiate(prefab, hitPosition, Quaternion.identity, gameObject.transform);
-                instantiatedPrefab.transform.rotation = Quaternion.FromToRotation(Vector3.up, finalRotation);
+                GameObject instantiatedPrefab = Instantiate(prefab, hitPosition, finalRotation, gameObject.transform);
                 instantiatedPrefab.layer = gameObject.layer;
 
                 if (newTag.Length > 0)

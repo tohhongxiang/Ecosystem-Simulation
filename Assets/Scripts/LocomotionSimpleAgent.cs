@@ -6,7 +6,6 @@ public class LocomotionSimpleAgent : MonoBehaviour
 {
     Animator animator;
     NavMeshAgent agent;
-    AgentBehavior agentBehavior;
     Vector2 smoothDeltaPosition = Vector2.zero;
     Vector2 velocity = Vector2.zero;
     LookAt lookAt;
@@ -22,8 +21,6 @@ public class LocomotionSimpleAgent : MonoBehaviour
         agent.updateRotation = true;
 
         lookAt = GetComponent<LookAt>();
-
-        agentBehavior = GetComponent<AgentBehavior>();
     }
 
     void Update()
@@ -37,10 +34,6 @@ public class LocomotionSimpleAgent : MonoBehaviour
             return;
         }
 
-        // pull animator towards agent (agent controls position, will cause leg sliding)
-        // animator.rootPosition = agent.nextPosition;
-
-        // pull agent towards animator (animator controls position)
         Vector3 rootPosition = animator.rootPosition;
 
         rootPosition.y = agent.nextPosition.y;
@@ -70,10 +63,10 @@ public class LocomotionSimpleAgent : MonoBehaviour
         }
 
         bool isWalking = velocity.magnitude > 0.5f && agent.remainingDistance > agent.stoppingDistance;
-        int velocityMultiplier = agentBehavior.GetAgentState() == AgentBehavior.AgentState.RUNNING && !agentBehavior.GetIsRecovering() ? 2 : 1;
+        
         animator.SetBool("isWalking", isWalking);
-        animator.SetFloat("velocityX", velocity.normalized.x * velocityMultiplier);
-        animator.SetFloat("velocityZ", velocity.normalized.y * velocityMultiplier);
+        animator.SetFloat("velocityX", velocity.normalized.x);
+        animator.SetFloat("velocityZ", velocity.normalized.y);
 
         float deltaMagnitude = worldDeltaPosition.magnitude;
         if (deltaMagnitude > agent.radius / 2f)
