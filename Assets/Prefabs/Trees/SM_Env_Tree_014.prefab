@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 8215738451767115654}
   - component: {fileID: 8725656940695991579}
   - component: {fileID: 3769333517960186539}
+  - component: {fileID: 1796158374005878679}
   m_Layer: 0
   m_Name: SM_Env_Tree_014
   m_TagString: Plant
@@ -39,7 +40,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3422615823525254799
 MeshFilter:
@@ -267,3 +268,21 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43495308575310294, guid: 8de47c9191e7b324ea4db05f91b56107, type: 2}
+--- !u!114 &1796158374005878679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4070642350961827497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 220345cbaa167417bbe806f230f68615, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  dynamic: 1
+  area: -1

@@ -1,21 +1,23 @@
-using UnityEngine.AI;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using Pathfinding;
 
-[RequireComponent(typeof(NavMeshAgent))]
 public class AgentBehavior : MonoBehaviour
 {
     [SerializeField] public string foodTag = "";
     [SerializeField] public string waterTag = "Water";
     [SerializeField] public string predatorTag = "";
+    public string species = "";
+
     private float interactRadius;
     private float reproduceRadius;
 
     [Header("Stats")]
     public AgentStats stats;
-    public string species = "";
+
+    // internal state
     private float health;
     public float GetHealth()
     {
@@ -66,6 +68,20 @@ public class AgentBehavior : MonoBehaviour
         justMatedRecently = mated;
     }
 
+    public enum AgentState
+    {
+        GOING_TO_FOOD, EATING, DONE_EATING,
+        GOING_TO_WATER, DRINKING, DONE_DRINKING,
+        GOING_TO_MATE, MATING, DONE_MATING,
+        ATTACKING, DONE_ATTACKING,
+        WANDERING, RUNNING, DEAD
+    };
+    private AgentState agentState = AgentState.WANDERING;
+    public AgentState GetAgentState()
+    {
+        return agentState;
+    }
+
     private readonly float foodHealthReplenish = 80;
     private readonly float waterHealthReplenish = 80;
     private readonly float damagePerAttack = 200;
@@ -76,23 +92,8 @@ public class AgentBehavior : MonoBehaviour
 
     private readonly int maxCandidates = 10;
 
-    private NavMeshAgent agent;
+    private IAstarAI agent;
     private Animator animator;
-
-    public enum AgentState
-    {
-        GOING_TO_FOOD, EATING, DONE_EATING,
-        GOING_TO_WATER, DRINKING, DONE_DRINKING,
-        GOING_TO_MATE, MATING, DONE_MATING,
-        ATTACKING, DONE_ATTACKING,
-        WANDERING, RUNNING, DEAD
-    };
-    private AgentState agentState = AgentState.WANDERING;
-
-    public AgentState GetAgentState()
-    {
-        return agentState;
-    }
 
     private readonly HashSet<GameObject> blacklistedTargets = new HashSet<GameObject>();
     private readonly HashSet<Vector3> blacklistedWaterPoints = new HashSet<Vector3>();
@@ -100,14 +101,16 @@ public class AgentBehavior : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        agent = GetComponent<IAstarAI>();
+        agent.maxSpeed = stats.speed;
 
         animator = GetComponent<Animator>();
         animator.SetFloat("speed", stats.speed);
 
-        interactRadius = agent.stoppingDistance + agent.radius + 0.1f;
-        reproduceRadius = agent.stoppingDistance + 2 * agent.radius;
+        interactRadius = agent.radius + 0.1f;
+        reproduceRadius = 2 * agent.radius;
 
+        // set starting states
         health = stats.maxHealth;
         hunger = stats.maxHunger;
         thirst = stats.maxThirst;
@@ -144,12 +147,7 @@ public class AgentBehavior : MonoBehaviour
             stamina = Mathf.Min(stamina + Time.deltaTime, stats.maxStamina);
         }
 
-        if (hunger <= 0)
-        {
-            health -= Time.deltaTime;
-        }
-
-        if (thirst <= 0)
+        if (hunger <= 0 || thirst <= 0)
         {
             health -= Time.deltaTime;
         }
@@ -205,7 +203,7 @@ public class AgentBehavior : MonoBehaviour
     IEnumerator HandleDeath()
     {
         agentState = AgentState.DEAD;
-        agent.isStopped = true;
+        agent.canMove = false;
         animator.SetBool("isDead", true);
 
         yield return new WaitForSeconds(1);
@@ -215,13 +213,19 @@ public class AgentBehavior : MonoBehaviour
 
     private void Seek(Vector3 location)
     {
-        agent.SetDestination(location);
+        agent.maxSpeed = stats.speed;
+        agent.destination = location;
+    }
+
+    private void SeekRun(Vector3 location) {
+        agent.maxSpeed = stats.speed * 2;
+        agent.destination = location;
     }
 
     private void Flee(Vector3 location)
     {
         Vector3 fleeVector = location - transform.position;
-        Seek(transform.position - fleeVector);
+        SeekRun(transform.position - fleeVector);
     }
 
     public void GoToFood(GameObject target)
@@ -249,17 +253,17 @@ public class AgentBehavior : MonoBehaviour
         float relativeHeading = Vector3.Angle(transform.forward, transform.TransformVector(target.transform.forward));
         float toTarget = Vector3.Angle(transform.forward, transform.TransformVector(targetDirection));
 
-        NavMeshAgent targetAgent = target.GetComponent<NavMeshAgent>();
-        float targetSpeed = targetAgent == null ? 0 : targetAgent.speed;
+        IAstarAI targetAgent = target.GetComponent<IAstarAI>();
+        float targetSpeed = targetAgent == null ? 0 : targetAgent.velocity.magnitude;
 
         if ((toTarget > 90 && relativeHeading < 20) || targetSpeed < 0.01f)
         {
-            Seek(target.transform.position);
+            SeekRun(target.transform.position);
             return;
         }
 
-        float lookAhead = targetDirection.magnitude / (agent.speed + targetSpeed);
-        Seek(target.transform.position + target.transform.forward * lookAhead);
+        float lookAhead = targetDirection.magnitude / (agent.maxSpeed + targetSpeed);
+        SeekRun(target.transform.position + target.transform.forward * lookAhead);
     }
 
     public void Evade(GameObject target)
@@ -267,27 +271,26 @@ public class AgentBehavior : MonoBehaviour
         agentState = AgentState.RUNNING;
         Vector3 targetDirection = target.transform.position - transform.position;
 
-        NavMeshAgent targetAgent = target.GetComponent<NavMeshAgent>();
-        float targetSpeed = targetAgent == null ? 0 : targetAgent.speed;
+        IAstarAI targetAgent = target.GetComponent<IAstarAI>();
+        float targetSpeed = targetAgent == null ? 0 : targetAgent.velocity.magnitude;
 
-        float lookAhead = targetDirection.magnitude / (agent.speed + targetSpeed);
+        float lookAhead = targetDirection.magnitude / (agent.maxSpeed + targetSpeed);
         Vector3 targetToRunTo = target.transform.position + target.transform.forward * lookAhead;
 
         if (Vector3.Distance(targetToRunTo, transform.position) < 1.0f)
         { // if stuck, choose a random direction to run towards
-            targetToRunTo = RandomNavSphere(target.transform.position, stats.fovRange);
+            targetToRunTo = RandomPoint();
         }
 
         Flee(targetToRunTo);
     }
-
+    
     public void Wander()
     {
         agentState = AgentState.WANDERING;
-        if (agent.remainingDistance <= agent.stoppingDistance * 5)
-        {
-            Vector3 newPos = RandomNavSphere(transform.position, stats.fovRange);
-            agent.SetDestination(newPos);
+        if (!agent.pathPending && (agent.reachedEndOfPath || !agent.hasPath)) {
+            agent.destination = RandomPoint();
+            agent.SearchPath();
         }
     }
 
@@ -301,7 +304,6 @@ public class AgentBehavior : MonoBehaviour
         {
             if (
                 collider != null &&
-                NavMesh.SamplePosition(collider.transform.position, out NavMeshHit hit, agent.stoppingDistance + 0.1f, NavMesh.AllAreas) &&
                 !blacklistedTargets.Contains(collider.gameObject)
             )
             {
@@ -330,7 +332,8 @@ public class AgentBehavior : MonoBehaviour
 
         foreach (Collider collider in colliders)
         {
-            if (collider == null) {
+            if (collider == null)
+            {
                 continue;
             }
             // TODO add if predator is chasing self
@@ -363,7 +366,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool IsAtDestination()
     {
-        return agent.remainingDistance <= agent.stoppingDistance;
+        return agent.reachedEndOfPath;
     }
 
     public void Eat(GameObject target)
@@ -378,6 +381,7 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleEat(GameObject target)
     {
+        agent.isStopped = true;
         agentState = AgentState.EATING;
         animator.SetBool("isEating", true);
         target.layer = LayerMask.NameToLayer("Default");
@@ -393,6 +397,8 @@ public class AgentBehavior : MonoBehaviour
         animator.SetBool("isEating", false);
         hunger = Mathf.Min(hunger + foodHealthReplenish, stats.maxHunger);
         agentState = AgentState.DONE_EATING;
+
+        agent.isStopped = false;
     }
 
     public void Drink()
@@ -407,6 +413,7 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleDrink()
     {
+        agent.isStopped = true;
         agentState = AgentState.DRINKING;
         animator.SetBool("isDrinking", true);
 
@@ -420,26 +427,15 @@ public class AgentBehavior : MonoBehaviour
         animator.SetBool("isDrinking", false);
         thirst = Mathf.Min(thirst + waterHealthReplenish, stats.maxThirst);
         agentState = AgentState.DONE_DRINKING;
+        agent.isStopped = false;
     }
 
-    private static readonly int numberOfTries = 30;
-    private Vector3 RandomNavSphere(Vector3 origin, float dist)
-    {
-        Vector3 randDirection = Random.insideUnitSphere * dist;
-        randDirection += origin;
-
-        NavMeshHit hit;
-        for (int i = 0; i < numberOfTries; i++)
-        {
-            Vector3 randomPoint = origin + Random.insideUnitSphere * dist;
-            if (NavMesh.SamplePosition(randomPoint, out hit, 2 * agent.height, NavMesh.AllAreas))
-            {
-                return hit.position;
-            }
-        }
-
-        NavMesh.SamplePosition(randDirection, out hit, 2 * agent.height, NavMesh.AllAreas);
-        return hit.position;
+    private Vector3 RandomPoint() {
+        Vector3 point = Random.insideUnitSphere * stats.fovRange;
+        
+        point.y = 0;
+        point += agent.position;
+        return point;
     }
 
     public List<GameObject> GetMatesInFOVRange()
@@ -497,6 +493,7 @@ public class AgentBehavior : MonoBehaviour
             yield break;
         }
 
+        agent.isStopped = true;
         agentState = AgentState.MATING;
         animator.SetBool("isMating", true);
 
@@ -533,6 +530,8 @@ public class AgentBehavior : MonoBehaviour
             childAgentBehavior.isChild = true;
             childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
         }
+
+        agent.isStopped = false;
     }
 
     IEnumerator HandleMatingCooldown(GameObject mate)
@@ -559,10 +558,10 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleAttack(GameObject target)
     {
+        agent.isStopped = true;
         agentState = AgentState.ATTACKING;
 
         transform.LookAt(target.transform);
-        agent.ResetPath(); // stop moving to attack
 
         animator.SetBool("isAttacking", true);
 
@@ -584,6 +583,7 @@ public class AgentBehavior : MonoBehaviour
 
         animator.SetBool("isAttacking", false);
         agentState = AgentState.DONE_ATTACKING;
+        agent.isStopped = false;
     }
 
     public float TakeDamage(float damagePerAttack)

@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 using BehaviorTree;
 
@@ -32,7 +30,7 @@ public class DeerBehaviorTree : BehaviorTree.Tree
             }),
             new Sequence(new List<Node> {
                 new CheckIfHungry(agentBehavior),
-                new Inverter(new CheckIfThirstierThanHungry(agentBehavior)),
+                // new Inverter(new CheckIfThirstierThanHungry(agentBehavior)),
                 new CheckFoodInFOVRange(agentBehavior),
                 new TaskGoToFood(agentBehavior),
             }),
@@ -43,7 +41,7 @@ public class DeerBehaviorTree : BehaviorTree.Tree
             }),
             new Sequence(new List<Node> {
                 new CheckIfThirsty(agentBehavior),
-                new CheckIfThirstierThanHungry(agentBehavior),
+                // new CheckIfThirstierThanHungry(agentBehavior),
                 new CheckWaterInFOVRange(agentBehavior),
                 new TaskGoToWater(agentBehavior),
             }),

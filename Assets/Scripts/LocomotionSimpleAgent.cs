@@ -1,12 +1,12 @@
 using UnityEngine;
-using UnityEngine.AI;
+using Pathfinding;
 
 [RequireComponent(typeof(LookAt))]
 public class LocomotionSimpleAgent : MonoBehaviour
 {
     Animator animator;
-    NavMeshAgent agent;
-    Vector2 smoothDeltaPosition = Vector2.zero;
+    IAstarAI agent;
+    AgentBehavior agentBehavior;
     Vector2 velocity = Vector2.zero;
     LookAt lookAt;
 
@@ -14,13 +14,14 @@ public class LocomotionSimpleAgent : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-        animator.applyRootMotion = true;
+        animator.applyRootMotion = false;
 
-        agent = GetComponent<NavMeshAgent>();
-        agent.updatePosition = false;
-        agent.updateRotation = true;
+        agent = GetComponent<IAstarAI>();
+        // agent.updatePosition = false;
+        // agent.updateRotation = true;
 
         lookAt = GetComponent<LookAt>();
+        agentBehavior = GetComponent<AgentBehavior>();
     }
 
     void Update()
@@ -34,50 +35,54 @@ public class LocomotionSimpleAgent : MonoBehaviour
             return;
         }
 
-        Vector3 rootPosition = animator.rootPosition;
+        // transform.rotation = agent.rotation;
+        // transform.position = agent.position;
 
-        rootPosition.y = agent.nextPosition.y;
-        transform.position = rootPosition;
-        transform.rotation = animator.rootRotation;
-        agent.nextPosition = rootPosition;
+        // Vector3 rootPosition = animator.rootPosition;
+
+        // rootPosition.y = agent.position.y;
+        // transform.position = rootPosition;
+        // transform.rotation = animator.rootRotation;
+        // agent.Teleport(rootPosition);
     }
 
     void UpdateAnimation()
     {
-        Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
-        worldDeltaPosition.y = 0;
+        // Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
+        // worldDeltaPosition.y = 0;
 
-        // map worldDeltaPosition to local space
-        float dx = Vector3.Dot(transform.right, worldDeltaPosition);
-        float dy = Vector3.Dot(transform.forward, worldDeltaPosition);
-        Vector2 deltaPosition = new Vector2(dx, dy);
+        // // map worldDeltaPosition to local space
+        // float dx = Vector3.Dot(transform.right, worldDeltaPosition);
+        // float dy = Vector3.Dot(transform.forward, worldDeltaPosition);
+        // Vector2 deltaPosition = new Vector2(dx, dy);
 
-        float smooth = Mathf.Min(1.0f, Time.deltaTime / 0.15f);
-        smoothDeltaPosition = Vector2.Lerp(smoothDeltaPosition, deltaPosition, smooth);
+        // float smooth = Mathf.Min(1.0f, Time.deltaTime / 0.15f);
+        // smoothDeltaPosition = Vector2.Lerp(smoothDeltaPosition, deltaPosition, smooth);
 
-        velocity = smoothDeltaPosition / Time.deltaTime;
+        // velocity = smoothDeltaPosition / Time.deltaTime;
 
-        if (agent.remainingDistance <= agent.stoppingDistance)
-        {
-            velocity = Vector2.Lerp(Vector2.zero, velocity, agent.remainingDistance / agent.stoppingDistance);
-        }
+        // if (agent.remainingDistance <= agent.stoppingDistance)
+        // {
+        //     velocity = Vector2.Lerp(Vector2.zero, velocity, agent.remainingDistance / agent.stoppingDistance);
+        // }
 
-        bool isWalking = velocity.magnitude > 0.5f && agent.remainingDistance > agent.stoppingDistance;
+        bool isWalking = agent.velocity.magnitude > 0.5f;
+        float runSpeedMultiplier = agentBehavior.GetAgentState() == AgentBehavior.AgentState.RUNNING && !agentBehavior.GetIsRecovering() ? 2 : 1;
         
         animator.SetBool("isWalking", isWalking);
-        animator.SetFloat("velocityX", velocity.normalized.x);
-        animator.SetFloat("velocityZ", velocity.normalized.y);
+        animator.SetFloat("velocityX", velocity.normalized.x * runSpeedMultiplier);
+        animator.SetFloat("velocityZ", velocity.normalized.y * runSpeedMultiplier);
 
-        float deltaMagnitude = worldDeltaPosition.magnitude;
-        if (deltaMagnitude > agent.radius / 2f)
-        {
-            transform.position = Vector3.Lerp(animator.rootPosition, agent.nextPosition, smooth);
-        }
+        // float deltaMagnitude = worldDeltaPosition.magnitude;
+        // if (deltaMagnitude > agent.radius / 2f)
+        // {
+        //     transform.position = Vector3.Lerp(animator.rootPosition, agent.nextPosition, smooth);
+        // }
 
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
 
-        transform.rotation = agent.transform.rotation;
+        // transform.rotation = agent.transform.rotation;
     }
 
 }

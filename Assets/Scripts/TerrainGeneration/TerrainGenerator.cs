@@ -1,9 +1,7 @@
 using UnityEngine;
-using UnityEngine.AI;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    public NavMeshSurface surface;
     public HeightMapSettings heightMapSettings;
     public MeshSettings meshSettings;
     public Material terrainMaterial;
@@ -21,8 +19,6 @@ public class TerrainGenerator : MonoBehaviour
             
             terrainObjectSpawner.SpawnObjects(chunkBounds);
         }
-
-        surface.BuildNavMesh();
 
         foreach (TerrainAgentGenerator terrainAgentGenerator in terrainAgentGenerators) {
             if (terrainAgentGenerator == null) {
