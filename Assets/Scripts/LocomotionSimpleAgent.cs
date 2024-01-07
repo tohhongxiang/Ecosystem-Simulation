@@ -1,27 +1,25 @@
 using UnityEngine;
 using Pathfinding;
 
-[RequireComponent(typeof(LookAt))]
+// coordinates Animator and IAstarAI
+
+[RequireComponent(typeof(LookAt), typeof(Animator), typeof(IAstarAI))]
 public class LocomotionSimpleAgent : MonoBehaviour
 {
     Animator animator;
-    IAstarAI agent;
-    AgentBehavior agentBehavior;
-    Vector2 velocity = Vector2.zero;
+    RichAI agent;
+    Vector2 smoothDeltaPosition = Vector2.zero;
     LookAt lookAt;
-
 
     void Start()
     {
         animator = GetComponent<Animator>();
-        animator.applyRootMotion = false;
+        animator.applyRootMotion = true;
 
-        agent = GetComponent<IAstarAI>();
-        // agent.updatePosition = false;
-        // agent.updateRotation = true;
+        agent = GetComponent<RichAI>();
+        agent.canMove = false;
 
         lookAt = GetComponent<LookAt>();
-        agentBehavior = GetComponent<AgentBehavior>();
     }
 
     void Update()
@@ -29,60 +27,59 @@ public class LocomotionSimpleAgent : MonoBehaviour
         UpdateAnimation();
     }
 
-    void OnAnimatorMove()
-    {
-        if (animator == null) { // animator not ready yet
-            return;
-        }
-
-        // transform.rotation = agent.rotation;
-        // transform.position = agent.position;
-
-        // Vector3 rootPosition = animator.rootPosition;
-
-        // rootPosition.y = agent.position.y;
-        // transform.position = rootPosition;
-        // transform.rotation = animator.rootRotation;
-        // agent.Teleport(rootPosition);
-    }
-
     void UpdateAnimation()
     {
-        // Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
-        // worldDeltaPosition.y = 0;
+        agent.canMove = false;
 
-        // // map worldDeltaPosition to local space
-        // float dx = Vector3.Dot(transform.right, worldDeltaPosition);
-        // float dy = Vector3.Dot(transform.forward, worldDeltaPosition);
-        // Vector2 deltaPosition = new Vector2(dx, dy);
+        Vector3 nextPosition;
+        Quaternion nextRotation;
+        agent.MovementUpdate(Time.deltaTime, out nextPosition, out nextRotation);
 
-        // float smooth = Mathf.Min(1.0f, Time.deltaTime / 0.15f);
-        // smoothDeltaPosition = Vector2.Lerp(smoothDeltaPosition, deltaPosition, smooth);
+        Vector3 worldDeltaPosition = nextPosition - transform.position;
+        worldDeltaPosition.y = 0;
 
-        // velocity = smoothDeltaPosition / Time.deltaTime;
+        float dx = Vector3.Dot(transform.right, worldDeltaPosition);
+        float dy = Vector3.Dot(transform.forward, worldDeltaPosition);
+        Vector2 deltaPosition = new Vector2(dx, dy);
 
-        // if (agent.remainingDistance <= agent.stoppingDistance)
-        // {
-        //     velocity = Vector2.Lerp(Vector2.zero, velocity, agent.remainingDistance / agent.stoppingDistance);
-        // }
+        float smooth = Mathf.Min(1.0f, Time.deltaTime/.15f);
+        smoothDeltaPosition = Vector2.Lerp(smoothDeltaPosition, deltaPosition, smooth);
 
-        bool isWalking = agent.velocity.magnitude > 0.5f;
-        float runSpeedMultiplier = agentBehavior.GetAgentState() == AgentBehavior.AgentState.RUNNING && !agentBehavior.GetIsRecovering() ? 2 : 1;
+        Vector2 velocity = smoothDeltaPosition / Time.deltaTime;
+
+        animator.SetBool("isWalking", velocity.magnitude > 0.5f);
+        animator.SetFloat("velocityX", velocity.normalized.x);
+        animator.SetFloat("velocityZ", velocity.normalized.y);
         
-        animator.SetBool("isWalking", isWalking);
-        animator.SetFloat("velocityX", velocity.normalized.x * runSpeedMultiplier);
-        animator.SetFloat("velocityZ", velocity.normalized.y * runSpeedMultiplier);
-
-        // float deltaMagnitude = worldDeltaPosition.magnitude;
-        // if (deltaMagnitude > agent.radius / 2f)
-        // {
-        //     transform.position = Vector3.Lerp(animator.rootPosition, agent.nextPosition, smooth);
-        // }
-
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
+        
+        Quaternion smoothedRotation = Quaternion.Lerp(transform.rotation, nextRotation, smooth);
+        transform.rotation = smoothedRotation;
+    }
 
-        // transform.rotation = agent.transform.rotation;
+    void OnAnimatorMove() {
+        Vector3 nextPosition;
+        Quaternion nextRotation;
+        agent.MovementUpdate(Time.deltaTime, out nextPosition, out nextRotation);
+
+        agent.FinalizeMovement(new Vector3(animator.rootPosition.x, nextPosition.y, animator.rootPosition.z), animator.rootRotation);
+    }
+
+    public void Seek(Vector3 location)
+    {
+        agent.destination = location;
+    }
+
+    public void SeekRun(Vector3 location)
+    {
+        agent.destination = location;
+    }
+
+    public void Flee(Vector3 location)
+    {
+        Vector3 fleeVector = location - transform.position;
+        SeekRun(transform.position - fleeVector);
     }
 
 }

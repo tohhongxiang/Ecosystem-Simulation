@@ -20,6 +20,10 @@ public class TerrainGenerator : MonoBehaviour
             terrainObjectSpawner.SpawnObjects(chunkBounds);
         }
 
+        var graph = AstarPath.active.data.recastGraph;
+        graph.SnapForceBoundsToScene();
+        graph.Scan();
+
         foreach (TerrainAgentGenerator terrainAgentGenerator in terrainAgentGenerators) {
             if (terrainAgentGenerator == null) {
                 continue;

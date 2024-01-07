@@ -25,13 +25,6 @@ public class TaskGoToFood : Node
             return state;
         }
 
-        // food is now too far
-        if (Vector3.Distance(g.transform.position, _agentBehavior.gameObject.transform.position) > _agentBehavior.stats.fovRange) {
-            ClearData("target");
-            state = NodeState.FAILURE;
-            return state;
-        }
-
         _agentBehavior.GoToFood(g);
 
         state = NodeState.RUNNING;

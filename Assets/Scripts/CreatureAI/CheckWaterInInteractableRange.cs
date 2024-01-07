@@ -23,6 +23,7 @@ public class CheckWaterInInteractableRange : Node
         }
 
         if (_agentBehavior.IsAtDestination()) {
+            Debug.Log("Water point is unreachable");
             _agentBehavior.BlacklistWaterPoint(waterPoint); // water point is unreachable, hence blacklist it
             ClearData("water");
 

@@ -15,6 +15,11 @@ public class TaskEvade : Node
     public override NodeState Evaluate()
     {
         GameObject predator = (GameObject)GetData("predator");
+
+        // forget everything else and run
+        ClearData("target");
+        ClearData("mate");
+
         _agentBehavior.Evade(predator);
 
         if (Vector3.Distance(_agentBehavior.gameObject.transform.position, predator.transform.position) > _agentBehavior.stats.fovRange)

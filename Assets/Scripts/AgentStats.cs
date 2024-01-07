@@ -6,7 +6,7 @@ public enum Gender { MALE, FEMALE };
 [System.Serializable]
 public class AgentStats
 {
-    // stats that can change between instances
+    [Header("Mutable Stats")]
     public float speed = 1;
     public float maxHealth = 100;
     public float maxHunger = 100;
@@ -18,6 +18,7 @@ public class AgentStats
     public float growIntoAdultDurationSeconds = 30;
     public Gender gender = Gender.MALE;
 
+    // cap mutable stats
     private readonly float maxSpeed = 5.0f;
     private readonly float minSpeed = 0.1f;
     private readonly float maxMaxHealth = 1000;

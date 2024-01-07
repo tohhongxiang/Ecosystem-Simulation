@@ -29,8 +29,7 @@ public class TaskPursueFood : Node
             return state;
         }
 
-        Transform target = g.transform;
-        _agentBehavior.Pursue(target.transform);
+        _agentBehavior.Pursue(g);
 
         state = NodeState.RUNNING;
         return state;
