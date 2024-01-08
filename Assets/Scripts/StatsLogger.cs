@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using System.Net.NetworkInformation;
 
 public class StatsLogger : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class StatsLogger : MonoBehaviour
     private string startOfExperiment;
 
     void Start() {
-        startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss-ffff");
+        startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
         getAverageIntervalCounter = getAverageIntervalSeconds; // trigger collecting data from t = 0
     }
 
@@ -79,6 +80,7 @@ public class StatsLogger : MonoBehaviour
             }
 
             populationCount.Add(childrenAgentBehavior.Count());
+            Debug.Log("Current " + fileNamePrefix + " population: " + childrenAgentBehavior.Count());
 
             float averageSpeed = childrenAgentBehavior.Select(childAgentBehavior => childAgentBehavior.stats.speed).ToList().Average();
             populationSpeed.Add(averageSpeed);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using Pathfinding;
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Animator), typeof(LocomotionSimpleAgent), typeof(IAstarAI))]
 public class AgentBehavior : MonoBehaviour
@@ -22,7 +23,7 @@ public class AgentBehavior : MonoBehaviour
     }
 
     private float hunger;
-    private readonly float hungerThresholdPercentage = 0.5f;
+    private readonly float hungerThresholdPercentage = 0.8f;
     public float GetHunger()
     {
         return hunger;
@@ -33,7 +34,7 @@ public class AgentBehavior : MonoBehaviour
     }
 
     private float thirst;
-    private readonly float thirstThresholdPercentage = 0.5f;
+    private readonly float thirstThresholdPercentage = 0.8f;
     public float GetThirst()
     {
         return thirst;
@@ -85,7 +86,7 @@ public class AgentBehavior : MonoBehaviour
 
     private readonly int maxCandidates = 10;
 
-    private IAstarAI agent;
+    private RichAI agent;
     private Animator animator;
     private LocomotionSimpleAgent locomotionSimpleAgent;
     private readonly HashSet<Vector3> blacklistedWaterPoints = new HashSet<Vector3>();
@@ -93,8 +94,9 @@ public class AgentBehavior : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        agent = GetComponent<IAstarAI>();
-        agent.maxSpeed = stats.speed;
+        agent = GetComponent<RichAI>();
+        agent.maxSpeed = 1;
+        agent.rotationSpeed = stats.speed * agent.rotationSpeed;
 
         animator = GetComponent<Animator>();
         animator.SetFloat("speed", stats.speed);
@@ -109,16 +111,15 @@ public class AgentBehavior : MonoBehaviour
 
     void Update()
     {
-        HandleStatsUpdate();
-        // HandleGrowIntoAdultUpdate();
+        UpdateStats();
+        HandleGrowIntoAdultUpdate();
     }
 
-    private void HandleStatsUpdate()
+    private void UpdateStats()
     {
-        // TODO scale hunger and thirst relative to speed and size
         // decrease hunger and thirst all the time, stopping at 0
-        // hunger = Mathf.Max(hunger - Time.deltaTime, 0);
-        thirst = Mathf.Max(thirst - Time.deltaTime, 0);
+        hunger = Mathf.Max(hunger - Time.deltaTime * stats.speed * stats.speed, 0);
+        thirst = Mathf.Max(thirst - Time.deltaTime * stats.speed * stats.speed, 0);
 
         if (agentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f)
         {
@@ -134,18 +135,18 @@ public class AgentBehavior : MonoBehaviour
             stamina = Mathf.Min(stamina + Time.deltaTime, stats.maxStamina);
         }
 
-        if (hunger <= 0 || thirst <= 0)
-        {
-            health -= Time.deltaTime;
-        }
+        // if (hunger <= 0 || thirst <= 0)
+        // {
+        //     health -= Time.deltaTime;
+        // }
 
-        if (!IsHungry() && !IsThirsty())
-        {
-            health += Time.deltaTime;
-            health = Mathf.Min(health, stats.maxHealth);
-        }
+        // if (!IsHungry() && !IsThirsty())
+        // {
+        //     health += Time.deltaTime;
+        //     health = Mathf.Min(health, stats.maxHealth);
+        // }
 
-        if (health <= 0)
+        if (health <= 0 || hunger <= 0 || thirst <= 0)
         {
             Die();
         }
@@ -361,7 +362,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool IsTargetInReproduceRange(GameObject target)
     {
-        return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 2;
+        return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 6;
     }
 
     public bool IsAtDestination()
@@ -554,7 +555,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Kill()
     {
-        health = 0;
+        Die();
     }
 
     private readonly float forgetTime = 90f;
@@ -578,8 +579,17 @@ public class AgentBehavior : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
+        if (agent == null) return;
         // DebugFood();
-        DebugWater();
+        // DebugWater();
+        // DebugMating();
+
+        if (foodTag == "Deer")
+        {
+            DebugFood();
+        } else {
+            DebugPredators();
+        }
     }
 
     void DebugFOVRange()
@@ -601,10 +611,6 @@ public class AgentBehavior : MonoBehaviour
     {
         Gizmos.color = new Color(1, 1, 1, 0.5f);
         var waterPoints = GetWaterInFOVRange();
-        // foreach (var waterPoint in waterPoints)
-        // {
-        //     Gizmos.DrawLine(transform.position, waterPoint);
-        // }
 
         if (waterPoints.Count > 0)
         {
@@ -612,5 +618,34 @@ public class AgentBehavior : MonoBehaviour
             Gizmos.DrawLine(transform.position, waterPoints[0]);
         }
 
+    }
+
+    void DebugMating()
+    {
+        if (IsJustMatedRecently())
+        {
+            Gizmos.color = new Color(0, 1, 0, 0.5f);
+        }
+        else
+        {
+            Gizmos.color = new Color(1, 0, 0, 0.5f);
+        }
+
+        Gizmos.DrawSphere(transform.position, agent.radius * 6);
+
+        var mates = GetMatesInFOVRange();
+        foreach (var mate in mates)
+        {
+            Gizmos.DrawLine(transform.position, mate.transform.position);
+        }
+    }
+
+    void DebugPredators()
+    {
+        var predators = GetPredatorsInFOVRange();
+        foreach (var predator in predators)
+        {
+            Gizmos.DrawLine(transform.position, predator.transform.position);
+        }
     }
 }

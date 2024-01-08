@@ -504,9 +504,9 @@ GameObject:
   - component: {fileID: 371460936483723778}
   - component: {fileID: 1045030229457054042}
   - component: {fileID: 4404574874126556217}
-  - component: {fileID: 6107115117760368090}
   - component: {fileID: 2764033510568211208}
   - component: {fileID: 1330318388034960711}
+  - component: {fileID: 5947306921221851979}
   m_Layer: 0
   m_Name: Bear
   m_TagString: Untagged
@@ -596,7 +596,6 @@ MonoBehaviour:
   foodTag: Deer
   waterTag: Water
   predatorTag: 
-  species: Bear
   stats:
     speed: 0
     maxHealth: 100
@@ -688,48 +687,6 @@ MonoBehaviour:
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   graphMask:
     value: -1
---- !u!114 &6107115117760368090
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1549034802103007423}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 5
-  radius: 0.78
-  height: 1.52
-  canMove: 1
-  maxSpeed: 1
-  gravity: {x: NaN, y: NaN, z: NaN}
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 512
-  centerOffsetCompatibility: NaN
-  repathRateCompatibility: NaN
-  canSearchCompability: 0
-  orientation: 0
-  enableRotation: 1
-  autoRepath:
-    mode: 2
-    period: 0.5
-    sensitivity: 10
-    maximumPeriod: 2
-    visualizeSensitivity: 0
-  targetCompatibility: {fileID: 0}
-  maxAcceleration: -2.5
-  rotationSpeed: 360
-  slowdownDistance: 0.6
-  pickNextWaypointDist: 2
-  endReachedDistance: 0.2
-  alwaysDrawGizmos: 0
-  slowWhenNotFacingTarget: 1
-  whenCloseToDestination: 0
-  constrainInsideGraph: 0
 --- !u!114 &2764033510568211208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -752,7 +709,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1549034802103007423}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 560112f876f5746c780eca0d404e7139, type: 3}
   m_Name: 
@@ -772,6 +729,48 @@ MonoBehaviour:
   wallAvoidFalloff: 1
   priority: 0.5
   debug: 0
+--- !u!114 &5947306921221851979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549034802103007423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce11ea984e202491d9271f53021d8b89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 5
+  radius: 0.5
+  height: 4
+  canMove: 1
+  maxSpeed: 1
+  gravity: {x: NaN, y: NaN, z: NaN}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 512
+  centerOffsetCompatibility: NaN
+  repathRateCompatibility: NaN
+  canSearchCompability: 0
+  orientation: 0
+  enableRotation: 1
+  autoRepath:
+    mode: 2
+    period: 0.5
+    sensitivity: 10
+    maximumPeriod: 2
+    visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
+  acceleration: 5
+  rotationSpeed: 360
+  slowdownTime: 0.5
+  endReachedDistance: 1
+  wallForce: 3
+  wallDist: 1
+  funnelSimplification: 0
+  slowWhenNotFacingTarget: 1
+  animCompatibility: {fileID: 0}
 --- !u!1 &2014510388526886182
 GameObject:
   m_ObjectHideFlags: 0

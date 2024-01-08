@@ -31,7 +31,7 @@ public class CheckMateInInteractableRange : Node
             return state;
         }
 
-        if (_agentBehavior.IsAtDestination() && !_agentBehavior.IsTargetInReproduceRange(target)) {
+        if (_agentBehavior.IsAtDestination()) {
             ClearData("mate");
 
             state = NodeState.FAILURE;

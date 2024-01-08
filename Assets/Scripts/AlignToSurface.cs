@@ -19,7 +19,7 @@ public class AlignToSurface : MonoBehaviour
         theRay = -transform.up;
 
         if (Physics.Raycast(transform.position,
-            theRay, out hit, 3, terainMask))
+            theRay, out hit, 2, terainMask))
         {
 
             Quaternion targetRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.parent.rotation;
