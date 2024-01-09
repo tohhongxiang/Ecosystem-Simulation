@@ -4,12 +4,12 @@ using System.Collections;
 using System.Linq;
 using Pathfinding;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Animations;
 
 [RequireComponent(typeof(Animator), typeof(LocomotionSimpleAgent), typeof(IAstarAI))]
 public class AgentBehavior : MonoBehaviour
 {
     [SerializeField] public string foodTag = "";
-    [SerializeField] public string waterTag = "Water";
     [SerializeField] public string predatorTag = "";
 
     [Header("Stats")]
@@ -89,7 +89,6 @@ public class AgentBehavior : MonoBehaviour
     private RichAI agent;
     private Animator animator;
     private LocomotionSimpleAgent locomotionSimpleAgent;
-    private readonly HashSet<Vector3> blacklistedWaterPoints = new HashSet<Vector3>();
 
     // Start is called before the first frame update
     void Start()
@@ -286,11 +285,9 @@ public class AgentBehavior : MonoBehaviour
 
     public List<Vector3> GetWaterInFOVRange() // since water is just a single entity, we want to get positions of where we can reach
     {
-        List<Vector3> waters = WaterGenerator.Instance.GetAccessibleWaterPoints();
-        waters = waters
-            .Where((d) => (d - transform.position).sqrMagnitude <= stats.fovRange * stats.fovRange && !blacklistedWaterPoints.Contains(d))
+        return WaterGenerator.Instance.GetAccessibleWaterPoints()
+            .Where((d) => (d - transform.position).sqrMagnitude <= stats.fovRange * stats.fovRange)
             .OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
-        return waters;
     }
 
     public List<GameObject> GetPredatorsInFOVRange()
@@ -347,17 +344,17 @@ public class AgentBehavior : MonoBehaviour
 
     public bool IsTargetInteractable(GameObject target)
     {
-        return Vector3.Distance(transform.position, target.transform.position) <= 2 * agent.radius;
+        return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 4;
     }
 
     public bool IsTargetInAttackRange(GameObject target)
     {
-        return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 2;
+        return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 4;
     }
 
     public bool IsCoordinateInteractable(Vector3 coordinate)
     {
-        return Vector3.Distance(transform.position, coordinate) <= agent.radius * 3;
+        return Vector3.Distance(transform.position, coordinate) <= agent.radius * 4;
     }
 
     public bool IsTargetInReproduceRange(GameObject target)
@@ -367,7 +364,14 @@ public class AgentBehavior : MonoBehaviour
 
     public bool IsAtDestination()
     {
-        return agent.reachedEndOfPath;
+        return !agent.pathPending && agent.reachedEndOfPath;
+    }
+
+    public bool IsPathPossible(Vector3 position) {
+        GraphNode currentPositionNode = AstarPath.active.GetNearest(transform.position).node;
+        GraphNode targetPositionNode = AstarPath.active.GetNearest(position).node;
+
+        return PathUtilities.IsPathPossible(currentPositionNode, targetPositionNode);
     }
 
     public void Eat(GameObject target)
@@ -558,7 +562,6 @@ public class AgentBehavior : MonoBehaviour
         Die();
     }
 
-    private readonly float forgetTime = 90f;
     public void BlacklistTarget(GameObject target)
     {
         target.layer = LayerMask.NameToLayer("Default");
@@ -566,30 +569,24 @@ public class AgentBehavior : MonoBehaviour
 
     public void BlacklistWaterPoint(Vector3 target)
     {
-        blacklistedWaterPoints.Add(target);
-        StartCoroutine(ForgetBlacklistedWaterPoint(target));
+        WaterGenerator.Instance.ClearWaterPoint(target);
     }
 
-    IEnumerator ForgetBlacklistedWaterPoint(Vector3 target)
-    {
-        yield return new WaitForSeconds(forgetTime);
-
-        blacklistedWaterPoints.Remove(target);
-    }
-
+    #region Debugging
     void OnDrawGizmosSelected()
     {
         if (agent == null) return;
         // DebugFood();
         // DebugWater();
+        // DebugDestination();
         // DebugMating();
 
-        if (foodTag == "Deer")
-        {
-            DebugFood();
-        } else {
-            DebugPredators();
-        }
+        // if (foodTag == "Deer")
+        // {
+        //     DebugFood();
+        // } else {
+        //     DebugPredators();
+        // }
     }
 
     void DebugFOVRange()
@@ -616,6 +613,11 @@ public class AgentBehavior : MonoBehaviour
         {
             Gizmos.color = new Color(1, 0, 1);
             Gizmos.DrawLine(transform.position, waterPoints[0]);
+            
+            Gizmos.color = new Color(1, 1, 1, 0.5f);
+            foreach (var waterPoint in waterPoints) {
+                Gizmos.DrawCube(waterPoint, new Vector3(1, 1, 1));
+            }
         }
 
     }
@@ -648,4 +650,12 @@ public class AgentBehavior : MonoBehaviour
             Gizmos.DrawLine(transform.position, predator.transform.position);
         }
     }
+
+    void DebugDestination() {
+        var destination = agent.destination;
+        Gizmos.color = new Color(.5f, 1, .4f);
+        Gizmos.DrawLine(transform.position, destination);
+        Gizmos.DrawSphere(destination, 2);
+    }
+    #endregion
 }

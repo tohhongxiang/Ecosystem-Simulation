@@ -35,7 +35,7 @@ public class DeerBehaviorTree : BehaviorTree.Tree
             }),
             new Sequence(new List<Node> {
                 new CheckIfThirsty(agentBehavior),
-                new CheckIfAtDestination(agentBehavior),
+                new CheckWaterInInteractableRange(agentBehavior),
                 new TaskDrink(agentBehavior),
             }),
             new Sequence(new List<Node> {

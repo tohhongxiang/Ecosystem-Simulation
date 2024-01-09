@@ -23,8 +23,8 @@ MonoBehaviour:
     offset: {x: 0, y: 0}
   useFalloff: 1
   falloffParameters:
-    falloffStart: 0.616
-    falloffEnd: 0.82
+    falloffStart: 0.751
+    falloffEnd: 1
   heightMultiplier: 15
   heightCurve:
     serializedVersion: 2

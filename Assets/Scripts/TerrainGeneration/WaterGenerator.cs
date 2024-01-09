@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using Pathfinding;
 
 public class WaterGenerator : TerrainObjectGenerator
 {
@@ -22,11 +23,11 @@ public class WaterGenerator : TerrainObjectGenerator
     public GameObject waterPrefab;
     [Range(0, 1)] public float waterHeight;
     [Range(1, 512)] public int gridSize = 256;
-    private List<Vector3> accessibleWaterPoints = new List<Vector3>();
+    private HashSet<Vector3> accessibleWaterPoints = new HashSet<Vector3>();
 
     private int planeSizeMultiplier = 10;
 
-    public List<Vector3> GetAccessibleWaterPoints()
+    public HashSet<Vector3> GetAccessibleWaterPoints()
     {
         return accessibleWaterPoints;
     }
@@ -92,7 +93,8 @@ public class WaterGenerator : TerrainObjectGenerator
                     continue;
                 }
 
-                accessibleWaterPoints.Add(info.point);
+                // from the water point, get the nearest walkable point to that water point
+                accessibleWaterPoints.Add(AstarPath.active.GetNearest(info.point).position);
             }
         }
 
@@ -126,6 +128,10 @@ public class WaterGenerator : TerrainObjectGenerator
             downNeighborInfo.collider.gameObject.layer == gameObject.layer &&
             leftNeighborInfo.collider.gameObject.layer == gameObject.layer &&
             rightNeighborInfo.collider.gameObject.layer == gameObject.layer;
+    }
+
+    public void ClearWaterPoint(Vector3 waterPoint) {
+        accessibleWaterPoints.Remove(waterPoint);
     }
 
     public override void ClearObjects()

@@ -22,15 +22,13 @@ public class CheckWaterInInteractableRange : Node
             return state;
         }
 
-        if (_agentBehavior.IsAtDestination()) {
-            Debug.Log("Water point is unreachable");
-            _agentBehavior.BlacklistWaterPoint(waterPoint); // water point is unreachable, hence blacklist it
+        if (_agentBehavior.IsAtDestination() && !_agentBehavior.IsPathPossible(waterPoint)) {
+            Debug.Log("Blacklist water point" + _agentBehavior.gameObject);
+            _agentBehavior.BlacklistWaterPoint(waterPoint);
             ClearData("water");
-
             state = NodeState.FAILURE;
             return state;
         }
-
 
         state = NodeState.FAILURE;
         return state;

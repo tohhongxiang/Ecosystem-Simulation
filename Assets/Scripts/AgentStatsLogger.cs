@@ -9,6 +9,7 @@ using Unity.VisualScripting;
 public class AgentStatsLogger : MonoBehaviour
 {
     public List<AgentSpawner> agentSpawners = new List<AgentSpawner>();
+    public bool saveToCSV = true;
     public float getAverageIntervalSeconds = 10;
     public float writeToCSVIntervalSeconds = 180;
 
@@ -56,7 +57,7 @@ public class AgentStatsLogger : MonoBehaviour
     void Update()
     {
         writeToCSVIntervalCounter += Time.deltaTime;
-        if (writeToCSVIntervalCounter > writeToCSVIntervalSeconds)
+        if (writeToCSVIntervalCounter > writeToCSVIntervalSeconds && saveToCSV)
         {
             writeToCSVIntervalCounter = 0;
             WriteStatsToCSV();
@@ -131,15 +132,15 @@ public class AgentStatsLogger : MonoBehaviour
 
             foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.Name])
             {
-                if (population == 0)
+                // make sure field exists
+                if (typeof(AgentStats).GetField(element.Key) == null)
                 {
-                    statistics[agentSpawner.Name][element.Key].Add(0);
                     continue;
                 }
 
-                // make sure field exists
-                if (childrenAgentBehavior[0].stats.GetType().GetField(element.Key) == null)
+                if (population == 0)
                 {
+                    statistics[agentSpawner.Name][element.Key].Add(0);
                     continue;
                 }
 

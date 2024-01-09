@@ -17,6 +17,10 @@ public class MapPreview : MonoBehaviour
         {
             foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners)
             {
+                if (terrainObjectSpawner == null) {
+                    continue;
+                }
+
                 terrainObjectSpawner.ClearObjects();
             }
         }
@@ -51,6 +55,10 @@ public class MapPreview : MonoBehaviour
             {
                 foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners)
                 {
+                    if (terrainObjectSpawner == null) {
+                        continue;
+                    }
+
                     terrainObjectSpawner.SpawnObjects(previewMesh.GetComponent<Renderer>().bounds);
                 }
             }

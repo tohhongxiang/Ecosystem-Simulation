@@ -20,23 +20,18 @@ public class CheckFoodInInteractableRange : Node
             return state;
         }
 
-        if (_agentBehavior.IsAtDestination()) {
+        if (_agentBehavior.IsCoordinateInteractable(target.transform.position)) {
             state = NodeState.SUCCESS;
             return state;
         }
 
-        // if (_agentBehavior.IsTargetInteractable(target)) {
-        //     state = NodeState.SUCCESS;
-        //     return state;
-        // }
-
-        // if (_agentBehavior.IsAtDestination()) {
-        //     Debug.Log("At destination but cannot interact");
-        //     state = NodeState.FAILURE;
-        //     _agentBehavior.BlacklistTarget(target);
-        //     ClearData("target");
-        //     return state;
-        // }
+        if (_agentBehavior.IsAtDestination() && !_agentBehavior.IsPathPossible(target.transform.position)) {
+            Debug.Log("Blacklist food" + _agentBehavior.gameObject);
+            _agentBehavior.BlacklistTarget(target);
+            ClearData("target");
+            state = NodeState.FAILURE;
+            return state;
+        }
 
         state = NodeState.FAILURE;
         return state;
