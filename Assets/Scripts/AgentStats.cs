@@ -38,6 +38,8 @@ public class AgentStats
     private readonly float maxGrowIntoAdultDurationSeconds = 1000;
     private readonly float minGrowIntoAdultDurationSeconds = 10;
 
+    public AgentStats() {}
+
     public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float maxStamina, float fovRange, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender)
     {
         this.speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
