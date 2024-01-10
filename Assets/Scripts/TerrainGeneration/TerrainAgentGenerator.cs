@@ -8,10 +8,6 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
     public AgentStats initialAgentStats;
     [TagSelector] public string newTag;
 
-    [Header("Constraints")]
-    [Range(0, 1)] public float minimumSpawnHeight = 0;
-    [Range(0, 1)] public float maximumSpawnHeight = 1;
-
     [Header("Randomisation Parameters")]
     [Range(0, 1000)][Tooltip("Total prefabs to spawn")] public int count = 1;
     const int maxTries = 100;
@@ -19,10 +15,6 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
     public override void SpawnObjects(Bounds spawnAreaBounds)
     {
         ClearObjects();
-
-        float minimumHeightToSpawnPrefab = Mathf.Lerp(spawnAreaBounds.min.y, spawnAreaBounds.max.y, minimumSpawnHeight);
-        float maximumHeightToSpawnPrefab = Mathf.Lerp(spawnAreaBounds.min.y, spawnAreaBounds.max.y, maximumSpawnHeight);
-
 
         for (int i = 0; i < count; i++)
         {
@@ -48,12 +40,6 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
                 }
 
                 Vector3 hitPosition = info.point;
-
-                // if spawn position does not satisfy height constraints, retry
-                if (hitPosition.y < minimumHeightToSpawnPrefab || hitPosition.y > maximumHeightToSpawnPrefab)
-                {
-                    continue;
-                }
 
                 // rotate object on y axis
                 Quaternion finalRotation = Quaternion.Euler(

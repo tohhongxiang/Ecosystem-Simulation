@@ -93,12 +93,11 @@ public class AgentBehavior : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        agent = GetComponent<RichAI>();
-        agent.maxSpeed = 1;
-        agent.rotationSpeed = stats.speed * agent.rotationSpeed;
-
         animator = GetComponent<Animator>();
         animator.SetFloat("speed", stats.speed);
+
+        agent = GetComponent<RichAI>();
+        agent.maxSpeed = 1;
 
         locomotionSimpleAgent = GetComponent<LocomotionSimpleAgent>();
 
@@ -219,6 +218,7 @@ public class AgentBehavior : MonoBehaviour
     public void Pursue(GameObject target)
     {
         agentState = AgentState.RUNNING;
+
         Vector3 targetDirection = target.transform.position - transform.position;
         float relativeHeading = Vector3.Angle(transform.forward, transform.TransformVector(target.transform.forward));
         float toTarget = Vector3.Angle(transform.forward, transform.TransformVector(targetDirection));
@@ -228,12 +228,12 @@ public class AgentBehavior : MonoBehaviour
 
         if ((toTarget > 90 && relativeHeading < 20) || targetSpeed < 0.01f)
         {
-            locomotionSimpleAgent.SeekRun(target.transform.position);
+            locomotionSimpleAgent.Seek(target.transform.position);
             return;
         }
 
         float lookAhead = targetDirection.magnitude / (agent.maxSpeed + targetSpeed);
-        locomotionSimpleAgent.SeekRun(target.transform.position + target.transform.forward * lookAhead);
+        locomotionSimpleAgent.Seek(target.transform.position + target.transform.forward * lookAhead);
     }
 
     public void Evade(GameObject target)
@@ -388,6 +388,7 @@ public class AgentBehavior : MonoBehaviour
     {
         agent.isStopped = true;
         agentState = AgentState.EATING;
+        transform.LookAt(target.transform);
         animator.SetBool("isEating", true);
         target.layer = LayerMask.NameToLayer("Default");
 
@@ -406,20 +407,21 @@ public class AgentBehavior : MonoBehaviour
         agent.isStopped = false;
     }
 
-    public void Drink()
+    public void Drink(Vector3 waterPoint)
     {
         if (agentState == AgentState.DRINKING)
         {
             return;
         }
 
-        StartCoroutine(HandleDrink());
+        StartCoroutine(HandleDrink(waterPoint));
     }
 
-    IEnumerator HandleDrink()
+    IEnumerator HandleDrink(Vector3 waterPoint)
     {
         agent.isStopped = true;
         agentState = AgentState.DRINKING;
+        transform.LookAt(waterPoint);
         animator.SetBool("isDrinking", true);
 
         yield return new WaitForSeconds(1);
@@ -484,14 +486,15 @@ public class AgentBehavior : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
+        animator.SetBool("isMating", false);
+
         if (mate == null)
         {
             yield break;
         }
 
-        animator.SetBool("isMating", false);
-
         SetMated(true);
+        mate.GetComponent<AgentBehavior>().SetMated(true);
 
         agentState = AgentState.DONE_MATING;
 

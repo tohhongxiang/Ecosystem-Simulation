@@ -1,6 +1,7 @@
 using UnityEngine;
 using Pathfinding;
 using Pathfinding.Util;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 // coordinates Animator and RichAI
 
@@ -15,6 +16,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
     Vector2 smoothDeltaPosition = Vector2.zero;
     AgentBehavior agentBehavior;
     LookAt lookAt;
+    Seeker seeker;
 
     void Start()
     {
@@ -27,6 +29,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
         lookAt = GetComponent<LookAt>();
 
         agentBehavior = GetComponent<AgentBehavior>();
+        seeker = GetComponent<Seeker>();
     }
 
     void Update()
@@ -60,14 +63,16 @@ public class LocomotionSimpleAgent : MonoBehaviour
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
 
-        transform.rotation = nextRotation;
+        
     }
 
     void OnAnimatorMove()
     {
         if (agent == null) return;
+
         agent.MovementUpdate(Time.deltaTime, out Vector3 nextPosition, out Quaternion nextRotation);
-        agent.FinalizeMovement(new Vector3(animator.rootPosition.x, nextPosition.y, animator.rootPosition.z), transform.rotation);
+        Quaternion smoothedRotation = Quaternion.Lerp(transform.rotation, nextRotation, 0.9f);
+        agent.FinalizeMovement(new Vector3(animator.rootPosition.x, nextPosition.y, animator.rootPosition.z), smoothedRotation);
     }
 
     public void Seek(Vector3 location)
@@ -75,16 +80,14 @@ public class LocomotionSimpleAgent : MonoBehaviour
         agent.destination = location;
     }
 
-    public void SeekRun(Vector3 location)
-    {
-        // todo fix this
-        agent.destination = location;
-    }
-
     public void Flee(Vector3 location)
     {
+        FleePath path = FleePath.Construct(transform.position, location, (int)agentBehavior.stats.fovRange * 1000);
+        path.aimStrength = 1;
+        path.spread = 4000;
+
         Vector3 fleeVector = location - transform.position;
-        SeekRun(transform.position - fleeVector);
+        seeker.StartPath(path);
     }
 
 }

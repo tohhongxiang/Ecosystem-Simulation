@@ -20,7 +20,8 @@ public class CheckMateInInteractableRange : Node
             return state;
         }
 
-        if (!target.GetComponent<AgentBehavior>().CanMate()) {
+        AgentBehavior targetAgentBehavior = target.GetComponent<AgentBehavior>();
+        if (!targetAgentBehavior.CanMate() || targetAgentBehavior.GetAgentState() == AgentBehavior.AgentState.MATING) {
             ClearData("mate");
             state = NodeState.FAILURE;
             return state;

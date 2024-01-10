@@ -19,7 +19,8 @@ public class TaskDrink : Node
             return state;
         }
 
-        _agentBehavior.Drink();
+        Vector3 waterPoint = (Vector3)GetData("water");
+        _agentBehavior.Drink(waterPoint);
 
         if (_agentBehavior.GetAgentState() == AgentBehavior.AgentState.DONE_DRINKING)
         {

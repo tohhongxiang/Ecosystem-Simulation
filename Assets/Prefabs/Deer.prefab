@@ -580,7 +580,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   foodTag: Food
-  waterTag: Water
   predatorTag: Bear
   stats:
     speed: 0
@@ -710,10 +709,10 @@ MonoBehaviour:
   rotationSpeed: 360
   slowdownTime: 0.5
   endReachedDistance: 1
-  wallForce: 3
-  wallDist: 1
+  wallForce: 0
+  wallDist: 0
   funnelSimplification: 1
-  slowWhenNotFacingTarget: 1
+  slowWhenNotFacingTarget: 0
   animCompatibility: {fileID: 0}
 --- !u!114 &827089434550500980
 MonoBehaviour:

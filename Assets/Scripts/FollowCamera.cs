@@ -50,12 +50,17 @@ public class FollowCamera : MonoBehaviour
     }
 
     Transform ChooseRandomTarget() {
-        GameObject spawner = agentSpawners[Random.Range(0, agentSpawners.Count)];
-        if (spawner.transform.childCount == 0) {
+        List<Transform> validTargets = new List<Transform>();
+        foreach (var agentSpawner in agentSpawners) {
+            foreach (Transform childTarget in agentSpawner.transform) {
+                validTargets.Add(childTarget);
+            }
+        }
+        
+        if (validTargets.Count == 0) {
             return null;
         }
 
-        Transform target = spawner.transform.GetChild(Random.Range(0, spawner.transform.childCount));
-        return target;
+        return validTargets[Random.Range(0, validTargets.Count)];
     }
 }
