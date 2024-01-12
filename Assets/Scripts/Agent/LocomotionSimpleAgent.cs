@@ -63,7 +63,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
         if (lookAt)
             lookAt.lookAtTargetPosition = agent.steeringTarget + transform.forward;
 
-        
+        transform.rotation = nextRotation;
     }
 
     void OnAnimatorMove()
@@ -71,8 +71,8 @@ public class LocomotionSimpleAgent : MonoBehaviour
         if (agent == null) return;
 
         agent.MovementUpdate(Time.deltaTime, out Vector3 nextPosition, out Quaternion nextRotation);
-        Quaternion smoothedRotation = Quaternion.Lerp(transform.rotation, nextRotation, 0.9f);
-        agent.FinalizeMovement(new Vector3(animator.rootPosition.x, nextPosition.y, animator.rootPosition.z), smoothedRotation);
+        // Quaternion smoothedRotation = Quaternion.Lerp(transform.rotation, nextRotation, 0.9f);
+        agent.FinalizeMovement(new Vector3(animator.rootPosition.x, nextPosition.y, animator.rootPosition.z), nextRotation);
     }
 
     public void Seek(Vector3 location)

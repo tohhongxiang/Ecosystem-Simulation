@@ -33,6 +33,7 @@ public class AgentStatsLogger : MonoBehaviour
     private string startOfExperiment;
     // { [agentSpawner]: { [statistic]: object[] }}
     private Dictionary<string, Dictionary<string, List<object>>> statistics = new Dictionary<string, Dictionary<string, List<object>>>();
+
     void Start()
     {
         startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
@@ -127,6 +128,7 @@ public class AgentStatsLogger : MonoBehaviour
 
             int population = childrenAgentBehavior.Count();
             statistics[agentSpawner.Name]["population"].Add(population);
+            Debug.Log(string.Format("{0} population: {1}", agentSpawner.Name, population));
 
             statistics[agentSpawner.Name]["time"].Add(timer);
 

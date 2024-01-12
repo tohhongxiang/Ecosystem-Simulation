@@ -579,6 +579,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c376363941c15f4ba1365539ecb3e60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefab: {fileID: 1258068636713606773}
   foodTag: Food
   predatorTag: Bear
   stats:
@@ -686,13 +687,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 5
   radius: 0.5
-  height: 4
+  height: 8
   canMove: 1
   maxSpeed: 1
   gravity: {x: NaN, y: NaN, z: NaN}
   groundMask:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 528
   centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0

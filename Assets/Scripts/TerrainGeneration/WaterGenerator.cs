@@ -94,14 +94,19 @@ public class WaterGenerator : TerrainObjectGenerator
                 }
 
                 // from the water point, get the nearest walkable point to that water point
-                accessibleWaterPoints.Add(AstarPath.active.GetNearest(info.point).position);
+                Vector3 nearestWalkablePosition = AstarPath.active.GetNearest(info.point).position;
+                if (Vector3.Distance(nearestWalkablePosition, info.point) < 1)
+                {
+                    accessibleWaterPoints.Add(nearestWalkablePosition);
+                }
             }
         }
 
         yield return null;
     }
 
-    private bool AreAllNeighborsWater(int i, int j, float minX, float highYCoordinate, float minZ, float gridXSpace, float gridZSpace) {
+    private bool AreAllNeighborsWater(int i, int j, float minX, float highYCoordinate, float minZ, float gridXSpace, float gridZSpace)
+    {
         RaycastHit upNeighborInfo;
         RaycastHit downNeighborInfo;
         RaycastHit leftNeighborInfo;
@@ -130,7 +135,8 @@ public class WaterGenerator : TerrainObjectGenerator
             rightNeighborInfo.collider.gameObject.layer == gameObject.layer;
     }
 
-    public void ClearWaterPoint(Vector3 waterPoint) {
+    public void ClearWaterPoint(Vector3 waterPoint)
+    {
         accessibleWaterPoints.Remove(waterPoint);
     }
 

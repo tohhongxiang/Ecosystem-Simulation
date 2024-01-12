@@ -29,6 +29,8 @@ public class TaskPursueFood : Node
             return state;
         }
 
+        ClearData("water");
+        ClearData("mate");
         _agentBehavior.Pursue(g);
 
         state = NodeState.RUNNING;

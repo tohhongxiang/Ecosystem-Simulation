@@ -593,6 +593,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c376363941c15f4ba1365539ecb3e60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefab: {fileID: 1549034802103007423}
   foodTag: Deer
   predatorTag: 
   stats:
@@ -742,7 +743,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 5
   radius: 0.5
-  height: 4
+  height: 8
   canMove: 1
   maxSpeed: 1
   gravity: {x: NaN, y: NaN, z: NaN}
@@ -767,8 +768,8 @@ MonoBehaviour:
   endReachedDistance: 1
   wallForce: 3
   wallDist: 1
-  funnelSimplification: 0
-  slowWhenNotFacingTarget: 1
+  funnelSimplification: 1
+  slowWhenNotFacingTarget: 0
   animCompatibility: {fileID: 0}
 --- !u!1 &2014510388526886182
 GameObject:

@@ -24,6 +24,12 @@ public class TaskMate : Node
             return state;
         }
 
+        if (_agentBehavior.IsUnimpressed(target)) {
+            ClearData("mate");
+            state = NodeState.FAILURE;
+            return state;
+        }
+
         state = NodeState.RUNNING;
         return state;
     }
