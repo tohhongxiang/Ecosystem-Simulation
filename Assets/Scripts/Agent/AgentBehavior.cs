@@ -20,52 +20,29 @@ public class AgentBehavior : MonoBehaviour
     public AgentStats stats;
 
     // internal state
-    private float health;
-    public float GetHealth()
-    {
-        return health;
-    }
+    public float Health { get; private set; }
 
-    private float hunger;
+    public float Hunger { get; private set; }
     private readonly float hungerThresholdPercentage = 0.8f;
-    public float GetHunger()
-    {
-        return hunger;
-    }
     public bool IsHungry()
     {
-        return hunger <= hungerThresholdPercentage * stats.maxHunger;
+        return Hunger <= hungerThresholdPercentage * stats.maxHunger;
     }
 
-    private float thirst;
+    public float Thirst { get; private set; }
     private readonly float thirstThresholdPercentage = 0.8f;
-    public float GetThirst()
-    {
-        return thirst;
-    }
     public bool IsThirsty()
     {
-        return thirst <= thirstThresholdPercentage * stats.maxThirst;
+        return Thirst <= thirstThresholdPercentage * stats.maxThirst;
     }
 
-    private float stamina;
-    public float GetStamina()
-    {
-        return stamina;
-    }
-    private bool isRecovering = false;
-    public bool GetIsRecovering()
-    {
-        return isRecovering;
-    }
+    public float Stamina { get; private set; } = 0;
+    public bool IsRecovering { get; private set; } = false;
     private readonly float staminaRecoveryThreshold = 0.9f;
 
-    private float reproductiveSatisfaction = 0;
-    public float GetReproductiveSatisfaction()
-    {
-        return reproductiveSatisfaction;
-    }
-    private float age = 0;
+    public float ReproductiveSatisfaction { get; private set; } = 0;
+
+    public float Age { get; private set; } = 0;
 
     public enum AgentState
     {
@@ -75,11 +52,7 @@ public class AgentBehavior : MonoBehaviour
         ATTACKING, DONE_ATTACKING,
         WANDERING, RUNNING, DEAD
     };
-    private AgentState agentState = AgentState.WANDERING;
-    public AgentState GetAgentState()
-    {
-        return agentState;
-    }
+    public AgentState CurrentAgentState { get; private set; } = AgentState.WANDERING;
 
     private bool isChild = false;
     private float childCounter = 0;
@@ -102,11 +75,11 @@ public class AgentBehavior : MonoBehaviour
 
         locomotionSimpleAgent = GetComponent<LocomotionSimpleAgent>();
 
-        health = stats.maxHealth;
-        hunger = stats.maxHunger;
-        thirst = stats.maxThirst;
-        stamina = stats.maxStamina;
-        reproductiveSatisfaction = stats.maxReproductiveSatisfaction;
+        Health = stats.maxHealth;
+        Hunger = stats.maxHunger;
+        Thirst = stats.maxThirst;
+        Stamina = stats.maxStamina;
+        ReproductiveSatisfaction = stats.maxReproductiveSatisfaction;
     }
 
     void Update()
@@ -119,43 +92,44 @@ public class AgentBehavior : MonoBehaviour
     private void UpdateStats()
     {
         // decrease hunger and thirst all the time, stopping at 0
-        hunger = Mathf.Max(hunger - Time.deltaTime, 0);
-        thirst = Mathf.Max(thirst - Time.deltaTime, 0);
+        Hunger = Mathf.Max(Hunger - Time.deltaTime, 0);
+        Thirst = Mathf.Max(Thirst - Time.deltaTime, 0);
 
-        reproductiveSatisfaction = Mathf.Max(reproductiveSatisfaction - Time.deltaTime, 0);
+        ReproductiveSatisfaction = Mathf.Max(ReproductiveSatisfaction - Time.deltaTime, 0);
 
-        if (agentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f)
+        if (CurrentAgentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f)
         {
-            stamina = Mathf.Max(stamina - Time.deltaTime, 0);
-            if (stamina == 0 && !isRecovering)
+            Stamina = Mathf.Max(Stamina - Time.deltaTime, 0);
+            if (Stamina == 0 && !IsRecovering)
             {
-                isRecovering = true;
+                IsRecovering = true;
                 StartCoroutine(HandleCheckIfRecovered());
             }
         }
         else
         {
-            stamina = Mathf.Min(stamina + Time.deltaTime, stats.maxStamina);
+            Stamina = Mathf.Min(Stamina + Time.deltaTime, stats.maxStamina);
         }
 
-        if (hunger <= 0 || thirst <= 0)
+        if (Hunger <= 0 || Thirst <= 0)
         {
-            health = Mathf.Max(0, health - Time.deltaTime);
+            Health = Mathf.Max(0, Health - Time.deltaTime);
         }
 
-        if (health <= 0) {
+        if (Health <= 0)
+        {
             Die();
         }
     }
 
     IEnumerator HandleCheckIfRecovered()
     {
-        while (stamina < staminaRecoveryThreshold * stats.maxStamina)
+        while (Stamina < staminaRecoveryThreshold * stats.maxStamina)
         {
             yield return new WaitForSeconds(0.5f);
         }
 
-        isRecovering = false;
+        IsRecovering = false;
     }
 
     private void HandleGrowIntoAdultUpdate()
@@ -185,7 +159,7 @@ public class AgentBehavior : MonoBehaviour
     private float probabilityOfDyingWhenAtExpectedAge = 0.5f;
     private void HandleAge()
     {
-        age += Time.deltaTime;
+        Age += Time.deltaTime;
         checkDeathCounter += Time.deltaTime;
 
         if (checkDeathCounter > checkDeathInterval)
@@ -196,7 +170,7 @@ public class AgentBehavior : MonoBehaviour
             // when age = maxAge, this evaluates to 0.5
             float a = -Mathf.Log(probabilityOfDyingWhenBorn);
             float b = stats.expectedAge * Mathf.Log(probabilityOfDyingWhenBorn) / (Mathf.Log(probabilityOfDyingWhenBorn) - Mathf.Log(probabilityOfDyingWhenAtExpectedAge));
-            float probabilityOfDying = Mathf.Exp(a * (age / b - 1));
+            float probabilityOfDying = Mathf.Exp(a * (Age / b - 1));
             if (RollForChance(probabilityOfDying))
             {
                 Die();
@@ -215,7 +189,7 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleDeath()
     {
-        agentState = AgentState.DEAD;
+        CurrentAgentState = AgentState.DEAD;
         agent.canMove = false;
         animator.SetBool("isDead", true);
 
@@ -230,7 +204,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Wander()
     {
-        agentState = AgentState.WANDERING;
+        CurrentAgentState = AgentState.WANDERING;
         if (!agent.pathPending && (agent.reachedEndOfPath || !agent.hasPath))
         {
             agent.destination = RandomPoint();
@@ -271,13 +245,13 @@ public class AgentBehavior : MonoBehaviour
 
     public void GoToFood(GameObject target)
     {
-        agentState = AgentState.GOING_TO_FOOD;
+        CurrentAgentState = AgentState.GOING_TO_FOOD;
         locomotionSimpleAgent.Seek(target.transform.position);
     }
 
     public void Eat(GameObject target)
     {
-        if (target == null || agentState == AgentState.EATING) // make sure that the current creature is not already consuming
+        if (target == null || CurrentAgentState == AgentState.EATING) // make sure that the current creature is not already consuming
         {
             return;
         }
@@ -288,7 +262,7 @@ public class AgentBehavior : MonoBehaviour
     IEnumerator HandleEat(GameObject target)
     {
         agent.isStopped = true;
-        agentState = AgentState.EATING;
+        CurrentAgentState = AgentState.EATING;
         transform.LookAt(target.transform);
         animator.SetBool("isEating", true);
         target.layer = LayerMask.NameToLayer("Default");
@@ -303,8 +277,8 @@ public class AgentBehavior : MonoBehaviour
         Destroy(target);
         animator.SetBool("isEating", false);
 
-        hunger = stats.maxHunger;
-        agentState = AgentState.DONE_EATING;
+        Hunger = stats.maxHunger;
+        CurrentAgentState = AgentState.DONE_EATING;
 
         agent.isStopped = false;
     }
@@ -319,7 +293,7 @@ public class AgentBehavior : MonoBehaviour
     #region Handle Drink
     public void GoToWater(Vector3 waterLocation)
     {
-        agentState = AgentState.GOING_TO_WATER;
+        CurrentAgentState = AgentState.GOING_TO_WATER;
         locomotionSimpleAgent.Seek(waterLocation);
     }
 
@@ -332,7 +306,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Drink(Vector3 waterPoint)
     {
-        if (agentState == AgentState.DRINKING)
+        if (CurrentAgentState == AgentState.DRINKING)
         {
             return;
         }
@@ -343,7 +317,7 @@ public class AgentBehavior : MonoBehaviour
     IEnumerator HandleDrink(Vector3 waterPoint)
     {
         agent.isStopped = true;
-        agentState = AgentState.DRINKING;
+        CurrentAgentState = AgentState.DRINKING;
         transform.LookAt(waterPoint);
         animator.SetBool("isDrinking", true);
 
@@ -355,8 +329,8 @@ public class AgentBehavior : MonoBehaviour
         }
 
         animator.SetBool("isDrinking", false);
-        thirst = stats.maxThirst;
-        agentState = AgentState.DONE_DRINKING;
+        Thirst = stats.maxThirst;
+        CurrentAgentState = AgentState.DONE_DRINKING;
         agent.isStopped = false;
     }
 
@@ -375,7 +349,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void GoToMate(GameObject mate)
     {
-        agentState = AgentState.GOING_TO_MATE;
+        CurrentAgentState = AgentState.GOING_TO_MATE;
         locomotionSimpleAgent.Seek(mate.transform.position);
 
         mate.GetComponent<LocomotionSimpleAgent>().Seek(transform.position);
@@ -421,7 +395,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Mate(GameObject mate)
     {
-        if (mate == null || agentState == AgentState.MATING) // make sure that the current creature is not already consuming
+        if (mate == null || CurrentAgentState == AgentState.MATING) // make sure that the current creature is not already consuming
         {
             return;
         }
@@ -464,7 +438,7 @@ public class AgentBehavior : MonoBehaviour
     public bool RequestMate(AgentStats mateStats)
     {
         // more likely to mate with worse mates if agent has not mated for a while
-        float chance = 1 - reproductiveSatisfaction / stats.maxReproductiveSatisfaction;
+        float chance = 1 - ReproductiveSatisfaction / stats.maxReproductiveSatisfaction;
 
         chance += (mateStats.speed - stats.speed) / stats.speed;
         chance += (mateStats.maxHealth - stats.maxHealth) / stats.maxHealth;
@@ -484,7 +458,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool CanMate()
     {
-        return !isChild && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= thirst / stats.maxThirst && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= hunger / stats.maxHunger;
+        return !isChild && ReproductiveSatisfaction / stats.maxReproductiveSatisfaction <= Thirst / stats.maxThirst && ReproductiveSatisfaction / stats.maxReproductiveSatisfaction <= Hunger / stats.maxHunger;
     }
 
     private float reproductionTimeSeconds = 5;
@@ -496,7 +470,7 @@ public class AgentBehavior : MonoBehaviour
         }
 
         agent.isStopped = true;
-        agentState = AgentState.MATING;
+        CurrentAgentState = AgentState.MATING;
         animator.SetBool("isMating", true);
 
         // make both look at each other
@@ -520,9 +494,9 @@ public class AgentBehavior : MonoBehaviour
             yield break;
         }
 
-        reproductiveSatisfaction = stats.maxReproductiveSatisfaction;
+        ReproductiveSatisfaction = stats.maxReproductiveSatisfaction;
 
-        agentState = AgentState.DONE_MATING;
+        CurrentAgentState = AgentState.DONE_MATING;
 
         if (stats.gender == Gender.FEMALE) // make only the female spawn the child
         {
@@ -552,13 +526,13 @@ public class AgentBehavior : MonoBehaviour
 
     public void Pursue(GameObject target)
     {
-        agentState = AgentState.RUNNING;
+        CurrentAgentState = AgentState.RUNNING;
         locomotionSimpleAgent.Seek(target.transform.position);
     }
 
     public void Evade(GameObject target)
     {
-        agentState = AgentState.RUNNING;
+        CurrentAgentState = AgentState.RUNNING;
         Vector3 directionToRunTowards = (transform.position - target.transform.position + transform.position).normalized;
         directionToRunTowards *= stats.fovRange;
 
@@ -587,7 +561,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Attack(GameObject target)
     {
-        if (agentState == AgentState.ATTACKING)
+        if (CurrentAgentState == AgentState.ATTACKING)
         {
             return;
         }
@@ -598,7 +572,7 @@ public class AgentBehavior : MonoBehaviour
     IEnumerator HandleAttack(GameObject target)
     {
         agent.isStopped = true;
-        agentState = AgentState.ATTACKING;
+        CurrentAgentState = AgentState.ATTACKING;
 
         transform.LookAt(target.transform);
 
@@ -614,11 +588,11 @@ public class AgentBehavior : MonoBehaviour
         if (target != null)
         {
             target.GetComponent<AgentBehavior>().Kill();
-            hunger = stats.maxHunger;
+            Hunger = stats.maxHunger;
         }
 
         animator.SetBool("isAttacking", false);
-        agentState = AgentState.DONE_ATTACKING;
+        CurrentAgentState = AgentState.DONE_ATTACKING;
         agent.isStopped = false;
     }
 

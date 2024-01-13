@@ -21,7 +21,7 @@ public class CheckMateInInteractableRange : Node
         }
 
         AgentBehavior targetAgentBehavior = target.GetComponent<AgentBehavior>();
-        if (!targetAgentBehavior.CanMate() || targetAgentBehavior.GetAgentState() == AgentBehavior.AgentState.MATING) {
+        if (!targetAgentBehavior.CanMate() || targetAgentBehavior.CurrentAgentState == AgentBehavior.AgentState.MATING) {
             ClearData("mate");
             state = NodeState.FAILURE;
             return state;

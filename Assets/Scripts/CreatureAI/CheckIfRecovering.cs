@@ -15,7 +15,7 @@ public class CheckIfRecovering : Node
     // Update is called once per frame
     public override NodeState Evaluate()
     {
-        state = _agentBehavior.GetIsRecovering() ? NodeState.SUCCESS : NodeState.FAILURE;
+        state = _agentBehavior.IsRecovering ? NodeState.SUCCESS : NodeState.FAILURE;
         return state;
     }
 }

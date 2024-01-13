@@ -22,7 +22,7 @@ public class TaskDrink : Node
         Vector3 waterPoint = (Vector3)GetData("water");
         _agentBehavior.Drink(waterPoint);
 
-        if (_agentBehavior.GetAgentState() == AgentBehavior.AgentState.DONE_DRINKING)
+        if (_agentBehavior.CurrentAgentState == AgentBehavior.AgentState.DONE_DRINKING)
         {
             ClearData("water");
             state = NodeState.SUCCESS;

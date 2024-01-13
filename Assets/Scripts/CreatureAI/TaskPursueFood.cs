@@ -15,14 +15,14 @@ public class TaskPursueFood : Node
     }
 
     public override NodeState Evaluate() {
-        if (_agentBehavior.GetAgentState() == AgentBehavior.AgentState.ATTACKING) { // if he is currently attacking he cannot pursue
+        if (_agentBehavior.CurrentAgentState == AgentBehavior.AgentState.ATTACKING) { // if he is currently attacking he cannot pursue
             state = NodeState.FAILURE;
             return state;
         }
 
         GameObject g = (GameObject)GetData("target");
 
-        if (g == null || _agentBehavior.GetIsRecovering()) { // target does not exist anymore, or agent ran out of stamina chasing
+        if (g == null || _agentBehavior.IsRecovering) { // target does not exist anymore, or agent ran out of stamina chasing
             ClearData("target");
 
             state = NodeState.FAILURE;

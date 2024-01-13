@@ -55,7 +55,7 @@ public class LocomotionSimpleAgent : MonoBehaviour
 
         Vector2 velocity = smoothDeltaPosition / Time.deltaTime;
 
-        int runSpeedMultiplier = agentBehavior.GetAgentState() == AgentBehavior.AgentState.RUNNING && !agentBehavior.GetIsRecovering() ? 2 : 1;
+        int runSpeedMultiplier = agentBehavior.CurrentAgentState == AgentBehavior.AgentState.RUNNING && !agentBehavior.IsRecovering ? 2 : 1;
         animator.SetBool("isWalking", velocity.magnitude > 0.5f);
         animator.SetFloat("velocityX", velocity.normalized.x * runSpeedMultiplier);
         animator.SetFloat("velocityZ", velocity.normalized.y * runSpeedMultiplier);

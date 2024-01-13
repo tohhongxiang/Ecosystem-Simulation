@@ -26,20 +26,20 @@ public class HandleDisplayStats : MonoBehaviour
 
         if (stateText != null)
         {
-            stateText.text = GetStateText(agentBehavior.GetAgentState());
+            stateText.text = GetStateText(agentBehavior.CurrentAgentState);
         }
     }
 
     void Update()
     {
-        reproductiveSatisfactionSlider.value = agentBehavior.GetReproductiveSatisfaction();
-        hungerSlider.value = agentBehavior.GetHunger();
-        thirstSlider.value = agentBehavior.GetThirst();
-        staminaSlider.value = agentBehavior.GetStamina();
+        reproductiveSatisfactionSlider.value = agentBehavior.ReproductiveSatisfaction;
+        hungerSlider.value = agentBehavior.Hunger;
+        thirstSlider.value = agentBehavior.Thirst;
+        staminaSlider.value = agentBehavior.Stamina;
 
         if (stateText != null)
         {
-            stateText.text = GetStateText(agentBehavior.GetAgentState());
+            stateText.text = GetStateText(agentBehavior.CurrentAgentState);
         }
     }
 

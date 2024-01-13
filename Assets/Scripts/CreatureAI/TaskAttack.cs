@@ -23,7 +23,7 @@ public class TaskAttack : Node
 
         _agentBehavior.Attack(target);
 
-        if (target.GetComponent<AgentBehavior>().GetAgentState() == AgentBehavior.AgentState.DEAD)
+        if (target.GetComponent<AgentBehavior>().CurrentAgentState == AgentBehavior.AgentState.DEAD)
         {
             ClearData("target");
             state = NodeState.SUCCESS;

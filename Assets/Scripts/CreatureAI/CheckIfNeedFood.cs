@@ -15,7 +15,7 @@ public class CheckIfNeedFood : Node
     // Update is called once per frame
     public override NodeState Evaluate()
     {
-        state = _agentBehavior.GetHunger() == 0 ? NodeState.SUCCESS : NodeState.FAILURE;
+        state = _agentBehavior.Hunger == 0 ? NodeState.SUCCESS : NodeState.FAILURE;
         return state;
     }
 }
