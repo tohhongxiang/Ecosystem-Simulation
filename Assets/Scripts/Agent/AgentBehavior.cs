@@ -21,26 +21,28 @@ public class AgentBehavior : MonoBehaviour
 
     // internal state
     public float Health { get; private set; } = 100;
+    public float MaxHealth { get; private set; } = 100;
 
     public float Hunger { get; private set; } = 100;
+    public float MaxHunger { get; private set; } = 100;
     private readonly float hungerThresholdPercentage = 0.8f;
     public bool IsHungry()
     {
-        return Hunger <= hungerThresholdPercentage * stats.maxHunger;
+        return Hunger <= hungerThresholdPercentage * MaxHunger;
     }
 
     public float Thirst { get; private set; } = 100;
+    public float MaxThirst { get; private set; } = 100;
     private readonly float thirstThresholdPercentage = 0.8f;
     public bool IsThirsty()
     {
-        return Thirst <= thirstThresholdPercentage * stats.maxThirst;
+        return Thirst <= thirstThresholdPercentage * MaxThirst;
     }
 
     public float Stamina { get; private set; } = 0;
+    public float MaxStamina { get; private set; } = 100;
     public bool IsRecovering { get; private set; } = false;
     private readonly float staminaRecoveryThreshold = 0.9f;
-
-    public float ReproductiveSatisfaction { get; private set; } = 0;
 
     public float Age { get; private set; } = 0;
 
@@ -76,12 +78,15 @@ public class AgentBehavior : MonoBehaviour
 
         locomotionSimpleAgent = GetComponent<LocomotionSimpleAgent>();
 
-        Health = stats.maxHealth;
-        Hunger = stats.maxHunger;
-        Thirst = stats.maxThirst;
-        Stamina = stats.maxStamina;
-        ReproductiveSatisfaction = stats.maxReproductiveSatisfaction;
-        
+        MaxHealth *= stats.size;
+        MaxThirst *= stats.size * stats.size * stats.size;
+        MaxHunger *= stats.size * stats.size * stats.size;
+
+        Health = MaxHealth;
+        Hunger = MaxHunger;
+        Thirst = MaxThirst;
+        Stamina = MaxStamina;
+
         childScale = 0.5f * stats.size;
         transform.localScale = new Vector3(stats.size, stats.size, stats.size);
     }
@@ -96,14 +101,16 @@ public class AgentBehavior : MonoBehaviour
     private void UpdateStats()
     {
         // decrease hunger and thirst all the time, stopping at 0
-        Hunger = Mathf.Max(Hunger - Time.deltaTime, 0);
-        Thirst = Mathf.Max(Thirst - Time.deltaTime, 0);
+        float netHungerDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.hungerDecreaseFactor;
+        Hunger = Mathf.Max(Hunger - Time.deltaTime * netHungerDecrease, 0);
 
-        ReproductiveSatisfaction = Mathf.Max(ReproductiveSatisfaction - Time.deltaTime, 0);
+        float netThirstDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.thirstDecreaseFactor;
+        Thirst = Mathf.Max(Thirst - Time.deltaTime * netThirstDecrease, 0);
 
         if ((CurrentAgentState == AgentState.CHASING_PREY || CurrentAgentState == AgentState.RUNNING_FROM_PREDATOR) && agent.velocity.magnitude > 0.3f)
         {
-            Stamina = Mathf.Max(Stamina - Time.deltaTime, 0);
+            float netStaminaDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.staminaDecreaseFactor;
+            Stamina = Mathf.Max(Stamina - Time.deltaTime * netStaminaDecrease, 0);
             if (Stamina == 0 && !IsRecovering)
             {
                 IsRecovering = true;
@@ -112,7 +119,7 @@ public class AgentBehavior : MonoBehaviour
         }
         else
         {
-            Stamina = Mathf.Min(Stamina + Time.deltaTime, stats.maxStamina);
+            Stamina = Mathf.Min(Stamina + Time.deltaTime, MaxStamina);
         }
 
         if (Hunger <= 0 || Thirst <= 0)
@@ -128,7 +135,7 @@ public class AgentBehavior : MonoBehaviour
 
     IEnumerator HandleCheckIfRecovered()
     {
-        while (Stamina < staminaRecoveryThreshold * stats.maxStamina)
+        while (Stamina < staminaRecoveryThreshold * MaxStamina)
         {
             yield return new WaitForSeconds(0.5f);
         }
@@ -187,7 +194,6 @@ public class AgentBehavior : MonoBehaviour
 
     private void Die()
     {
-        StopAllCoroutines();
         StartCoroutine(HandleDeath());
     }
 
@@ -281,7 +287,7 @@ public class AgentBehavior : MonoBehaviour
         Destroy(target);
         animator.SetBool("isEating", false);
 
-        Hunger = stats.maxHunger;
+        Hunger = MaxHunger;
         CurrentAgentState = AgentState.DONE_EATING;
 
         agent.isStopped = false;
@@ -333,7 +339,7 @@ public class AgentBehavior : MonoBehaviour
         }
 
         animator.SetBool("isDrinking", false);
-        Thirst = stats.maxThirst;
+        Thirst = MaxThirst;
         CurrentAgentState = AgentState.DONE_DRINKING;
         agent.isStopped = false;
     }
@@ -346,6 +352,8 @@ public class AgentBehavior : MonoBehaviour
     #endregion
 
     #region Handle Mating
+    public bool IsPregnant { get; private set; } = false;
+    public bool IsRecoveringFromBirth { get; private set; } = false;
     public bool IsTargetInReproduceRange(GameObject target)
     {
         return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 6;
@@ -355,11 +363,8 @@ public class AgentBehavior : MonoBehaviour
     {
         CurrentAgentState = AgentState.GOING_TO_MATE;
         locomotionSimpleAgent.Seek(mate.transform.position);
-
-        mate.GetComponent<LocomotionSimpleAgent>().Seek(transform.position);
     }
 
-    private HashSet<GameObject> unimpressedFemales = new HashSet<GameObject>();
     public List<GameObject> GetMatesInFOVRange()
     {
         Collider[] colliders = new Collider[maxCandidates];
@@ -371,11 +376,6 @@ public class AgentBehavior : MonoBehaviour
         {
             if (collider == null || collider.gameObject == gameObject)
             { // dont get itself
-                continue;
-            }
-
-            if (unimpressedFemales.Contains(collider.gameObject))
-            {
                 continue;
             }
 
@@ -404,55 +404,8 @@ public class AgentBehavior : MonoBehaviour
             return;
         }
 
-        AgentBehavior partnerAgentBehavior = mate.GetComponent<AgentBehavior>();
-        if (stats.gender == Gender.MALE)
-        {
-            bool success = partnerAgentBehavior.RequestMate(stats);
-            if (success)
-            {
-                StartCoroutine(HandleMating(mate));
-                StartCoroutine(partnerAgentBehavior.HandleMating(mate));
-            }
-            else
-            {
-                AddUnimpressed(mate);
-                partnerAgentBehavior.AddUnimpressed(gameObject);
-                StartCoroutine(ForgetAboutMate(mate));
-            }
-        }
-    }
-
-    public void AddUnimpressed(GameObject mate)
-    {
-        unimpressedFemales.Add(mate);
-    }
-
-    public bool IsUnimpressed(GameObject mate)
-    {
-        return unimpressedFemales.Contains(mate);
-    }
-
-    float forgetTimeSeconds = 30;
-    IEnumerator ForgetAboutMate(GameObject mate)
-    {
-        yield return new WaitForSeconds(forgetTimeSeconds);
-        unimpressedFemales.Remove(mate);
-    }
-
-    public bool RequestMate(AgentStats mateStats)
-    {
-        // more likely to mate with worse mates if agent has not mated for a while
-        float chance = 1 - ReproductiveSatisfaction / stats.maxReproductiveSatisfaction;
-
-        chance += (mateStats.speed - stats.speed) / stats.speed;
-        chance += (mateStats.maxHealth - stats.maxHealth) / stats.maxHealth;
-        chance += (mateStats.maxHunger - stats.maxHunger) / stats.maxHunger;
-        chance += (mateStats.maxThirst - stats.maxThirst) / stats.maxThirst;
-        chance += (mateStats.maxStamina - stats.maxStamina) / stats.maxStamina;
-
-        chance = Mathf.Clamp01(chance);
-
-        return RollForChance(chance);
+        CurrentAgentState = AgentState.MATING;
+        StartCoroutine(HandleMating(mate));
     }
 
     private bool RollForChance(float chance)
@@ -462,7 +415,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool CanMate()
     {
-        return !isChild && ReproductiveSatisfaction / stats.maxReproductiveSatisfaction <= Thirst / stats.maxThirst && ReproductiveSatisfaction / stats.maxReproductiveSatisfaction <= Hunger / stats.maxHunger;
+        return !isChild && !IsPregnant && !IsRecoveringFromBirth;
     }
 
     private float reproductionTimeSeconds = 5;
@@ -474,7 +427,6 @@ public class AgentBehavior : MonoBehaviour
         }
 
         agent.isStopped = true;
-        CurrentAgentState = AgentState.MATING;
         animator.SetBool("isMating", true);
 
         // make both look at each other
@@ -491,6 +443,7 @@ public class AgentBehavior : MonoBehaviour
             }
         }
 
+        CurrentAgentState = AgentState.DONE_MATING;
         animator.SetBool("isMating", false);
 
         if (mate == null)
@@ -498,25 +451,40 @@ public class AgentBehavior : MonoBehaviour
             yield break;
         }
 
-        ReproductiveSatisfaction = stats.maxReproductiveSatisfaction;
-
-        CurrentAgentState = AgentState.DONE_MATING;
-
         if (stats.gender == Gender.FEMALE) // make only the female spawn the child
         {
-            GameObject child = Instantiate(prefab, gameObject.transform.parent);
-            child.tag = "Untagged";
-
-            AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
-            childAgentBehavior.isChild = true;
-            childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
-
-            // disable showing stats
-            child.GetComponent<HandleDisplayStats>().enabled = false;
-            child.transform.GetChild(1).gameObject.SetActive(false);
+            StartCoroutine(HandlePregnancy(mate));
         }
 
         agent.isStopped = false;
+    }
+
+    IEnumerator HandlePregnancy(GameObject mate)
+    {
+        IsPregnant = true;
+        yield return new WaitForSeconds(stats.gestationDuration);
+
+        GameObject child = Instantiate(prefab, gameObject.transform.parent);
+        child.tag = "Untagged";
+
+        AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
+        childAgentBehavior.isChild = true;
+        childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
+
+        // disable showing stats
+        child.GetComponent<HandleDisplayStats>().enabled = false;
+        child.transform.GetChild(1).gameObject.SetActive(false);
+
+        IsPregnant = false;
+
+        StartCoroutine(HandleRecoverFromPregnancy());
+    }
+
+    IEnumerator HandleRecoverFromPregnancy() {
+        IsRecoveringFromBirth = true;
+        yield return new WaitForSeconds(stats.durationBetweenPregnancies);
+
+        IsRecoveringFromBirth = false;
     }
 
     #endregion
@@ -592,7 +560,7 @@ public class AgentBehavior : MonoBehaviour
         if (target != null)
         {
             target.GetComponent<AgentBehavior>().Kill();
-            Hunger = stats.maxHunger;
+            Hunger = MaxHunger;
         }
 
         animator.SetBool("isAttacking", false);
@@ -625,24 +593,12 @@ public class AgentBehavior : MonoBehaviour
         return PathUtilities.IsPathPossible(currentPositionNode, targetPositionNode);
     }
 
-
-
     #region Debugging
     void OnDrawGizmosSelected()
     {
         if (agent == null) return;
-        // DebugFood();
-        // DebugWater();
-        // DebugDestination();
-        // DebugMating();
-        // DebugEvade();
 
-        // if (foodTag == "Deer")
-        // {
-        //     DebugFood();
-        // } else {
-        //     DebugPredators();
-        // }
+        DebugMating();
     }
 
     void DebugEvade()
@@ -690,15 +646,15 @@ public class AgentBehavior : MonoBehaviour
         Gizmos.DrawSphere(transform.position, agent.radius * 6);
 
         var mates = GetMatesInFOVRange();
+
         foreach (var mate in mates)
         {
             Gizmos.DrawLine(transform.position, mate.transform.position);
         }
 
-        Gizmos.color = new Color(1, 1, 1, 0.5f);
-        foreach (var unimpressedFemale in unimpressedFemales)
-        {
-            Gizmos.DrawCube(unimpressedFemale.transform.position, Vector3.one * 3);
+        if (mates.Count > 0 && IsTargetInReproduceRange(mates[0])) {
+            Gizmos.color = new Color(1, 1, 1, 0.4f);
+            Gizmos.DrawSphere(transform.position, 4);
         }
     }
 

@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoUpdate: 1
   chunkSize: 255
-  numberOfChunks: 2
+  numberOfChunks: 1
   scale: 1

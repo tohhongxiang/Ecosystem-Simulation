@@ -7,11 +7,12 @@ public class HandleDisplayStats : MonoBehaviour
     private AgentBehavior agentBehavior;
 
     [SerializeField] private TMP_Text genderText;
-    [SerializeField] private Slider reproductiveSatisfactionSlider;
+    [SerializeField] private Slider healthSlider;
     [SerializeField] private Slider hungerSlider;
     [SerializeField] private Slider thirstSlider;
     [SerializeField] private Slider staminaSlider;
     [SerializeField] private TMP_Text stateText;
+    [SerializeField] private TMP_Text pregnancyText;
 
     void Start()
     {
@@ -19,20 +20,24 @@ public class HandleDisplayStats : MonoBehaviour
 
         genderText.text = agentBehavior.stats.gender == Gender.MALE ? "Male" : "Female";
 
-        reproductiveSatisfactionSlider.maxValue = agentBehavior.stats.maxReproductiveSatisfaction;
-        hungerSlider.maxValue = agentBehavior.stats.maxHunger;
-        thirstSlider.maxValue = agentBehavior.stats.maxThirst;
-        staminaSlider.maxValue = agentBehavior.stats.maxStamina;
+        healthSlider.maxValue = agentBehavior.MaxHealth;
+        hungerSlider.maxValue = agentBehavior.MaxHunger;
+        thirstSlider.maxValue = agentBehavior.MaxThirst;
+        staminaSlider.maxValue = agentBehavior.MaxStamina;
 
         if (stateText != null)
         {
             stateText.text = GetStateText(agentBehavior.CurrentAgentState);
         }
+
+        if (pregnancyText != null) {
+            pregnancyText.text = GetPregnancyText(agentBehavior.IsPregnant, agentBehavior.IsRecoveringFromBirth);
+        }
     }
 
     void Update()
     {
-        reproductiveSatisfactionSlider.value = agentBehavior.ReproductiveSatisfaction;
+        healthSlider.value = agentBehavior.Health;
         hungerSlider.value = agentBehavior.Hunger;
         thirstSlider.value = agentBehavior.Thirst;
         staminaSlider.value = agentBehavior.Stamina;
@@ -40,6 +45,10 @@ public class HandleDisplayStats : MonoBehaviour
         if (stateText != null)
         {
             stateText.text = GetStateText(agentBehavior.CurrentAgentState);
+        }
+
+        if (pregnancyText != null) {
+            pregnancyText.text = GetPregnancyText(agentBehavior.IsPregnant, agentBehavior.IsRecoveringFromBirth);
         }
     }
 
@@ -64,5 +73,17 @@ public class HandleDisplayStats : MonoBehaviour
             AgentBehavior.AgentState.CHASING_PREY => "Chasing prey",
             _ => "Default",
         };
+    }
+
+    private string GetPregnancyText(bool isPregnant, bool isRecoveringFromBirth) {
+        if (isPregnant) {
+            return "Pregnant";
+        }
+
+        if (isRecoveringFromBirth) {
+            return "Recovering";
+        }
+
+        return "";
     }
 }

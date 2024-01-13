@@ -14,6 +14,7 @@ public class CheckCanMate : Node
     public override NodeState Evaluate()
     {
         if (!_agentBehavior.CanMate()) {
+            ClearData("mate");
             state = NodeState.FAILURE;
             return state;
         }
