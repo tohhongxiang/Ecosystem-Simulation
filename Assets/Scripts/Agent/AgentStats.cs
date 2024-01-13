@@ -15,7 +15,6 @@ public class AgentStats
     public float maxReproductiveSatisfaction = 100;
     public float fovRange = 10;
     public float matingCooldownSeconds = 30;
-    public float reproductionTimeSeconds = 5;
     public float growIntoAdultDurationSeconds = 30;
     public float expectedAge = 100;
     public Gender gender = Gender.MALE;
@@ -37,8 +36,6 @@ public class AgentStats
     private readonly float minFovRange = 1;
     private readonly float maxMatingCooldownSeconds = 1000;
     private readonly float minMatingCooldownSeconds = 10;
-    private readonly float maxReproductionTimeSeconds = 10;
-    private readonly float minReproductionTimeSeconds = 1;
     private readonly float maxGrowIntoAdultDurationSeconds = 1000;
     private readonly float minGrowIntoAdultDurationSeconds = 10;
     private readonly float maxExpectedAge = 100000;
@@ -46,7 +43,7 @@ public class AgentStats
 
     public AgentStats() {}
 
-    public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float maxStamina, float maxReproductiveSatisfaction, float fovRange, float matingCooldownSeconds, float reproductionTimeSeconds, float growIntoAdultDurationSeconds, Gender gender, float expectedAge)
+    public AgentStats(float speed, float maxHealth, float maxHunger, float maxThirst, float maxStamina, float maxReproductiveSatisfaction, float fovRange, float matingCooldownSeconds, float growIntoAdultDurationSeconds, Gender gender, float expectedAge)
     {
         this.speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
         this.maxHealth = Mathf.Clamp(maxHealth, minMaxHealth, maxMaxHealth);
@@ -56,7 +53,6 @@ public class AgentStats
         this.maxReproductiveSatisfaction = Mathf.Clamp(maxReproductiveSatisfaction, minMaxReproductiveSatisfaction, maxMaxReproductiveSatisfaction);
         this.fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
         this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
-        this.reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         this.growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
         this.gender = gender;
         this.expectedAge = Mathf.Clamp(expectedAge, minExpectedAge, maxExpectedAge);
@@ -77,7 +73,6 @@ public class AgentStats
         maxReproductiveSatisfaction = parents[Random.Range(0, parents.Length)].maxReproductiveSatisfaction;
         fovRange = parents[Random.Range(0, parents.Length)].fovRange;
         matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
-        reproductionTimeSeconds = parents[Random.Range(0, parents.Length)].reproductionTimeSeconds;
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
         expectedAge = parents[Random.Range(0, parents.Length)].expectedAge;
 
@@ -93,7 +88,6 @@ public class AgentStats
         maxReproductiveSatisfaction *= Random.Range(minPerturbation, maxPerturbation);
         fovRange *= Random.Range(minPerturbation, maxPerturbation);
         matingCooldownSeconds *= Random.Range(minPerturbation, maxPerturbation);
-        reproductionTimeSeconds *= Random.Range(minPerturbation, maxPerturbation);
         growIntoAdultDurationSeconds *= Random.Range(minPerturbation, maxPerturbation);
         expectedAge *= Random.Range(minPerturbation, maxPerturbation);
 
@@ -106,7 +100,6 @@ public class AgentStats
         maxReproductiveSatisfaction = Mathf.Clamp(maxReproductiveSatisfaction, minMaxReproductiveSatisfaction, maxMaxReproductiveSatisfaction);
         fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
         matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
-        reproductionTimeSeconds = Mathf.Clamp(reproductionTimeSeconds, minReproductionTimeSeconds, maxReproductionTimeSeconds);
         growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
         expectedAge = Mathf.Clamp(expectedAge, minExpectedAge, maxExpectedAge);
     }

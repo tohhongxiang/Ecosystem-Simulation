@@ -495,6 +495,7 @@ public class AgentBehavior : MonoBehaviour
         return !justMatedRecently && !isChild && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= thirst / stats.maxThirst && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= hunger / stats.maxHunger;
     }
 
+    private float reproductionTimeSeconds = 5;
     IEnumerator HandleMating(GameObject mate)
     {
         if (mate == null)
@@ -509,8 +510,6 @@ public class AgentBehavior : MonoBehaviour
         // make both look at each other
         transform.LookAt(mate.transform);
 
-        // we will choose the maximum of both parents
-        float reproductionTimeSeconds = Mathf.Max(stats.reproductionTimeSeconds, mate.GetComponent<AgentBehavior>().stats.reproductionTimeSeconds);
         yield return new WaitForSeconds(reproductionTimeSeconds);
 
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
