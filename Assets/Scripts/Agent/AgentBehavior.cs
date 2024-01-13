@@ -140,6 +140,10 @@ public class AgentBehavior : MonoBehaviour
 
         if (hunger <= 0 || thirst <= 0)
         {
+            health = Mathf.Max(0, health - Time.deltaTime);
+        }
+
+        if (health <= 0) {
             Die();
         }
     }
@@ -205,6 +209,7 @@ public class AgentBehavior : MonoBehaviour
 
     private void Die()
     {
+        StopAllCoroutines();
         StartCoroutine(HandleDeath());
     }
 
