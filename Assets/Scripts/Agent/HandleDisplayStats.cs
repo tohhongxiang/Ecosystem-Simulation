@@ -59,8 +59,9 @@ public class HandleDisplayStats : MonoBehaviour
             AgentBehavior.AgentState.ATTACKING => "Attacking",
             AgentBehavior.AgentState.DONE_ATTACKING => "Done attacking",
             AgentBehavior.AgentState.WANDERING => "Wandering",
-            AgentBehavior.AgentState.RUNNING => "Running",
             AgentBehavior.AgentState.DEAD => "Dead",
+            AgentBehavior.AgentState.RUNNING_FROM_PREDATOR => "Run away",
+            AgentBehavior.AgentState.CHASING_PREY => "Chasing prey",
             _ => "Default",
         };
     }

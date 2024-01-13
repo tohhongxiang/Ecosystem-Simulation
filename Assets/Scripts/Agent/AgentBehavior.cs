@@ -20,16 +20,16 @@ public class AgentBehavior : MonoBehaviour
     public AgentStats stats;
 
     // internal state
-    public float Health { get; private set; }
+    public float Health { get; private set; } = 100;
 
-    public float Hunger { get; private set; }
+    public float Hunger { get; private set; } = 100;
     private readonly float hungerThresholdPercentage = 0.8f;
     public bool IsHungry()
     {
         return Hunger <= hungerThresholdPercentage * stats.maxHunger;
     }
 
-    public float Thirst { get; private set; }
+    public float Thirst { get; private set; } = 100;
     private readonly float thirstThresholdPercentage = 0.8f;
     public bool IsThirsty()
     {
@@ -50,7 +50,8 @@ public class AgentBehavior : MonoBehaviour
         GOING_TO_WATER, DRINKING, DONE_DRINKING,
         GOING_TO_MATE, MATING, DONE_MATING,
         ATTACKING, DONE_ATTACKING,
-        WANDERING, RUNNING, DEAD
+        WANDERING, DEAD,
+        CHASING_PREY, RUNNING_FROM_PREDATOR
     };
     public AgentState CurrentAgentState { get; private set; } = AgentState.WANDERING;
 
@@ -97,7 +98,7 @@ public class AgentBehavior : MonoBehaviour
 
         ReproductiveSatisfaction = Mathf.Max(ReproductiveSatisfaction - Time.deltaTime, 0);
 
-        if (CurrentAgentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f)
+        if ((CurrentAgentState == AgentState.CHASING_PREY || CurrentAgentState == AgentState.RUNNING_FROM_PREDATOR) && agent.velocity.magnitude > 0.3f)
         {
             Stamina = Mathf.Max(Stamina - Time.deltaTime, 0);
             if (Stamina == 0 && !IsRecovering)
@@ -526,13 +527,13 @@ public class AgentBehavior : MonoBehaviour
 
     public void Pursue(GameObject target)
     {
-        CurrentAgentState = AgentState.RUNNING;
+        CurrentAgentState = AgentState.CHASING_PREY;
         locomotionSimpleAgent.Seek(target.transform.position);
     }
 
     public void Evade(GameObject target)
     {
-        CurrentAgentState = AgentState.RUNNING;
+        CurrentAgentState = AgentState.RUNNING_FROM_PREDATOR;
         Vector3 directionToRunTowards = (transform.position - target.transform.position + transform.position).normalized;
         directionToRunTowards *= stats.fovRange;
 
