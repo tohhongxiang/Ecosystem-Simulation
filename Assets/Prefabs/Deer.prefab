@@ -588,6 +588,7 @@ MonoBehaviour:
     maxHunger: 20
     maxThirst: 20
     maxStamina: 0
+    maxReproductiveSatisfaction: 100
     fovRange: 0
     matingCooldownSeconds: 120
     reproductionTimeSeconds: 5
@@ -640,7 +641,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   genderText: {fileID: 8935812906890604115}
   matedText: {fileID: 3879228224789040073}
-  healthSlider: {fileID: 4596479631775856189}
+  reproductiveSatisfactionSlider: {fileID: 4596479631775856189}
   hungerSlider: {fileID: 9176131449465720442}
   thirstSlider: {fileID: 7435221249141345780}
   staminaSlider: {fileID: 1751613347917829915}
@@ -1989,7 +1990,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Health
+  m_text: Mate Urge
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2052,7 +2053,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -0.9320046, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -4403,7 +4404,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7204225826308302577}
   m_Layer: 0
-  m_Name: Health
+  m_Name: Reproductive Satisfaction
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

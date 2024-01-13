@@ -602,6 +602,7 @@ MonoBehaviour:
     maxHunger: 100
     maxThirst: 100
     maxStamina: 0
+    maxReproductiveSatisfaction: 100
     fovRange: 0
     matingCooldownSeconds: 60
     reproductionTimeSeconds: 5
@@ -654,7 +655,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   genderText: {fileID: 792889852702034548}
   matedText: {fileID: 8892572351083242691}
-  healthSlider: {fileID: 2339579315771861040}
+  reproductiveSatisfactionSlider: {fileID: 2339579315771861040}
   hungerSlider: {fileID: 978412670805602370}
   thirstSlider: {fileID: 4008637585022211523}
   staminaSlider: {fileID: 1010175772602209481}
@@ -781,7 +782,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4587687566349867327}
   m_Layer: 0
-  m_Name: Health
+  m_Name: Reproductive Satisfaction
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2856,7 +2857,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -3.5800004, y: 1.9700001}
+  m_AnchoredPosition: {x: -3.53, y: 2.114}
   m_SizeDelta: {x: -8.384, y: -4.6253}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7994906506564177241
@@ -2887,7 +2888,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Health
+  m_text: Mate Urge
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2950,7 +2951,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -0.9289948, y: 0.20582247, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -4013,7 +4014,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.5800004, y: 1.97}
+  m_AnchoredPosition: {x: -3.67, y: 1.97}
   m_SizeDelta: {x: 1.79, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6281794609730568153

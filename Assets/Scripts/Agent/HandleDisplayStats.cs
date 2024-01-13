@@ -8,7 +8,7 @@ public class HandleDisplayStats : MonoBehaviour
 
     [SerializeField] private TMP_Text genderText;
     [SerializeField] private TMP_Text matedText;
-    [SerializeField] private Slider healthSlider;
+    [SerializeField] private Slider reproductiveSatisfactionSlider;
     [SerializeField] private Slider hungerSlider;
     [SerializeField] private Slider thirstSlider;
     [SerializeField] private Slider staminaSlider;
@@ -20,7 +20,7 @@ public class HandleDisplayStats : MonoBehaviour
 
         genderText.text = agentBehavior.stats.gender == Gender.MALE ? "Male" : "Female";
 
-        healthSlider.maxValue = agentBehavior.stats.maxHealth;
+        reproductiveSatisfactionSlider.maxValue = agentBehavior.stats.maxReproductiveSatisfaction;
         hungerSlider.maxValue = agentBehavior.stats.maxHunger;
         thirstSlider.maxValue = agentBehavior.stats.maxThirst;
         staminaSlider.maxValue = agentBehavior.stats.maxStamina;
@@ -35,7 +35,7 @@ public class HandleDisplayStats : MonoBehaviour
     {
         matedText.text = agentBehavior.IsJustMatedRecently() ? "Mated" : "Not Mated";
 
-        healthSlider.value = agentBehavior.GetHealth();
+        reproductiveSatisfactionSlider.value = agentBehavior.GetReproductiveSatisfaction();
         hungerSlider.value = agentBehavior.GetHunger();
         thirstSlider.value = agentBehavior.GetThirst();
         staminaSlider.value = agentBehavior.GetStamina();
@@ -48,42 +48,23 @@ public class HandleDisplayStats : MonoBehaviour
 
     private string GetStateText(AgentBehavior.AgentState agentState)
     {
-        switch (agentState)
+        return agentState switch
         {
-            case AgentBehavior.AgentState.GOING_TO_FOOD:
-                return "To Food";
-            case AgentBehavior.AgentState.EATING:
-                return "Eating";
-            case AgentBehavior.AgentState.DONE_EATING:
-                return "Done Eating";
-
-            case AgentBehavior.AgentState.GOING_TO_WATER:
-                return "To Water";
-            case AgentBehavior.AgentState.DRINKING:
-                return "Drinking";
-            case AgentBehavior.AgentState.DONE_DRINKING:
-                return "Done Drinking";
-
-            case AgentBehavior.AgentState.GOING_TO_MATE:
-                return "To Mate";
-            case AgentBehavior.AgentState.MATING:
-                return "Mating";
-            case AgentBehavior.AgentState.DONE_MATING:
-                return "Done Mating";
-
-            case AgentBehavior.AgentState.ATTACKING:
-                return "Attacking";
-            case AgentBehavior.AgentState.DONE_ATTACKING:
-                return "Done attacking";
-                
-            case AgentBehavior.AgentState.WANDERING:
-                return "Wandering";
-            case AgentBehavior.AgentState.RUNNING:
-                return "Running";
-            case AgentBehavior.AgentState.DEAD:
-                return "Dead";
-            default:
-                return "Default";
-        }
+            AgentBehavior.AgentState.GOING_TO_FOOD => "To Food",
+            AgentBehavior.AgentState.EATING => "Eating",
+            AgentBehavior.AgentState.DONE_EATING => "Done Eating",
+            AgentBehavior.AgentState.GOING_TO_WATER => "To Water",
+            AgentBehavior.AgentState.DRINKING => "Drinking",
+            AgentBehavior.AgentState.DONE_DRINKING => "Done Drinking",
+            AgentBehavior.AgentState.GOING_TO_MATE => "To Mate",
+            AgentBehavior.AgentState.MATING => "Mating",
+            AgentBehavior.AgentState.DONE_MATING => "Done Mating",
+            AgentBehavior.AgentState.ATTACKING => "Attacking",
+            AgentBehavior.AgentState.DONE_ATTACKING => "Done attacking",
+            AgentBehavior.AgentState.WANDERING => "Wandering",
+            AgentBehavior.AgentState.RUNNING => "Running",
+            AgentBehavior.AgentState.DEAD => "Dead",
+            _ => "Default",
+        };
     }
 }

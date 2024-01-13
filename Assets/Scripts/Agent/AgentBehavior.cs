@@ -6,6 +6,7 @@ using Pathfinding;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Animations;
 using Unity.VisualScripting;
+using Mono.Cecil.Cil;
 
 [RequireComponent(typeof(Animator), typeof(LocomotionSimpleAgent), typeof(IAstarAI))]
 public class AgentBehavior : MonoBehaviour
@@ -59,7 +60,11 @@ public class AgentBehavior : MonoBehaviour
     }
     private readonly float staminaRecoveryThreshold = 0.9f;
 
-    private float reproductiveUrge = 0;
+    private float reproductiveSatisfaction = 0;
+    public float GetReproductiveSatisfaction()
+    {
+        return reproductiveSatisfaction;
+    }
     private bool justMatedRecently = false;
     public bool IsJustMatedRecently()
     {
@@ -69,6 +74,8 @@ public class AgentBehavior : MonoBehaviour
     {
         justMatedRecently = mated;
     }
+
+    private float age = 0;
 
     public enum AgentState
     {
@@ -109,19 +116,23 @@ public class AgentBehavior : MonoBehaviour
         hunger = stats.maxHunger;
         thirst = stats.maxThirst;
         stamina = stats.maxStamina;
+        reproductiveSatisfaction = stats.maxReproductiveSatisfaction;
     }
 
     void Update()
     {
         UpdateStats();
         HandleGrowIntoAdultUpdate();
+        HandleAge();
     }
 
     private void UpdateStats()
     {
         // decrease hunger and thirst all the time, stopping at 0
-        hunger = Mathf.Max(hunger - Time.deltaTime * stats.speed * stats.speed, 0);
-        thirst = Mathf.Max(thirst - Time.deltaTime * stats.speed * stats.speed, 0);
+        hunger = Mathf.Max(hunger - Time.deltaTime, 0);
+        thirst = Mathf.Max(thirst - Time.deltaTime, 0);
+
+        reproductiveSatisfaction = Mathf.Max(reproductiveSatisfaction - Time.deltaTime, 0);
 
         if (agentState == AgentState.RUNNING && agent.velocity.magnitude > 0.3f)
         {
@@ -172,6 +183,32 @@ public class AgentBehavior : MonoBehaviour
             transform.localScale = new Vector3(1, 1, 1);
             childCounter = 0;
         }
+    }
+
+    private float checkDeathCounter = 0;
+    private float checkDeathInterval = 30;
+    private float probabilityOfDyingWhenBorn = 0.01f;
+    private float probabilityOfDyingWhenAtExpectedAge = 0.5f;
+    private void HandleAge()
+    {
+        age += Time.deltaTime;
+        checkDeathCounter += Time.deltaTime;
+
+        if (checkDeathCounter > checkDeathInterval)
+        {
+            checkDeathCounter = 0;
+
+            // when age = 0, this evaluates to probabilityOfDyingWhenBorn
+            // when age = maxAge, this evaluates to 0.5
+            float a = -Mathf.Log(probabilityOfDyingWhenBorn);
+            float b = stats.expectedAge * Mathf.Log(probabilityOfDyingWhenBorn) / (Mathf.Log(probabilityOfDyingWhenBorn) - Mathf.Log(probabilityOfDyingWhenAtExpectedAge));
+            float probabilityOfDying = Mathf.Exp(a * (age / b - 1));
+            if (RollForChance(probabilityOfDying))
+            {
+                Die();
+            }
+        }
+
     }
 
     #region Handle Dying
@@ -272,7 +309,6 @@ public class AgentBehavior : MonoBehaviour
         animator.SetBool("isEating", false);
 
         hunger = stats.maxHunger;
-        reproductiveUrge += 0.5f;
         agentState = AgentState.DONE_EATING;
 
         agent.isStopped = false;
@@ -325,7 +361,6 @@ public class AgentBehavior : MonoBehaviour
 
         animator.SetBool("isDrinking", false);
         thirst = stats.maxThirst;
-        reproductiveUrge += 0.5f;
         agentState = AgentState.DONE_DRINKING;
         agent.isStopped = false;
     }
@@ -436,7 +471,8 @@ public class AgentBehavior : MonoBehaviour
 
     public bool RequestMate(AgentStats mateStats)
     {
-        float chance = 0.75f;
+        // more likely to mate with worse mates if agent has not mated for a while
+        float chance = 1 - reproductiveSatisfaction / stats.maxReproductiveSatisfaction;
 
         chance += (mateStats.speed - stats.speed) / stats.speed;
         chance += (mateStats.maxHealth - stats.maxHealth) / stats.maxHealth;
@@ -456,7 +492,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool CanMate()
     {
-        return !justMatedRecently && !isChild && hunger > 0.5f * stats.maxHunger && thirst > 0.5f * stats.maxThirst && reproductiveUrge >= 1;
+        return !justMatedRecently && !isChild && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= thirst / stats.maxThirst && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= hunger / stats.maxHunger;
     }
 
     IEnumerator HandleMating(GameObject mate)
@@ -480,6 +516,10 @@ public class AgentBehavior : MonoBehaviour
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0)) // while animation is not finished
         {
             yield return new WaitForSeconds(0.1f);
+            if (animator == null)
+            {
+                yield break; // the agent died
+            }
         }
 
         animator.SetBool("isMating", false);
@@ -490,7 +530,7 @@ public class AgentBehavior : MonoBehaviour
         }
 
         SetMated(true);
-        reproductiveUrge = 0;
+        reproductiveSatisfaction = stats.maxReproductiveSatisfaction;
 
         agentState = AgentState.DONE_MATING;
 
@@ -629,7 +669,7 @@ public class AgentBehavior : MonoBehaviour
         return PathUtilities.IsPathPossible(currentPositionNode, targetPositionNode);
     }
 
-    
+
 
     #region Debugging
     void OnDrawGizmosSelected()
@@ -649,7 +689,8 @@ public class AgentBehavior : MonoBehaviour
         // }
     }
 
-    void DebugEvade() {
+    void DebugEvade()
+    {
         Gizmos.DrawCube(agent.destination, Vector3.one * 3);
     }
 
