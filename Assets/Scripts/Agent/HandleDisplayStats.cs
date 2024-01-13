@@ -7,7 +7,6 @@ public class HandleDisplayStats : MonoBehaviour
     private AgentBehavior agentBehavior;
 
     [SerializeField] private TMP_Text genderText;
-    [SerializeField] private TMP_Text matedText;
     [SerializeField] private Slider reproductiveSatisfactionSlider;
     [SerializeField] private Slider hungerSlider;
     [SerializeField] private Slider thirstSlider;
@@ -33,8 +32,6 @@ public class HandleDisplayStats : MonoBehaviour
 
     void Update()
     {
-        matedText.text = agentBehavior.IsJustMatedRecently() ? "Mated" : "Not Mated";
-
         reproductiveSatisfactionSlider.value = agentBehavior.GetReproductiveSatisfaction();
         hungerSlider.value = agentBehavior.GetHunger();
         thirstSlider.value = agentBehavior.GetThirst();

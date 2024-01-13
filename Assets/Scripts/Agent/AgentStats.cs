@@ -14,7 +14,6 @@ public class AgentStats
     public float maxStamina = 100;
     public float maxReproductiveSatisfaction = 100;
     public float fovRange = 10;
-    public float matingCooldownSeconds = 30;
     public float growIntoAdultDurationSeconds = 30;
     public float expectedAge = 100;
     public Gender gender = Gender.MALE;
@@ -34,8 +33,6 @@ public class AgentStats
     private readonly float minMaxReproductiveSatisfaction = 1;
     private readonly float maxFovRange = 100;
     private readonly float minFovRange = 1;
-    private readonly float maxMatingCooldownSeconds = 1000;
-    private readonly float minMatingCooldownSeconds = 10;
     private readonly float maxGrowIntoAdultDurationSeconds = 1000;
     private readonly float minGrowIntoAdultDurationSeconds = 10;
     private readonly float maxExpectedAge = 100000;
@@ -52,7 +49,6 @@ public class AgentStats
         this.maxStamina = Mathf.Clamp(maxStamina, minMaxStamina, maxMaxStamina);
         this.maxReproductiveSatisfaction = Mathf.Clamp(maxReproductiveSatisfaction, minMaxReproductiveSatisfaction, maxMaxReproductiveSatisfaction);
         this.fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
-        this.matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         this.growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
         this.gender = gender;
         this.expectedAge = Mathf.Clamp(expectedAge, minExpectedAge, maxExpectedAge);
@@ -72,7 +68,6 @@ public class AgentStats
         maxStamina = parents[Random.Range(0, parents.Length)].maxStamina;
         maxReproductiveSatisfaction = parents[Random.Range(0, parents.Length)].maxReproductiveSatisfaction;
         fovRange = parents[Random.Range(0, parents.Length)].fovRange;
-        matingCooldownSeconds = parents[Random.Range(0, parents.Length)].matingCooldownSeconds;
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
         expectedAge = parents[Random.Range(0, parents.Length)].expectedAge;
 
@@ -87,7 +82,6 @@ public class AgentStats
         maxStamina *= Random.Range(minPerturbation, maxPerturbation);
         maxReproductiveSatisfaction *= Random.Range(minPerturbation, maxPerturbation);
         fovRange *= Random.Range(minPerturbation, maxPerturbation);
-        matingCooldownSeconds *= Random.Range(minPerturbation, maxPerturbation);
         growIntoAdultDurationSeconds *= Random.Range(minPerturbation, maxPerturbation);
         expectedAge *= Random.Range(minPerturbation, maxPerturbation);
 
@@ -99,7 +93,6 @@ public class AgentStats
         maxStamina = Mathf.Clamp(maxStamina, minMaxStamina, maxMaxStamina);
         maxReproductiveSatisfaction = Mathf.Clamp(maxReproductiveSatisfaction, minMaxReproductiveSatisfaction, maxMaxReproductiveSatisfaction);
         fovRange = Mathf.Clamp(fovRange, minFovRange, maxFovRange);
-        matingCooldownSeconds = Mathf.Clamp(matingCooldownSeconds, minMatingCooldownSeconds, maxMatingCooldownSeconds);
         growIntoAdultDurationSeconds = Mathf.Clamp(growIntoAdultDurationSeconds, minGrowIntoAdultDurationSeconds, maxGrowIntoAdultDurationSeconds);
         expectedAge = Mathf.Clamp(expectedAge, minExpectedAge, maxExpectedAge);
     }

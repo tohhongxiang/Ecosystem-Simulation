@@ -65,16 +65,6 @@ public class AgentBehavior : MonoBehaviour
     {
         return reproductiveSatisfaction;
     }
-    private bool justMatedRecently = false;
-    public bool IsJustMatedRecently()
-    {
-        return justMatedRecently;
-    }
-    public void SetMated(bool mated)
-    {
-        justMatedRecently = mated;
-    }
-
     private float age = 0;
 
     public enum AgentState
@@ -437,11 +427,8 @@ public class AgentBehavior : MonoBehaviour
             bool success = partnerAgentBehavior.RequestMate(stats);
             if (success)
             {
-                StartCoroutine(HandleMatingCooldown(mate));
                 StartCoroutine(HandleMating(mate));
-
                 StartCoroutine(partnerAgentBehavior.HandleMating(mate));
-                StartCoroutine(partnerAgentBehavior.HandleMatingCooldown(mate));
             }
             else
             {
@@ -492,7 +479,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool CanMate()
     {
-        return !justMatedRecently && !isChild && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= thirst / stats.maxThirst && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= hunger / stats.maxHunger;
+        return !isChild && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= thirst / stats.maxThirst && reproductiveSatisfaction / stats.maxReproductiveSatisfaction <= hunger / stats.maxHunger;
     }
 
     private float reproductionTimeSeconds = 5;
@@ -528,7 +515,6 @@ public class AgentBehavior : MonoBehaviour
             yield break;
         }
 
-        SetMated(true);
         reproductiveSatisfaction = stats.maxReproductiveSatisfaction;
 
         agentState = AgentState.DONE_MATING;
@@ -548,18 +534,6 @@ public class AgentBehavior : MonoBehaviour
         }
 
         agent.isStopped = false;
-    }
-
-    IEnumerator HandleMatingCooldown(GameObject mate)
-    {
-        yield return new WaitForSeconds(stats.matingCooldownSeconds);
-
-        if (mate == null)
-        { // died
-            yield break;
-        }
-
-        SetMated(false);
     }
 
     #endregion
@@ -729,15 +703,7 @@ public class AgentBehavior : MonoBehaviour
 
     void DebugMating()
     {
-        if (IsJustMatedRecently())
-        {
-            Gizmos.color = new Color(1, 0, 0, 0.5f);
-        }
-        else
-        {
-            Gizmos.color = new Color(0, 1, 0, 0.5f);
-        }
-
+        Gizmos.color = new Color(0, 1, 0, 0.5f);
         Gizmos.DrawSphere(transform.position, agent.radius * 6);
 
         var mates = GetMatesInFOVRange();
