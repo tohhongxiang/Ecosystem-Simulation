@@ -57,7 +57,7 @@ public class AgentBehavior : MonoBehaviour
 
     private bool isChild = false;
     private float childCounter = 0;
-    private const float childScale = 0.5f;
+    private float childScale = 0.5f;
 
     private readonly int maxCandidates = 10;
 
@@ -81,6 +81,9 @@ public class AgentBehavior : MonoBehaviour
         Thirst = stats.maxThirst;
         Stamina = stats.maxStamina;
         ReproductiveSatisfaction = stats.maxReproductiveSatisfaction;
+        
+        childScale = 0.5f * stats.size;
+        transform.localScale = new Vector3(stats.size, stats.size, stats.size);
     }
 
     void Update()
@@ -143,21 +146,21 @@ public class AgentBehavior : MonoBehaviour
         childCounter += Time.deltaTime;
         float progressToAdult = childCounter / stats.growIntoAdultDurationSeconds;
 
-        float size = Mathf.Lerp(childScale, 1, progressToAdult);
+        float size = Mathf.Lerp(childScale, stats.size, progressToAdult);
         transform.localScale = new Vector3(size, size, size);
 
         if (childCounter >= stats.growIntoAdultDurationSeconds)
         {
             isChild = false;
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(stats.size, stats.size, stats.size);
             childCounter = 0;
         }
     }
 
     private float checkDeathCounter = 0;
-    private float checkDeathInterval = 30;
-    private float probabilityOfDyingWhenBorn = 0.01f;
-    private float probabilityOfDyingWhenAtExpectedAge = 0.5f;
+    private readonly float checkDeathInterval = 30;
+    private readonly float probabilityOfDyingWhenBorn = 0.01f;
+    private readonly float probabilityOfDyingWhenAtExpectedAge = 0.25f;
     private void HandleAge()
     {
         Age += Time.deltaTime;
