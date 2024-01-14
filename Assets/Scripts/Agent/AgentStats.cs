@@ -26,7 +26,7 @@ public class AgentStats
     // cap mutable stat
     private readonly float maxSpeed = 5.0f;
     private readonly float minSpeed = 0.1f;
-    private readonly float maxSize = 10f;
+    private readonly float maxSize = 3f;
     private readonly float minSize = 0.1f;
     private readonly float maxHungerDecreaseFactor = 100f;
     private readonly float minHungerDecreaseFactor = 0.1f;
@@ -69,14 +69,14 @@ public class AgentStats
 
         speed *= Random.Range(minPerturbation, maxPerturbation);
         size *= Random.Range(minPerturbation, maxPerturbation);
-        hungerDecreaseFactor *= Random.Range(minPerturbation, maxPerturbation);
-        thirstDecreaseFactor *= Random.Range(minPerturbation, maxPerturbation);
-        staminaDecreaseFactor *= Random.Range(minPerturbation, maxPerturbation);
-        gestationDuration *= Random.Range(minPerturbation, maxPerturbation);
-        durationBetweenPregnancies *= Random.Range(minPerturbation, maxPerturbation);
-        fovRange *= Random.Range(minPerturbation, maxPerturbation);
-        growIntoAdultDurationSeconds *= Random.Range(minPerturbation, maxPerturbation);
-        expectedAge *= Random.Range(minPerturbation, maxPerturbation);
+        // hungerDecreaseFactor *= Random.Range(minPerturbation, maxPerturbation);
+        // thirstDecreaseFactor *= Random.Range(minPerturbation, maxPerturbation);
+        // staminaDecreaseFactor *= Random.Range(minPerturbation, maxPerturbation);
+        // gestationDuration *= Random.Range(minPerturbation, maxPerturbation);
+        // durationBetweenPregnancies *= Random.Range(minPerturbation, maxPerturbation);
+        // fovRange *= Random.Range(minPerturbation, maxPerturbation);
+        // growIntoAdultDurationSeconds *= Random.Range(minPerturbation, maxPerturbation);
+        // expectedAge *= Random.Range(minPerturbation, maxPerturbation);
 
         // clamp
         speed = Mathf.Clamp(speed, minSpeed, maxSpeed);

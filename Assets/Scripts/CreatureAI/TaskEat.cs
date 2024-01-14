@@ -14,15 +14,20 @@ public class TaskEat : Node
 
     public override NodeState Evaluate()
     {
-        GameObject target = (GameObject)GetData("target");
-        _agentBehavior.Eat(target);
-
         if (_agentBehavior.CurrentAgentState == AgentBehavior.AgentState.DONE_EATING)
         {
             ClearData("target");
             state = NodeState.SUCCESS;
             return state;
         }
+
+        if (_agentBehavior.CurrentAgentState == AgentBehavior.AgentState.EATING) {
+            state = NodeState.RUNNING;
+            return state;
+        }
+
+        GameObject target = (GameObject)GetData("target");
+        _agentBehavior.Eat(target);
 
         state = NodeState.RUNNING;
         return state;

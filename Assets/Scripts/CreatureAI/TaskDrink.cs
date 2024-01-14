@@ -14,20 +14,20 @@ public class TaskDrink : Node
 
     public override NodeState Evaluate()
     {
-        if (GetData("water") is null) {
-            state = NodeState.FAILURE;
-            return state;
-        }
-
-        Vector3 waterPoint = (Vector3)GetData("water");
-        _agentBehavior.Drink(waterPoint);
-
         if (_agentBehavior.CurrentAgentState == AgentBehavior.AgentState.DONE_DRINKING)
         {
             ClearData("water");
             state = NodeState.SUCCESS;
             return state;
         }
+
+        if (_agentBehavior.CurrentAgentState == AgentBehavior.AgentState.DRINKING) {
+            state = NodeState.RUNNING;
+            return state;
+        }
+
+        Vector3 waterPoint = (Vector3)GetData("water");
+        _agentBehavior.Drink(waterPoint);
 
         state = NodeState.RUNNING;
         return state;

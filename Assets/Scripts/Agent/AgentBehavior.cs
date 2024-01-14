@@ -149,6 +149,7 @@ public class AgentBehavior : MonoBehaviour
                 AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsByThirst", 1);
             }
 
+            AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsTotal", 1);
             Die();
         }
     }
@@ -214,6 +215,8 @@ public class AgentBehavior : MonoBehaviour
     private void DieByAge()
     {
         AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsByAge", 1);
+        AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsTotal", 1);
+
         Die();
     }
 
@@ -607,6 +610,7 @@ public class AgentBehavior : MonoBehaviour
     public void Kill()
     {
         AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsByHunt", 1);
+        AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsTotal", 1);
         Die();
     }
 

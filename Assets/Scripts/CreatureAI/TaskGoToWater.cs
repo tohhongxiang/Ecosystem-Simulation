@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using BehaviorTree;
+using Pathfinding.RVO.Sampled;
 
 public class TaskGoToWater : Node
 {
@@ -16,14 +17,17 @@ public class TaskGoToWater : Node
 
     public override NodeState Evaluate()
     {
-        if (GetData("water") is null) {
+        Vector3 waterPoint = (Vector3)GetData("water");
+        if (waterPoint == null)
+        {
             state = NodeState.FAILURE;
             return state;
         }
 
-        Vector3 g = (Vector3)GetData("water");
-        
-        _agentBehavior.GoToWater(g);
+        if (_agentBehavior.CurrentAgentState != AgentBehavior.AgentState.GOING_TO_WATER)
+        {
+            _agentBehavior.GoToWater(waterPoint);
+        }
 
         state = NodeState.RUNNING;
         return state;

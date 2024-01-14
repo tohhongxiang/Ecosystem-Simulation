@@ -14,18 +14,23 @@ public class TaskGoToFood : Node
         this._agentBehavior = _agentBehavior;
     }
 
-    public override NodeState Evaluate() {
+    public override NodeState Evaluate()
+    {
         GameObject g = (GameObject)GetData("target");
 
-        
-        if (g == null || g.layer != LayerMask.NameToLayer(_agentBehavior.foodTag)) { // food is being interacted with by something else
+        // food is already eaten, or food is being interacted with by something else
+        if (g == null || g.layer != LayerMask.NameToLayer(_agentBehavior.foodTag))
+        {
             ClearData("target");
 
             state = NodeState.FAILURE;
             return state;
         }
 
-        _agentBehavior.GoToFood(g);
+        if (_agentBehavior.CurrentAgentState != AgentBehavior.AgentState.GOING_TO_FOOD)
+        {
+            _agentBehavior.GoToFood(g);
+        }
 
         state = NodeState.RUNNING;
         return state;

@@ -37,7 +37,7 @@ public class AgentStatsLogger : MonoBehaviour
     private Dictionary<string, Dictionary<string, List<object>>> statistics = new Dictionary<string, Dictionary<string, List<object>>>();
     
     private Dictionary<string, Dictionary<string, int>> eventCounts = new Dictionary<string, Dictionary<string, int>>();
-    private readonly string[] eventNames = { "deathsByAge", "deathsByHunger", "deathsByThirst", "deathsByHunt", "births" };
+    private readonly string[] eventNames = { "deathsByAge", "deathsByHunger", "deathsByThirst", "deathsByHunt", "deathsTotal", "births" };
     public void AddCountToEvent(string agentSpawnerName, string eventName, int count) {
         eventCounts[agentSpawnerName][eventName] += count;
     }
