@@ -5,6 +5,9 @@ namespace BehaviorTree
     public abstract class Tree : MonoBehaviour
     {
         private Node _root = null;
+        public Node Root() {
+            return _root;
+        }
         
         protected void Start()
         {

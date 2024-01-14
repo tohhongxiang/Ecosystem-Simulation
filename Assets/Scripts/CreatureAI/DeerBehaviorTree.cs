@@ -13,16 +13,17 @@ public class DeerBehaviorTree : BehaviorTree.Tree
             //     new Inverter(new CheckIfRecovering(agentBehavior)),
             //     new TaskEvade(agentBehavior)
             // }),
-            // new Sequence(new List<Node> {
-            //     new CheckCanMate(agentBehavior),
-            //     new CheckMateInInteractableRange(agentBehavior),
-            //     new TaskMate(agentBehavior),
-            // }),
-            // new Sequence(new List<Node> {
-            //     new CheckCanMate(agentBehavior),
-            //     new CheckMateInFOVRange(agentBehavior),
-            //     new TaskGoToMate(agentBehavior),
-            // }),
+            new Sequence(new List<Node> {
+                new CheckCanMate(agentBehavior),
+                new CheckMateInInteractableRange(agentBehavior),
+                new TaskMate(agentBehavior),
+            }),
+            new Sequence(new List<Node> {
+                new CheckCanMate(agentBehavior),
+                new CheckMateInFOVRange(agentBehavior),
+                new CheckIfCurrentlyCorrectMate(agentBehavior),
+                new TaskGoToMate(agentBehavior),
+            }),
             new Sequence(new List<Node> {
                 new CheckIfHungry(agentBehavior),
                 new CheckFoodInInteractableRange(agentBehavior),

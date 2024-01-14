@@ -10,25 +10,40 @@ public class CheckMateInFOVRange : Node
     {
         this._agentBehavior = _agentBehavior;
     }
-    
+
     public override NodeState Evaluate()
     {
         GameObject t = (GameObject)GetData("mate");
-        if (t == null)
-        { // if there is no current target, check if there are valid targets
-            List<GameObject> targetMates = _agentBehavior.GetMatesInFOVRange();
-            if (targetMates.Count == 0)
-            {
-                state = NodeState.FAILURE;
-                return state;
-            }
-            
-            parent.parent.SetData("mate", targetMates[0]);
+
+        if (t != null)
+        {
             state = NodeState.SUCCESS;
             return state;
         }
 
-        state = NodeState.SUCCESS;
+        // if there is no current target, check if there are valid targets
+        List<GameObject> targetMates = _agentBehavior.GetMatesInFOVRange();
+        if (targetMates.Count == 0)
+        {
+            state = NodeState.FAILURE;
+            return state;
+        }
+
+        foreach (var mate in targetMates)
+        {
+            GameObject mateCandidate = (GameObject)mate.GetComponent<BehaviorTree.Tree>().Root().GetData("mate");
+            if (mateCandidate != null)
+            {
+                continue;
+            }
+
+            parent.parent.SetData("mate", mate);
+            mate.GetComponent<BehaviorTree.Tree>().Root().SetData("mate", _agentBehavior.gameObject);
+            state = NodeState.SUCCESS;
+            return state;
+        }
+
+        state = NodeState.FAILURE;
         return state;
     }
 }

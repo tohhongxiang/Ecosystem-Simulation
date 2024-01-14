@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using Pathfinding;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.Animations;
-using Unity.VisualScripting;
-using Mono.Cecil.Cil;
 
-[RequireComponent(typeof(Animator), typeof(LocomotionSimpleAgent), typeof(IAstarAI))]
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(LocomotionSimpleAgent))]
+[RequireComponent(typeof(RichAI))]
 public class AgentBehavior : MonoBehaviour
 {
     [SerializeField] private GameObject prefab; // used to instantiate children
@@ -25,7 +23,7 @@ public class AgentBehavior : MonoBehaviour
 
     public float Hunger { get; private set; } = 100;
     public float MaxHunger { get; private set; } = 100;
-    private readonly float hungerThresholdPercentage = 0.8f;
+    private readonly float hungerThresholdPercentage = 0.75f;
     public bool IsHungry()
     {
         return Hunger <= hungerThresholdPercentage * MaxHunger;
@@ -33,7 +31,7 @@ public class AgentBehavior : MonoBehaviour
 
     public float Thirst { get; private set; } = 100;
     public float MaxThirst { get; private set; } = 100;
-    private readonly float thirstThresholdPercentage = 0.8f;
+    private readonly float thirstThresholdPercentage = 0.75f;
     public bool IsThirsty()
     {
         return Thirst <= thirstThresholdPercentage * MaxThirst;
@@ -79,8 +77,8 @@ public class AgentBehavior : MonoBehaviour
         locomotionSimpleAgent = GetComponent<LocomotionSimpleAgent>();
 
         MaxHealth *= stats.size;
-        MaxThirst *= stats.size * stats.size * stats.size;
-        MaxHunger *= stats.size * stats.size * stats.size;
+        MaxThirst *= Mathf.Pow(stats.size, 3);
+        MaxHunger *= Mathf.Pow(stats.size, 3);
 
         Health = MaxHealth;
         Hunger = MaxHunger;
@@ -100,14 +98,14 @@ public class AgentBehavior : MonoBehaviour
 
     private void UpdateStats()
     {
-        // decrease hunger and thirst all the time, stopping at 0
         float netHungerDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.hungerDecreaseFactor;
         Hunger = Mathf.Max(Hunger - Time.deltaTime * netHungerDecrease, 0);
 
         float netThirstDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.thirstDecreaseFactor;
         Thirst = Mathf.Max(Thirst - Time.deltaTime * netThirstDecrease, 0);
 
-        if ((CurrentAgentState == AgentState.CHASING_PREY || CurrentAgentState == AgentState.RUNNING_FROM_PREDATOR) && agent.velocity.magnitude > 0.3f)
+        bool isRunning = (CurrentAgentState == AgentState.CHASING_PREY || CurrentAgentState == AgentState.RUNNING_FROM_PREDATOR) && agent.velocity.magnitude > 0.3f;
+        if (isRunning)
         {
             float netStaminaDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.staminaDecreaseFactor;
             Stamina = Mathf.Max(Stamina - Time.deltaTime * netStaminaDecrease, 0);
@@ -354,6 +352,10 @@ public class AgentBehavior : MonoBehaviour
     #region Handle Mating
     public bool IsPregnant { get; private set; } = false;
     public bool IsRecoveringFromBirth { get; private set; } = false;
+    public bool CanMate()
+    {
+        return !isChild && !IsPregnant && !IsRecoveringFromBirth && !IsHungry() && !IsThirsty();
+    }
     public bool IsTargetInReproduceRange(GameObject target)
     {
         return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 6;
@@ -413,11 +415,6 @@ public class AgentBehavior : MonoBehaviour
         return chance > Random.Range(0f, 1f);
     }
 
-    public bool CanMate()
-    {
-        return !isChild && !IsPregnant && !IsRecoveringFromBirth;
-    }
-
     private float reproductionTimeSeconds = 5;
     IEnumerator HandleMating(GameObject mate)
     {
@@ -445,6 +442,7 @@ public class AgentBehavior : MonoBehaviour
 
         CurrentAgentState = AgentState.DONE_MATING;
         animator.SetBool("isMating", false);
+        agent.isStopped = false;
 
         if (mate == null)
         {
@@ -455,8 +453,6 @@ public class AgentBehavior : MonoBehaviour
         {
             StartCoroutine(HandlePregnancy(mate));
         }
-
-        agent.isStopped = false;
     }
 
     IEnumerator HandlePregnancy(GameObject mate)
@@ -598,12 +594,10 @@ public class AgentBehavior : MonoBehaviour
     {
         if (agent == null) return;
 
+        DebugFood();
+        DebugWater();
         DebugMating();
-    }
-
-    void DebugEvade()
-    {
-        Gizmos.DrawCube(agent.destination, Vector3.one * 3);
+        DebugPredators();
     }
 
     void DebugFOVRange()
@@ -614,65 +608,67 @@ public class AgentBehavior : MonoBehaviour
 
     void DebugFood()
     {
+        Gizmos.color = new Color(0, 1, 0, 0.5f);
+
         var foods = GetFoodInFOVRange();
         foreach (var food in foods)
         {
             Gizmos.DrawLine(transform.position, food.transform.position);
         }
+
+        GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("target");
+        if (m != null) {
+            Gizmos.DrawSphere(m.transform.position, 2);
+        }
     }
 
     void DebugWater()
     {
-        Gizmos.color = new Color(1, 1, 1, 0.5f);
+        Gizmos.color = new Color(0, 0, 1, 0.5f);
+
         var waterPoints = GetWaterInFOVRange();
-
-        if (waterPoints.Count > 0)
+        foreach (var waterPoint in waterPoints)
         {
-            Gizmos.color = new Color(1, 0, 1);
-            Gizmos.DrawLine(transform.position, waterPoints[0]);
-
-            Gizmos.color = new Color(1, 1, 1, 0.5f);
-            foreach (var waterPoint in waterPoints)
-            {
-                Gizmos.DrawCube(waterPoint, new Vector3(1, 1, 1));
-            }
+            Gizmos.DrawLine(transform.position, waterPoint);
         }
-
+        
+        GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("water");
+        if (m != null) {
+            Gizmos.DrawSphere(m.transform.position, 2);
+        }
     }
 
     void DebugMating()
     {
-        Gizmos.color = new Color(0, 1, 0, 0.5f);
-        Gizmos.DrawSphere(transform.position, agent.radius * 6);
+        Gizmos.color = new Color(1, 0, 0, 0.5f);
 
         var mates = GetMatesInFOVRange();
-
         foreach (var mate in mates)
         {
             Gizmos.DrawLine(transform.position, mate.transform.position);
         }
 
-        if (mates.Count > 0 && IsTargetInReproduceRange(mates[0])) {
-            Gizmos.color = new Color(1, 1, 1, 0.4f);
-            Gizmos.DrawSphere(transform.position, 4);
+        GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("mate");
+        if (m != null) {
+            Gizmos.DrawSphere(m.transform.position, 2);
         }
     }
 
     void DebugPredators()
     {
+        Gizmos.color = new Color(0, 0, 0, 0.5f);
+
         var predators = GetPredatorsInFOVRange();
         foreach (var predator in predators)
         {
             Gizmos.DrawLine(transform.position, predator.transform.position);
         }
+
+        GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("predator");
+        if (m != null) {
+            Gizmos.DrawSphere(m.transform.position, 2);
+        }
     }
 
-    void DebugDestination()
-    {
-        var destination = agent.destination;
-        Gizmos.color = new Color(.5f, 1, .4f);
-        Gizmos.DrawLine(transform.position, destination);
-        Gizmos.DrawSphere(destination, 2);
-    }
     #endregion
 }
