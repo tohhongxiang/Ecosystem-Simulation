@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using System.Reflection;
 using Unity.VisualScripting;
+using UnityEditor;
 
 public class AgentStatsLogger : MonoBehaviour
 {
@@ -31,13 +32,28 @@ public class AgentStatsLogger : MonoBehaviour
     private float getAverageIntervalCounter = 0;
     private float writeToCSVIntervalCounter = 0;
     private string startOfExperiment;
+
     // { [agentSpawner]: { [statistic]: object[] }}
     private Dictionary<string, Dictionary<string, List<object>>> statistics = new Dictionary<string, Dictionary<string, List<object>>>();
+    
+    private Dictionary<string, Dictionary<string, int>> eventCounts = new Dictionary<string, Dictionary<string, int>>();
+    private readonly string[] eventNames = { "deathsByAge", "deathsByHunger", "deathsByThirst", "deathsByHunt", "births" };
+    public void AddCountToEvent(string agentSpawnerName, string eventName, int count) {
+        eventCounts[agentSpawnerName][eventName] += count;
+    }
 
     void Start()
     {
         startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
         getAverageIntervalCounter = getAverageIntervalSeconds; // trigger collecting data from t = 0
+
+        foreach (var agentSpawner in agentSpawners) {
+            eventCounts.Add(agentSpawner.Name, new Dictionary<string, int>());
+
+            foreach (var eventName in eventNames) {
+                eventCounts[agentSpawner.Name].Add(eventName, 0);
+            }
+        }
 
         foreach (var agentSpawner in agentSpawners)
         {
@@ -45,6 +61,10 @@ public class AgentStatsLogger : MonoBehaviour
 
             statistics[agentSpawner.Name].Add("population", new List<object>());
             statistics[agentSpawner.Name].Add("time", new List<object>());
+
+            foreach (var eventName in eventNames) {
+                statistics[agentSpawner.Name].Add(eventName, new List<object>());
+            }
 
             foreach (var prop in typeof(AgentStats).GetFields())
             {
@@ -70,6 +90,24 @@ public class AgentStatsLogger : MonoBehaviour
         {
             getAverageIntervalCounter = 0;
             UpdateStats();
+        }
+
+        bool simulationEnded = true;
+        foreach (var agentSpawner in agentSpawners) {
+            if (agentSpawner.Spawner.transform.childCount != 0) {
+                simulationEnded = false;
+            }
+        }
+
+        if (simulationEnded) {
+            UpdateStats();
+            WriteStatsToCSV();
+
+            #if UNITY_EDITOR
+                EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
         }
     }
 
@@ -126,11 +164,11 @@ public class AgentStatsLogger : MonoBehaviour
         {
             var childrenAgentBehavior = agentSpawner.Spawner.GetComponentsInChildren<AgentBehavior>();
 
+            statistics[agentSpawner.Name]["time"].Add(timer);
+
             int population = childrenAgentBehavior.Count();
             statistics[agentSpawner.Name]["population"].Add(population);
             Debug.Log(string.Format("{0} population: {1}", agentSpawner.Name, population));
-
-            statistics[agentSpawner.Name]["time"].Add(timer);
 
             foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.Name])
             {
@@ -153,10 +191,21 @@ public class AgentStatsLogger : MonoBehaviour
 
                 statistics[agentSpawner.Name][element.Key].Add(populationStatisticAverage);
             }
+
+            // create a temporary new dictionary to prevent `InvalidOperationException: Collection was modified;`
+            Dictionary<string, int> eventCountsToAdd = new Dictionary<string, int>();
+            foreach (KeyValuePair<string, int> element in eventCounts[agentSpawner.Name]) {
+                eventCountsToAdd.Add(element.Key, element.Value);
+            }
+
+            foreach (KeyValuePair<string, int> element in eventCountsToAdd) {
+                statistics[agentSpawner.Name][element.Key].Add(element.Value);
+                eventCounts[agentSpawner.Name][element.Key] -= element.Value;
+            }
         }
     }
 
-    public void WriteFile(string filename, Dictionary<string, List<object>> data)
+    void WriteFile(string filename, Dictionary<string, List<object>> data)
     {
         var path = "Assets/CSV_OUTPUT/";
         var dir = new DirectoryInfo(path);

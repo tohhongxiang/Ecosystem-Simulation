@@ -580,6 +580,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 1258068636713606773}
+  speciesName: Deer
   foodTag: Food
   predatorTag: Bear
   stats:

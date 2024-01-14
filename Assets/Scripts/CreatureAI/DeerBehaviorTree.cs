@@ -8,11 +8,14 @@ public class DeerBehaviorTree : BehaviorTree.Tree
         AgentBehavior agentBehavior = GetComponent<AgentBehavior>();
 
         Node root = new Selector(new List<Node>{
-            // new Sequence(new List<Node> {
-            //     new CheckPredatorsInRange(agentBehavior),
-            //     new Inverter(new CheckIfRecovering(agentBehavior)),
-            //     new TaskEvade(agentBehavior)
-            // }),
+            new Sequence(new List<Node> {
+                new CheckIfDead(agentBehavior),
+            }),
+            new Sequence(new List<Node> {
+                new CheckPredatorsInRange(agentBehavior),
+                new Inverter(new CheckIfRecovering(agentBehavior)),
+                new TaskEvade(agentBehavior)
+            }),
             new Sequence(new List<Node> {
                 new CheckCanMate(agentBehavior),
                 new CheckMateInInteractableRange(agentBehavior),

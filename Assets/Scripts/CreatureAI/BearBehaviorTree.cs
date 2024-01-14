@@ -11,6 +11,9 @@ public class BearBehaviorTree : BehaviorTree.Tree
 
         Node root = new Selector(new List<Node>{
             new Sequence(new List<Node> {
+                new CheckIfDead(agentBehavior),
+            }),
+            new Sequence(new List<Node> {
                 new CheckCanMate(agentBehavior),
                 new CheckMateInInteractableRange(agentBehavior),
                 new TaskMate(agentBehavior),

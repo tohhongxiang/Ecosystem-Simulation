@@ -10,9 +10,9 @@ using Pathfinding;
 public class AgentBehavior : MonoBehaviour
 {
     [SerializeField] private GameObject prefab; // used to instantiate children
-
-    [SerializeField] public string foodTag = "";
-    [SerializeField] public string predatorTag = "";
+    [SerializeField] private string speciesName;
+    public string foodTag = "";
+    public string predatorTag = "";
 
     [Header("Stats")]
     public AgentStats stats;
@@ -91,6 +91,11 @@ public class AgentBehavior : MonoBehaviour
 
     void Update()
     {
+        if (CurrentAgentState == AgentState.DEAD) // stop updating when agent is dead
+        {
+            return;
+        }
+
         UpdateStats();
         HandleGrowIntoAdultUpdate();
         HandleAge();
@@ -120,13 +125,30 @@ public class AgentBehavior : MonoBehaviour
             Stamina = Mathf.Min(Stamina + Time.deltaTime, MaxStamina);
         }
 
-        if (Hunger <= 0 || Thirst <= 0)
+        if (Hunger <= 0 || Thirst <= 0) // if starving or dehydrated, lose health
         {
             Health = Mathf.Max(0, Health - Time.deltaTime);
         }
+        else if (!IsHungry() && !IsThirsty()) // if satisfied, recover health
+        {
+            Health = Mathf.Min(Health + Time.deltaTime, MaxHealth);
+        }
 
+        // since dying is handled with a coroutine, we need to ensure this is only called once
         if (Health <= 0)
         {
+            CurrentAgentState = AgentState.DEAD;
+
+            if (Hunger <= 0)
+            {
+                AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsByHunger", 1);
+            }
+
+            if (Thirst <= 0)
+            {
+                AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsByThirst", 1);
+            }
+
             Die();
         }
     }
@@ -182,13 +204,18 @@ public class AgentBehavior : MonoBehaviour
             float probabilityOfDying = Mathf.Exp(a * (Age / b - 1));
             if (RollForChance(probabilityOfDying))
             {
-                Die();
+                DieByAge();
             }
         }
 
     }
 
     #region Handle Dying
+    private void DieByAge()
+    {
+        AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsByAge", 1);
+        Die();
+    }
 
     private void Die()
     {
@@ -455,28 +482,41 @@ public class AgentBehavior : MonoBehaviour
         }
     }
 
+    float probabilityOfSpawningExtraChildren = 0.2f;
     IEnumerator HandlePregnancy(GameObject mate)
     {
         IsPregnant = true;
         yield return new WaitForSeconds(stats.gestationDuration);
 
-        GameObject child = Instantiate(prefab, gameObject.transform.parent);
-        child.tag = "Untagged";
+        int numberOfChildren = 1;
+        while (RollForChance(probabilityOfSpawningExtraChildren))
+        {
+            numberOfChildren += 1;
+        }
 
-        AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
-        childAgentBehavior.isChild = true;
-        childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
+        for (int i = 0; i < numberOfChildren; i++)
+        {
+            GameObject child = Instantiate(prefab, gameObject.transform.parent);
+            child.tag = "Untagged";
 
-        // disable showing stats
-        child.GetComponent<HandleDisplayStats>().enabled = false;
-        child.transform.GetChild(1).gameObject.SetActive(false);
+            AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
+            childAgentBehavior.isChild = true;
+            childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
+
+            // disable showing stats
+            child.GetComponent<HandleDisplayStats>().enabled = false;
+            child.transform.GetChild(1).gameObject.SetActive(false);
+        }
+
+        AgentStatsLogger.Instance.AddCountToEvent(speciesName, "births", numberOfChildren);
 
         IsPregnant = false;
 
         StartCoroutine(HandleRecoverFromPregnancy());
     }
 
-    IEnumerator HandleRecoverFromPregnancy() {
+    IEnumerator HandleRecoverFromPregnancy()
+    {
         IsRecoveringFromBirth = true;
         yield return new WaitForSeconds(stats.durationBetweenPregnancies);
 
@@ -566,6 +606,7 @@ public class AgentBehavior : MonoBehaviour
 
     public void Kill()
     {
+        AgentStatsLogger.Instance.AddCountToEvent(speciesName, "deathsByHunt", 1);
         Die();
     }
 
@@ -617,7 +658,8 @@ public class AgentBehavior : MonoBehaviour
         }
 
         GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("target");
-        if (m != null) {
+        if (m != null)
+        {
             Gizmos.DrawSphere(m.transform.position, 2);
         }
     }
@@ -631,9 +673,10 @@ public class AgentBehavior : MonoBehaviour
         {
             Gizmos.DrawLine(transform.position, waterPoint);
         }
-        
+
         GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("water");
-        if (m != null) {
+        if (m != null)
+        {
             Gizmos.DrawSphere(m.transform.position, 2);
         }
     }
@@ -649,7 +692,8 @@ public class AgentBehavior : MonoBehaviour
         }
 
         GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("mate");
-        if (m != null) {
+        if (m != null)
+        {
             Gizmos.DrawSphere(m.transform.position, 2);
         }
     }
@@ -665,7 +709,8 @@ public class AgentBehavior : MonoBehaviour
         }
 
         GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("predator");
-        if (m != null) {
+        if (m != null)
+        {
             Gizmos.DrawSphere(m.transform.position, 2);
         }
     }
