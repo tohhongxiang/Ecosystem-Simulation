@@ -37,7 +37,7 @@ public class CheckMateInFOVRange : Node
                 continue;
             }
 
-            parent.parent.SetData("mate", mate);
+            parent.parent.parent.parent.SetData("mate", mate);
             mate.GetComponent<BehaviorTree.Tree>().Root().SetData("mate", _agentBehavior.gameObject);
             state = NodeState.SUCCESS;
             return state;

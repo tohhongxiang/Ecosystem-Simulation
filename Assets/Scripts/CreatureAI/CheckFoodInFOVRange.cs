@@ -23,8 +23,8 @@ public class CheckFoodInFOVRange : Node
                 state = NodeState.FAILURE;
                 return state;
             }
-            
-            parent.parent.SetData("target", targetFoods[0]);
+
+            parent.parent.parent.parent.SetData("target", targetFoods[0]);
             state = NodeState.SUCCESS;
             return state;
         }

@@ -21,8 +21,8 @@ public class CheckWaterInFOVRange : Node
                 state = NodeState.FAILURE;
                 return state;
             }
-            
-            parent.parent.SetData("water", waterLocations[0]);
+
+            parent.parent.parent.parent.SetData("water", waterLocations[0]);
             state = NodeState.SUCCESS;
             return state;
         }

@@ -678,10 +678,10 @@ public class AgentBehavior : MonoBehaviour
             Gizmos.DrawLine(transform.position, waterPoint);
         }
 
-        GameObject m = (GameObject)GetComponent<BehaviorTree.Tree>().Root().GetData("water");
+        object m = GetComponent<BehaviorTree.Tree>().Root().GetData("water");
         if (m != null)
         {
-            Gizmos.DrawSphere(m.transform.position, 2);
+            Gizmos.DrawSphere((Vector3)m, 2);
         }
     }
 
