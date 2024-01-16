@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 
 public class AlignToSurface : MonoBehaviour
@@ -9,11 +10,18 @@ public class AlignToSurface : MonoBehaviour
 
     public LayerMask terainMask;
 
+    private int frameCount = 0;
+    public int updateFrequency = 3;
     void FixedUpdate()
     {
-        Align();
+        if (frameCount % updateFrequency == 0)
+        {
+            Align();
+        }
+
+        frameCount += 1;
     }
-  
+
     private void Align()
     {
         theRay = -transform.up;
