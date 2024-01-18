@@ -17,7 +17,9 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
     {
         if (loadSettingsFromUserInput)
         {
-            count = SimulationSettingsController.settings[agentName];
+            count = SimulationSettingsController.settings[agentName].population;
+            initialAgentStats.speed = SimulationSettingsController.settings[agentName].speed;
+            initialAgentStats.size = SimulationSettingsController.settings[agentName].size;
         }
     }
 

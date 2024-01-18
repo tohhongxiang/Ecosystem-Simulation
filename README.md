@@ -42,5 +42,8 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 
 - [Unity Tutorial - How to make Enemy Healthbars](https://www.youtube.com/watch?v=ZYeXmze5gxg)
 - [How to make a HEALTH BAR in Unity!](https://www.youtube.com/watch?v=BLfNP4Sc_iA)
+- [How to Send Variables Between Scenes in Unity](https://www.youtube.com/watch?v=pMXJv9zzkGg)
+- [Scene 'X' couldn't be loaded because it has not been added to the build settings](https://forum.unity.com/threads/resolved-scene-x-couldnt-be-loaded-because-it-has-not-been-added-to-the-build-settings.1258335/)
+- [Unity: Load scene on button press](https://blog.insane.engineer/post/unity_button_load_scene/)
 
 TODO: Bears atatcking should not increase their hunger meter up. Only when the bear kills the deer

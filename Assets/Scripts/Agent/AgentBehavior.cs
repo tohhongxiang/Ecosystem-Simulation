@@ -122,7 +122,7 @@ public class AgentBehavior : MonoBehaviour
         }
         else
         {
-            Stamina = Mathf.Min(Stamina + Time.deltaTime, MaxStamina);
+            Stamina = Mathf.Min(Stamina + Time.deltaTime * stats.staminaIncreaseFactor, MaxStamina);
         }
 
         if (Hunger <= 0 || Thirst <= 0) // if starving or dehydrated, lose health
@@ -488,6 +488,8 @@ public class AgentBehavior : MonoBehaviour
     float probabilityOfSpawningExtraChildren = 0.2f;
     IEnumerator HandlePregnancy(GameObject mate)
     {
+        AgentStats mateStats = mate.GetComponent<AgentBehavior>().stats;
+
         IsPregnant = true;
         yield return new WaitForSeconds(stats.gestationDuration);
 
@@ -504,7 +506,7 @@ public class AgentBehavior : MonoBehaviour
 
             AgentBehavior childAgentBehavior = child.GetComponent<AgentBehavior>();
             childAgentBehavior.isChild = true;
-            childAgentBehavior.stats = new AgentStats(mate.GetComponent<AgentBehavior>().stats, stats);
+            childAgentBehavior.stats = new AgentStats(mateStats, stats);
 
             // disable showing stats
             child.GetComponent<HandleDisplayStats>().enabled = false;

@@ -8,6 +8,7 @@ public class UpdateValueFromSlider : MonoBehaviour
 {
     public Slider slider;
     public TMP_Text text;
+    public bool isInt = false;
 
     // Start is called before the first frame update
     void Start()
@@ -18,6 +19,7 @@ public class UpdateValueFromSlider : MonoBehaviour
 
     void ValueChangeCheck()
     {
-        text.text = slider.value.ToString();
+        string value = isInt ? slider.value.ToString() : slider.value.ToString("0.00");
+        text.text = value;
     }
 }

@@ -31,7 +31,8 @@ public class CheckMateInFOVRange : Node
 
         foreach (var mate in targetMates)
         {
-            GameObject mateCandidate = (GameObject)mate.GetComponent<BehaviorTree.Tree>().Root().GetData("mate");
+            // skip agents that already have a mate candidate
+            object mateCandidate = mate.GetComponent<BehaviorTree.Tree>().Root().GetData("mate");
             if (mateCandidate != null)
             {
                 continue;
