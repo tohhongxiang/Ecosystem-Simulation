@@ -22,7 +22,7 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
     [Tooltip("Whether prefabs should respawn if removed")] public bool shouldRespawn = false;
     [Tooltip("If true, respawn all missing entities. If false, respawn one at a time")] public bool respawnAllMissingAtOnce = false;
     public float minimumTimeBetweenRespawnSeconds = 1;
-    const int maxTries = 10;
+    const int maxTries = 1000;
     private float initialCount = 0;
 
     IEnumerator HandleRespawn(Bounds spawnAreaBounds)
@@ -133,10 +133,11 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 
     public override void ClearObjects()
     {
-        if (gameObject == null) {
+        if (gameObject == null)
+        {
             return;
         }
-        
+
         while (transform.childCount != 0)
         {
             DestroyImmediate(transform.GetChild(0).gameObject);

@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
@@ -31,6 +32,7 @@ public class AgentStatsLogger : MonoBehaviour
 
     private float getAverageIntervalCounter = 0;
     private float writeToCSVIntervalCounter = 0;
+    private bool simulationAlreadyStarted = false;
     private string startOfExperiment;
 
     // { [agentSpawner]: { [statistic]: object[] }}
@@ -77,10 +79,24 @@ public class AgentStatsLogger : MonoBehaviour
                 statistics[agentSpawner.agentName].Add(prop.Name, new List<object>());
             }
         }
+
+        StartCoroutine(WaitForStart());
+    }
+
+    IEnumerator WaitForStart()
+    {
+        yield return new WaitForSeconds(1);
+
+        simulationAlreadyStarted = true;
     }
 
     void Update()
     {
+        if (!simulationAlreadyStarted)
+        {
+            return;
+        }
+
         writeToCSVIntervalCounter += Time.deltaTime;
         if (writeToCSVIntervalCounter > writeToCSVIntervalSeconds && saveToCSV)
         {

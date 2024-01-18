@@ -112,8 +112,7 @@ public class AgentBehavior : MonoBehaviour
         bool isRunning = (CurrentAgentState == AgentState.CHASING_PREY || CurrentAgentState == AgentState.RUNNING_FROM_PREDATOR) && agent.velocity.magnitude > 0.3f;
         if (isRunning)
         {
-            float netStaminaDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.staminaDecreaseFactor;
-            Stamina = Mathf.Max(Stamina - Time.deltaTime * netStaminaDecrease, 0);
+            Stamina = Mathf.Max(Stamina - Time.deltaTime * stats.staminaDecreaseFactor, 0);
             if (Stamina == 0 && !IsRecovering)
             {
                 IsRecovering = true;
@@ -243,16 +242,19 @@ public class AgentBehavior : MonoBehaviour
     public void Wander()
     {
         CurrentAgentState = AgentState.WANDERING;
-        if (!agent.pathPending && (agent.reachedEndOfPath || !agent.hasPath))
+        if (agent.pathPending || (!agent.reachedEndOfPath && agent.hasPath))
         {
-            agent.destination = RandomPoint();
-            agent.SearchPath();
+            return;
         }
+
+        float searchRange = IsHungry() || IsThirsty() ? stats.fovRange * 3 : stats.fovRange;
+        agent.destination = RandomPoint(searchRange);
+        agent.SearchPath();
     }
 
-    private Vector3 RandomPoint()
+    private Vector3 RandomPoint(float range)
     {
-        Vector3 point = Random.insideUnitSphere * stats.fovRange;
+        Vector3 point = Random.insideUnitSphere * range;
 
         point.y = 0;
         point += agent.position;
