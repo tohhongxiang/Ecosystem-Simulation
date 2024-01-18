@@ -1,16 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TerrainAgentGenerator : TerrainObjectGenerator
 {
+    public string agentName;
     public GameObject prefab;
     public AgentStats initialAgentStats;
+    public bool loadSettingsFromUserInput = false;
+
     [TagSelector] public string newTag;
 
     [Header("Randomisation Parameters")]
     [Range(0, 1000)][Tooltip("Total prefabs to spawn")] public int count = 1;
     const int maxTries = 100;
+
+    void Awake()
+    {
+        if (loadSettingsFromUserInput)
+        {
+            count = SimulationSettingsController.settings[agentName];
+        }
+    }
 
     public override void SpawnObjects(Bounds spawnAreaBounds)
     {

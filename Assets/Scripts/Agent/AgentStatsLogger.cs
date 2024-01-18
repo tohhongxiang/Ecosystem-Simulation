@@ -9,7 +9,7 @@ using UnityEditor;
 
 public class AgentStatsLogger : MonoBehaviour
 {
-    public List<AgentSpawner> agentSpawners = new List<AgentSpawner>();
+    public List<TerrainAgentGenerator> agentSpawners = new List<TerrainAgentGenerator>();
     public bool saveToCSV = true;
     public float getAverageIntervalSeconds = 10;
     public float writeToCSVIntervalSeconds = 180;
@@ -35,10 +35,11 @@ public class AgentStatsLogger : MonoBehaviour
 
     // { [agentSpawner]: { [statistic]: object[] }}
     private Dictionary<string, Dictionary<string, List<object>>> statistics = new Dictionary<string, Dictionary<string, List<object>>>();
-    
+
     private Dictionary<string, Dictionary<string, int>> eventCounts = new Dictionary<string, Dictionary<string, int>>();
     private readonly string[] eventNames = { "deathsByAge", "deathsByHunger", "deathsByThirst", "deathsByHunt", "deathsTotal", "births" };
-    public void AddCountToEvent(string agentSpawnerName, string eventName, int count) {
+    public void AddCountToEvent(string agentSpawnerName, string eventName, int count)
+    {
         eventCounts[agentSpawnerName][eventName] += count;
     }
 
@@ -47,30 +48,33 @@ public class AgentStatsLogger : MonoBehaviour
         startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
         getAverageIntervalCounter = getAverageIntervalSeconds; // trigger collecting data from t = 0
 
-        foreach (var agentSpawner in agentSpawners) {
-            eventCounts.Add(agentSpawner.Name, new Dictionary<string, int>());
+        foreach (var agentSpawner in agentSpawners)
+        {
+            eventCounts.Add(agentSpawner.agentName, new Dictionary<string, int>());
 
-            foreach (var eventName in eventNames) {
-                eventCounts[agentSpawner.Name].Add(eventName, 0);
+            foreach (var eventName in eventNames)
+            {
+                eventCounts[agentSpawner.agentName].Add(eventName, 0);
             }
         }
 
         foreach (var agentSpawner in agentSpawners)
         {
-            statistics.Add(agentSpawner.Name, new Dictionary<string, List<object>>());
+            statistics.Add(agentSpawner.agentName, new Dictionary<string, List<object>>());
 
-            statistics[agentSpawner.Name].Add("population", new List<object>());
-            statistics[agentSpawner.Name].Add("time", new List<object>());
+            statistics[agentSpawner.agentName].Add("population", new List<object>());
+            statistics[agentSpawner.agentName].Add("time", new List<object>());
 
-            foreach (var eventName in eventNames) {
-                statistics[agentSpawner.Name].Add(eventName, new List<object>());
+            foreach (var eventName in eventNames)
+            {
+                statistics[agentSpawner.agentName].Add(eventName, new List<object>());
             }
 
             foreach (var prop in typeof(AgentStats).GetFields())
             {
                 if (!prop.FieldType.IsNumeric()) continue;
 
-                statistics[agentSpawner.Name].Add(prop.Name, new List<object>());
+                statistics[agentSpawner.agentName].Add(prop.Name, new List<object>());
             }
         }
     }
@@ -93,21 +97,24 @@ public class AgentStatsLogger : MonoBehaviour
         }
 
         bool simulationEnded = true;
-        foreach (var agentSpawner in agentSpawners) {
-            if (agentSpawner.Spawner.transform.childCount != 0) {
+        foreach (var agentSpawner in agentSpawners)
+        {
+            if (agentSpawner.gameObject.transform.childCount != 0)
+            {
                 simulationEnded = false;
             }
         }
 
-        if (simulationEnded) {
+        if (simulationEnded)
+        {
             UpdateStats();
             WriteStatsToCSV();
 
-            #if UNITY_EDITOR
-                EditorApplication.isPlaying = false;
-            #else
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#else
                 Application.Quit();
-            #endif
+#endif
         }
     }
 
@@ -117,7 +124,7 @@ public class AgentStatsLogger : MonoBehaviour
         foreach (var agentSpawner in agentSpawners)
         {
             int rows = 0;
-            foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.Name])
+            foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.agentName])
             {
                 rows = element.Value.Count();
                 if (finalResultToWrite.ContainsKey(element.Key))
@@ -131,7 +138,7 @@ public class AgentStatsLogger : MonoBehaviour
             }
 
             string speciesColumnName = "species";
-            List<object> species = Enumerable.Repeat(agentSpawner.Name, rows).Cast<object>().ToList();
+            List<object> species = Enumerable.Repeat(agentSpawner.agentName, rows).Cast<object>().ToList();
             if (finalResultToWrite.ContainsKey(speciesColumnName))
             {
                 finalResultToWrite[speciesColumnName].AddRange(species);
@@ -149,9 +156,9 @@ public class AgentStatsLogger : MonoBehaviour
     {
         foreach (var agentSpawner in agentSpawners)
         {
-            foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.Name])
+            foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.agentName])
             {
-                statistics[agentSpawner.Name][element.Key].Clear();
+                statistics[agentSpawner.agentName][element.Key].Clear();
             }
         }
     }
@@ -162,15 +169,15 @@ public class AgentStatsLogger : MonoBehaviour
         timer++;
         foreach (var agentSpawner in agentSpawners)
         {
-            var childrenAgentBehavior = agentSpawner.Spawner.GetComponentsInChildren<AgentBehavior>();
+            var childrenAgentBehavior = agentSpawner.GetComponentsInChildren<AgentBehavior>();
 
-            statistics[agentSpawner.Name]["time"].Add(timer);
+            statistics[agentSpawner.agentName]["time"].Add(timer);
 
             int population = childrenAgentBehavior.Count();
-            statistics[agentSpawner.Name]["population"].Add(population);
-            Debug.Log(string.Format("{0} population: {1}", agentSpawner.Name, population));
+            statistics[agentSpawner.agentName]["population"].Add(population);
+            Debug.Log(string.Format("{0} population: {1}", agentSpawner.agentName, population));
 
-            foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.Name])
+            foreach (KeyValuePair<string, List<object>> element in statistics[agentSpawner.agentName])
             {
                 // make sure field exists
                 if (typeof(AgentStats).GetField(element.Key) == null)
@@ -180,7 +187,7 @@ public class AgentStatsLogger : MonoBehaviour
 
                 if (population == 0)
                 {
-                    statistics[agentSpawner.Name][element.Key].Add(0);
+                    statistics[agentSpawner.agentName][element.Key].Add(0);
                     continue;
                 }
 
@@ -189,18 +196,20 @@ public class AgentStatsLogger : MonoBehaviour
                     .ToList()
                     .Average();
 
-                statistics[agentSpawner.Name][element.Key].Add(populationStatisticAverage);
+                statistics[agentSpawner.agentName][element.Key].Add(populationStatisticAverage);
             }
 
             // create a temporary new dictionary to prevent `InvalidOperationException: Collection was modified;`
             Dictionary<string, int> eventCountsToAdd = new Dictionary<string, int>();
-            foreach (KeyValuePair<string, int> element in eventCounts[agentSpawner.Name]) {
+            foreach (KeyValuePair<string, int> element in eventCounts[agentSpawner.agentName])
+            {
                 eventCountsToAdd.Add(element.Key, element.Value);
             }
 
-            foreach (KeyValuePair<string, int> element in eventCountsToAdd) {
-                statistics[agentSpawner.Name][element.Key].Add(element.Value);
-                eventCounts[agentSpawner.Name][element.Key] -= element.Value;
+            foreach (KeyValuePair<string, int> element in eventCountsToAdd)
+            {
+                statistics[agentSpawner.agentName][element.Key].Add(element.Value);
+                eventCounts[agentSpawner.agentName][element.Key] -= element.Value;
             }
         }
     }
