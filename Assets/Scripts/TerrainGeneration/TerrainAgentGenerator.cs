@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class TerrainAgentGenerator : TerrainObjectGenerator
 {
-    public string agentName;
     public GameObject prefab;
     public AgentStats initialAgentStats;
     public bool loadSettingsFromUserInput = false;
@@ -17,9 +16,9 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
     {
         if (loadSettingsFromUserInput)
         {
-            count = SimulationSettingsController.settings[agentName].population;
-            initialAgentStats.speed = SimulationSettingsController.settings[agentName].speed;
-            initialAgentStats.size = SimulationSettingsController.settings[agentName].size;
+            count = SimulationSettingsController.settings[generatorName].population;
+            initialAgentStats.speed = SimulationSettingsController.settings[generatorName].speed;
+            initialAgentStats.size = SimulationSettingsController.settings[generatorName].size;
         }
     }
 

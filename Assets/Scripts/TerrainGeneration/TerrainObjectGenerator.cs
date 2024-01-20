@@ -5,6 +5,7 @@ using UnityEngine;
 
 public abstract class TerrainObjectGenerator : MonoBehaviour
 {
+    public string generatorName;
     public event System.Action OnValuesUpdated;
     public abstract void SpawnObjects(Bounds bounds);
     public abstract void ClearObjects();
