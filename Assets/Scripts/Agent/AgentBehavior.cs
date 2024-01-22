@@ -23,7 +23,7 @@ public class AgentBehavior : MonoBehaviour
 
     public float Hunger { get; private set; } = 100;
     public float MaxHunger { get; private set; } = 100;
-    private readonly float hungerThresholdPercentage = 0.75f;
+    private readonly float hungerThresholdPercentage = 0.5f;
     public bool IsHungry()
     {
         return Hunger <= hungerThresholdPercentage * MaxHunger;
@@ -31,7 +31,7 @@ public class AgentBehavior : MonoBehaviour
 
     public float Thirst { get; private set; } = 100;
     public float MaxThirst { get; private set; } = 100;
-    private readonly float thirstThresholdPercentage = 0.75f;
+    private readonly float thirstThresholdPercentage = 0.5f;
     public bool IsThirsty()
     {
         return Thirst <= thirstThresholdPercentage * MaxThirst;
@@ -239,6 +239,7 @@ public class AgentBehavior : MonoBehaviour
 
     #region Handle Wandering
 
+    int expandedRangeWhenLookingForNourishment = 4;
     public void Wander()
     {
         CurrentAgentState = AgentState.WANDERING;
@@ -247,7 +248,7 @@ public class AgentBehavior : MonoBehaviour
             return;
         }
 
-        float searchRange = IsHungry() || IsThirsty() ? stats.fovRange * 3 : stats.fovRange;
+        float searchRange = IsHungry() || IsThirsty() ? stats.fovRange * expandedRangeWhenLookingForNourishment : stats.fovRange;
         agent.destination = RandomPoint(searchRange);
         agent.SearchPath();
     }
@@ -384,9 +385,10 @@ public class AgentBehavior : MonoBehaviour
     #region Handle Mating
     public bool IsPregnant { get; private set; } = false;
     public bool IsRecoveringFromBirth { get; private set; } = false;
+    private float canBreedThreshold = 0.75f;
     public bool CanMate()
     {
-        return !isChild && !IsPregnant && !IsRecoveringFromBirth && !IsHungry() && !IsThirsty();
+        return !isChild && !IsPregnant && !IsRecoveringFromBirth && Hunger > canBreedThreshold * MaxHunger && Thirst > canBreedThreshold;
     }
     public bool IsTargetInReproduceRange(GameObject target)
     {

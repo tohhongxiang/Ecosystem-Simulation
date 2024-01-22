@@ -211,7 +211,7 @@ public class AgentStatsLogger : MonoBehaviour
     private int timer = 0;
     void UpdateStats()
     {
-        timer++;
+        timer += (int)getAverageIntervalSeconds;
         UpdateTimerText();
 
         foreach (var agentSpawner in agentSpawners)
