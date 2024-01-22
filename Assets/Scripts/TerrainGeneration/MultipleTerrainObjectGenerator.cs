@@ -34,6 +34,11 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
         {
             SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(areaBounds);
         }
+
+        if (Application.isPlaying)
+        {
+            StartCoroutine(CleanUpFoodInDefaultLayer());
+        }
     }
 
     private bool SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(Bounds spawnAreaBounds)
@@ -119,6 +124,26 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
     {
         yield return new WaitForSeconds(minimumTimeBetweenRespawnSeconds + 0.1f);
         SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(areaBounds);
+    }
+
+    private const int cleanUpFoodIntervalSeconds = 10;
+    IEnumerator CleanUpFoodInDefaultLayer()
+    {
+        // when food is unreachable, we move its layer to "Default"
+        // we should clear these unreachable foods periodically
+        // the `TerrainObject.OnDestroyHandler` in the child will handle its respawn
+        while (true)
+        {
+            yield return new WaitForSeconds(cleanUpFoodIntervalSeconds);
+
+            foreach (Transform child in transform)
+            {
+                if (child.gameObject.layer != gameObject.layer)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+        }
     }
 
     public override void ClearObjects()

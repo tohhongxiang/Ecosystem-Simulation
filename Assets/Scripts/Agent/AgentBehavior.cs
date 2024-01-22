@@ -273,7 +273,7 @@ public class AgentBehavior : MonoBehaviour
 
         foreach (Collider collider in colliders)
         {
-            if (collider != null && !blacklistedTargets.Contains(collider.gameObject))
+            if (collider != null)
             {
                 foods.Add(collider.gameObject);
             }
@@ -305,7 +305,7 @@ public class AgentBehavior : MonoBehaviour
         CurrentAgentState = AgentState.EATING;
         transform.LookAt(target.transform);
         animator.SetBool("isEating", true);
-        target.layer = LayerMask.NameToLayer("Default"); // todo when an agent dies while eating, this is never removed
+        target.layer = LayerMask.NameToLayer("Default");
 
         yield return new WaitForSeconds(1);
 
@@ -323,17 +323,9 @@ public class AgentBehavior : MonoBehaviour
         agent.isStopped = false;
     }
 
-    private float forgetTimeSeconds = 90;
-    private HashSet<GameObject> blacklistedTargets = new HashSet<GameObject>();
     public void BlacklistTarget(GameObject target)
     {
-        blacklistedTargets.Add(target);
-        StartCoroutine(ForgetBlacklistedTarget(target));
-    }
-
-    IEnumerator ForgetBlacklistedTarget(GameObject target) {
-        yield return new WaitForSeconds(forgetTimeSeconds);
-        blacklistedTargets.Remove(target);
+        target.layer = LayerMask.NameToLayer("Default");
     }
 
     #endregion
