@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using System;
+
+using Random = UnityEngine.Random;
 
 public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
 {
@@ -11,7 +14,7 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
     [Tooltip("Maximum angle between the final prefab rotation from vertical")] public float maxAngleFromVertical = 0;
 
     [Header("Randomisation Parameters")]
-    [Tooltip("Total prefabs to spawn per meter square")] public float numberOfPrefabsPer100MetersSquared = 1;
+    [Tooltip("Total prefabs to spawn")][Range(0, 1000)] public float count = 1;
     [Range(0, 1)] public float minScale = 1;
     [Range(0, 2)] public float maxScale = 1;
 
@@ -20,56 +23,20 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
     [Tooltip("Offset from intersection with ground to spawn prefab in")]
     public Vector3 offsetFromGround = new Vector3(0, 0, 0);
     [Tooltip("Whether prefabs should respawn if removed")] public bool shouldRespawn = false;
-    [Tooltip("If true, respawn all missing entities. If false, respawn one at a time")] public bool respawnAllMissingAtOnce = false;
     public float minimumTimeBetweenRespawnSeconds = 1;
     const int maxTries = 1000;
-    private float initialCount = 0;
 
-    IEnumerator HandleRespawn(Bounds spawnAreaBounds)
-    {
-        while (true)
-        {
-            int currentCount = transform.childCount;
-            if (currentCount < initialCount)
-            {
-
-                if (respawnAllMissingAtOnce)
-                {
-                    for (int i = 0; i < initialCount - currentCount; i++)
-                    {
-                        SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(spawnAreaBounds, maxTries);
-                    }
-                }
-                else
-                {
-                    SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(spawnAreaBounds, maxTries);
-                }
-            }
-
-            yield return new WaitForSeconds(minimumTimeBetweenRespawnSeconds + 0.1f); // prevent waitforseconds(0)
-        }
-    }
-
-    public override void SpawnObjects(Bounds spawnAreaBounds)
+    public override void SpawnObjects(Bounds areaBounds)
     {
         ClearObjects();
 
-        float totalSurfaceArea = spawnAreaBounds.extents.x * 2 * spawnAreaBounds.extents.z * 2;
-        int totalPrefabCount = (int)(totalSurfaceArea * numberOfPrefabsPer100MetersSquared / 100);
-
-        for (int i = 0; i < totalPrefabCount; i++)
+        for (int i = 0; i < count; i++)
         {
-            SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(spawnAreaBounds, maxTries);
-        }
-
-        initialCount = totalPrefabCount;
-        if (shouldRespawn)
-        {
-            StartCoroutine(HandleRespawn(spawnAreaBounds));
+            SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(areaBounds);
         }
     }
 
-    private bool SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(Bounds spawnAreaBounds, int maxTries)
+    private bool SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(Bounds spawnAreaBounds)
     {
         float minimumHeightToSpawnPrefab = Mathf.Lerp(spawnAreaBounds.min.y, spawnAreaBounds.max.y, minimumSpawnHeight);
         float maximumHeightToSpawnPrefab = Mathf.Lerp(spawnAreaBounds.min.y, spawnAreaBounds.max.y, maximumSpawnHeight);
@@ -125,10 +92,33 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
             Vector3 scale = new Vector3(Random.Range(minScale, maxScale), Random.Range(minScale, maxScale), Random.Range(minScale, maxScale));
             instantiatedPrefab.transform.localScale = scale;
 
+            TerrainObject terrainObject = instantiatedPrefab.AddComponent<TerrainObject>();
+            terrainObject.OnDestroyed += HandleTerrainObjectRemovedWithBounds(spawnAreaBounds);
+
             return true;
         }
 
         return false;
+    }
+
+    private TerrainObject.OnDestroyedHandler HandleTerrainObjectRemovedWithBounds(Bounds areaBounds)
+    {
+        void HandleTerrainObjectRemoved()
+        {
+            if (Application.isPlaying && gameObject.activeInHierarchy && shouldRespawn)
+            {
+                StartCoroutine(HandleRespawnCurrentObject(areaBounds));
+            }
+
+        }
+
+        return HandleTerrainObjectRemoved;
+    }
+
+    IEnumerator HandleRespawnCurrentObject(Bounds areaBounds)
+    {
+        yield return new WaitForSeconds(minimumTimeBetweenRespawnSeconds + 0.1f);
+        SpawnRandomObjectInRandomPlaceWithRandomRotationAndScale(areaBounds);
     }
 
     public override void ClearObjects()
@@ -144,4 +134,3 @@ public class MultipleTerrainObjectGenerator : TerrainObjectGenerator
         }
     }
 }
-
