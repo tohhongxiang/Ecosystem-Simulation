@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 1237299051686875244}
   - component: {fileID: 2615653937719956664}
   - component: {fileID: 7604460757250254326}
-  - component: {fileID: 1738201052978181640}
   m_Layer: 0
   m_Name: SM_Env_TreePine_01
   m_TagString: Plant
@@ -130,21 +129,3 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43131403053060788, guid: 2fcd7128d798546449dc559ea492b74a, type: 2}
---- !u!114 &1738201052978181640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 892201532190028077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 220345cbaa167417bbe806f230f68615, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  bounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
-  dynamic: 1
-  area: -1

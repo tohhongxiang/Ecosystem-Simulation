@@ -19,7 +19,6 @@ GameObject:
   - component: {fileID: 2438675022374738279}
   - component: {fileID: 2164491374404282414}
   - component: {fileID: 39642173666821537}
-  - component: {fileID: 297429425403304514}
   m_Layer: 0
   m_Name: SM_Env_TreeBirch_03
   m_TagString: Plant
@@ -268,21 +267,3 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43713856626778582, guid: 9dd9e6dc7af6794468783073162778a6, type: 2}
---- !u!114 &297429425403304514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8339680068020266528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 220345cbaa167417bbe806f230f68615, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  bounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
-  dynamic: 1
-  area: -1

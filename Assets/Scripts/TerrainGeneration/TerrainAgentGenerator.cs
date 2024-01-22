@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TerrainAgentGenerator : TerrainObjectGenerator
+public class TerrainAgentGenerator : TerrainObjectWithCountGenerator
 {
     public GameObject prefab;
     public AgentStats initialAgentStats;
@@ -9,7 +9,6 @@ public class TerrainAgentGenerator : TerrainObjectGenerator
     [TagSelector] public string newTag;
 
     [Header("Randomisation Parameters")]
-    [Range(0, 1000)][Tooltip("Total prefabs to spawn")] public int count = 1;
     const int maxTries = 100;
 
     void Awake()

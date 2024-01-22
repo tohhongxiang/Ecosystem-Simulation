@@ -4,16 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
-using System.Reflection;
 using Unity.VisualScripting;
 using UnityEditor;
+using TMPro;
 
 public class AgentStatsLogger : MonoBehaviour
 {
-    public List<TerrainObjectGenerator> agentSpawners = new List<TerrainObjectGenerator>();
+    public List<TerrainObjectWithCountGenerator> agentSpawners = new List<TerrainObjectWithCountGenerator>();
+
     public bool saveToCSV = true;
     public float getAverageIntervalSeconds = 10;
     public float writeToCSVIntervalSeconds = 180;
+
+    public GameObject agentPopulationCanvas;
+    private Dictionary<string, TMP_Text> agentToText = new Dictionary<string, TMP_Text>();
+    private TMP_Text timeText;
+    private readonly int defaultFontSize = 20;
 
     public static AgentStatsLogger Instance { get; private set; }
     private void Awake()
@@ -50,18 +56,19 @@ public class AgentStatsLogger : MonoBehaviour
         startOfExperiment = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
         getAverageIntervalCounter = getAverageIntervalSeconds; // trigger collecting data from t = 0
 
+        // remove agent spawners which do not spawn anything
+        agentSpawners = agentSpawners.Where(agentSpawner => agentSpawner.count > 0).ToList();
+
         foreach (var agentSpawner in agentSpawners)
         {
+            // set up events to listen to
             eventCounts.Add(agentSpawner.generatorName, new Dictionary<string, int>());
-
             foreach (var eventName in eventNames)
             {
                 eventCounts[agentSpawner.generatorName].Add(eventName, 0);
             }
-        }
 
-        foreach (var agentSpawner in agentSpawners)
-        {
+            // setup traits to track
             statistics.Add(agentSpawner.generatorName, new Dictionary<string, List<object>>());
 
             statistics[agentSpawner.generatorName].Add("population", new List<object>());
@@ -78,9 +85,31 @@ public class AgentStatsLogger : MonoBehaviour
 
                 statistics[agentSpawner.generatorName].Add(prop.Name, new List<object>());
             }
+
+            // setup text display for population
+            TextMeshProUGUI textGameObject = createTextElement(agentSpawner.generatorName, "");
+            textGameObject.transform.SetParent(agentPopulationCanvas.transform, false);
+            agentToText[agentSpawner.generatorName] = textGameObject;
+            UpdatePopulationDisplay(agentSpawner.generatorName, agentSpawner.count);
         }
 
+        TextMeshProUGUI timeTextElement = createTextElement("Time", "");
+        timeTextElement.transform.SetParent(agentPopulationCanvas.transform, false);
+        timeText = timeTextElement;
+        UpdateTimerText();
+
         StartCoroutine(WaitForStart());
+    }
+
+    TextMeshProUGUI createTextElement(string name, string text)
+    {
+        GameObject textGameObject = new GameObject(name);
+        var textComponent = textGameObject.AddComponent<TextMeshProUGUI>();
+        textComponent.text = text;
+        textComponent.fontSize = defaultFontSize;
+        textComponent.alignment = TextAlignmentOptions.Right;
+
+        return textComponent;
     }
 
     IEnumerator WaitForStart()
@@ -183,12 +212,21 @@ public class AgentStatsLogger : MonoBehaviour
     void UpdateStats()
     {
         timer++;
+        UpdateTimerText();
+
         foreach (var agentSpawner in agentSpawners)
         {
+            if (agentSpawner.count == 0)
+            {
+                continue;
+            }
+
             statistics[agentSpawner.generatorName]["time"].Add(timer);
 
             int population = agentSpawner.gameObject.transform.childCount;
             statistics[agentSpawner.generatorName]["population"].Add(population);
+            UpdatePopulationDisplay(agentSpawner.generatorName, population);
+
             Debug.Log(string.Format("{0} population: {1}", agentSpawner.generatorName, population));
 
             var childrenAgentBehavior = agentSpawner.GetComponentsInChildren<AgentBehavior>();
@@ -263,11 +301,17 @@ public class AgentStatsLogger : MonoBehaviour
         output.Close();
         Debug.Log("Finished writing to: " + fullFileName);
     }
-}
 
-[System.Serializable]
-public class AgentSpawner
-{
-    public string Name;
-    public GameObject Spawner;
+    void UpdatePopulationDisplay(string name, int population)
+    {
+        agentToText[name].text = string.Format("{0}: {1}", name, population);
+    }
+
+    void UpdateTimerText()
+    {
+        if (timeText != null)
+        {
+            timeText.text = string.Format("Time: {0}", timer);
+        }
+    }
 }

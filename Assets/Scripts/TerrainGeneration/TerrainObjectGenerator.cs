@@ -11,7 +11,8 @@ public abstract class TerrainObjectGenerator : MonoBehaviour
     public abstract void ClearObjects();
     public int seed = 0;
 
-    void Start() {
+    void Start()
+    {
         Random.InitState(seed);
     }
 
