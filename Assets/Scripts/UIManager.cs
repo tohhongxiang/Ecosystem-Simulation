@@ -14,6 +14,9 @@ public class UIManager : MonoBehaviour
     public Slider bearSpeedSlider;
     public Slider bearSizeSlider;
 
+    [Header("Grass Parameters")]
+    public Slider grassPopulationSlider;
+
     [Header("Confirm")]
     public Button confirmButton;
 
@@ -24,6 +27,8 @@ public class UIManager : MonoBehaviour
     private int bearPopulation = 0;
     private float bearSpeed = 1.0f;
     private float bearSize = 1.0f;
+
+    private int grassPopulation = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -53,6 +58,9 @@ public class UIManager : MonoBehaviour
         bearSizeSlider.minValue = AgentStats.minSize;
         bearSizeSlider.maxValue = AgentStats.maxSize;
         bearSizeSlider.onValueChanged.AddListener(delegate { UpdateBearSize(); });
+
+        grassPopulationSlider.value = grassPopulation;
+        grassPopulationSlider.onValueChanged.AddListener(delegate { UpdateGrassPopulation(); });
 
         confirmButton.onClick.AddListener(delegate { Submit(); });
     }
@@ -87,6 +95,11 @@ public class UIManager : MonoBehaviour
         bearSize = (float)Math.Round(bearSizeSlider.value, 2);
     }
 
+    void UpdateGrassPopulation()
+    {
+        grassPopulation = (int)grassPopulationSlider.value;
+    }
+
     void Submit()
     {
         SimulationSettingsController.settings["Deer"].population = deerPopulation;
@@ -96,5 +109,7 @@ public class UIManager : MonoBehaviour
         SimulationSettingsController.settings["Bear"].population = bearPopulation;
         SimulationSettingsController.settings["Bear"].speed = bearSpeed;
         SimulationSettingsController.settings["Bear"].size = bearSize;
+
+        SimulationSettingsController.settings["Grass"].population = grassPopulation;
     }
 }

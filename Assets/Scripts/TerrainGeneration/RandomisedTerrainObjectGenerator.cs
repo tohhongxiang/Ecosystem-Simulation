@@ -26,7 +26,16 @@ public class RandomisedTerrainObjectGenerator : TerrainObjectWithCountGenerator
     public Vector3 offsetFromGround = new Vector3(0, 0, 0);
     [Tooltip("Whether prefabs should respawn if removed")] public bool shouldRespawn = false;
     public float minimumTimeBetweenRespawnSeconds = 1;
+    public bool loadSettingsFromUserInput = false;
     const int maxTries = 1000;
+
+    void Awake()
+    {
+        if (loadSettingsFromUserInput)
+        {
+            count = SimulationSettingsController.settings[generatorName].population;
+        }
+    }
 
     public override void SpawnObjects(Bounds areaBounds)
     {

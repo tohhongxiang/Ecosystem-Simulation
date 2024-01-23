@@ -6,7 +6,8 @@ public class SimulationSettingsController : MonoBehaviour
 {
     public static Dictionary<string, EditableSimulationSettings> settings = new Dictionary<string, EditableSimulationSettings>(){
         { "Deer", new EditableSimulationSettings() },
-        { "Bear", new EditableSimulationSettings() }
+        { "Bear", new EditableSimulationSettings() },
+        { "Grass", new EditableSimulationSettings() },
     };
 }
 
