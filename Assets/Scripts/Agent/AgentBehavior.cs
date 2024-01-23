@@ -489,7 +489,6 @@ public class AgentBehavior : MonoBehaviour
         }
     }
 
-    float probabilityOfSpawningExtraChildren = 0.2f;
     IEnumerator HandlePregnancy(GameObject mate)
     {
         AgentStats mateStats = mate.GetComponent<AgentBehavior>().stats;
@@ -497,12 +496,7 @@ public class AgentBehavior : MonoBehaviour
         IsPregnant = true;
         yield return new WaitForSeconds(stats.gestationDuration);
 
-        int numberOfChildren = 1;
-        while (RollForChance(probabilityOfSpawningExtraChildren))
-        {
-            numberOfChildren += 1;
-        }
-
+        int numberOfChildren = Random.Range(1, (int)(2 * stats.averageNumberOfChildren + 1));
         for (int i = 0; i < numberOfChildren; i++)
         {
             GameObject child = Instantiate(prefab, gameObject.transform.parent);

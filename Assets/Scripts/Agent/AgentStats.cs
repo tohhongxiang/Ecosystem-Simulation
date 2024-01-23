@@ -22,6 +22,7 @@ public class AgentStats
     public float fovRange = 10;
     public float growIntoAdultDurationSeconds = 30;
     public float expectedAge = 100;
+    public float averageNumberOfChildren = 1;
 
     public Gender gender = Gender.MALE;
 
@@ -40,6 +41,7 @@ public class AgentStats
 
         speed = parents[Random.Range(0, parents.Length)].speed;
         size = parents[Random.Range(0, parents.Length)].size;
+
         hungerDecreaseFactor = parents[Random.Range(0, parents.Length)].hungerDecreaseFactor;
         thirstDecreaseFactor = parents[Random.Range(0, parents.Length)].thirstDecreaseFactor;
         staminaDecreaseFactor = parents[Random.Range(0, parents.Length)].staminaDecreaseFactor;
@@ -48,6 +50,7 @@ public class AgentStats
         fovRange = parents[Random.Range(0, parents.Length)].fovRange;
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
         expectedAge = parents[Random.Range(0, parents.Length)].expectedAge;
+        averageNumberOfChildren = parents[Random.Range(0, parents.Length)].averageNumberOfChildren;
 
         // random perturbations
         float minPerturbation = 0.75f;

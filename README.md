@@ -46,4 +46,7 @@ Using Perlin Noise to generate landmasses, and then randomly placing terrain obj
 - [Scene 'X' couldn't be loaded because it has not been added to the build settings](https://forum.unity.com/threads/resolved-scene-x-couldnt-be-loaded-because-it-has-not-been-added-to-the-build-settings.1258335/)
 - [Unity: Load scene on button press](https://blog.insane.engineer/post/unity_button_load_scene/)
 
-TODO: Bears atatcking should not increase their hunger meter up. Only when the bear kills the deer
+## Stats
+
+1 second in game time = 10 hour
+- [Reproductive characteristics of female white-tailed deer (Odocoileus virginianus) in the Midwestern USA](https://www.sciencedirect.com/science/article/pii/S0093691X1730078X)
