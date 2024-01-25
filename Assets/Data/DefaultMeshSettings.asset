@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: DefaultMeshSettings
   m_EditorClassIdentifier: 
   autoUpdate: 1
-  chunkSize: 255
+  chunkSize: 127
   numberOfChunks: 1
   scale: 1
