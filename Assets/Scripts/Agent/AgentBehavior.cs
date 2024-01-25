@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using Pathfinding;
+using System;
+
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(LocomotionSimpleAgent))]
@@ -23,7 +26,7 @@ public class AgentBehavior : MonoBehaviour
 
     public float Hunger { get; private set; } = 100;
     public float MaxHunger { get; private set; } = 100;
-    private readonly float hungerThresholdPercentage = 0.5f;
+    private readonly float hungerThresholdPercentage = 0.75f;
     public bool IsHungry()
     {
         return Hunger <= hungerThresholdPercentage * MaxHunger;
@@ -31,7 +34,7 @@ public class AgentBehavior : MonoBehaviour
 
     public float Thirst { get; private set; } = 100;
     public float MaxThirst { get; private set; } = 100;
-    private readonly float thirstThresholdPercentage = 0.5f;
+    private readonly float thirstThresholdPercentage = 0.75f;
     public bool IsThirsty()
     {
         return Thirst <= thirstThresholdPercentage * MaxThirst;
@@ -59,7 +62,7 @@ public class AgentBehavior : MonoBehaviour
     private float childCounter = 0;
     private float childScale = 0.5f;
 
-    private readonly int maxCandidates = 10;
+    private static readonly int maxCandidates = 10;
 
     private RichAI agent;
     private Animator animator;
@@ -80,9 +83,10 @@ public class AgentBehavior : MonoBehaviour
         MaxThirst *= Mathf.Pow(stats.size, 3);
         MaxHunger *= Mathf.Pow(stats.size, 3);
 
-        Health = MaxHealth;
-        Hunger = MaxHunger;
-        Thirst = MaxThirst;
+        // start off hungry and thirsty
+        Health = 0.75f * MaxHealth;
+        Hunger = 0.75f * MaxHunger;
+        Thirst = 0.75f * MaxThirst;
         Stamina = MaxStamina;
 
         childScale = 0.5f * stats.size;
@@ -103,10 +107,10 @@ public class AgentBehavior : MonoBehaviour
 
     private void UpdateStats()
     {
-        float netHungerDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.hungerDecreaseFactor;
+        float netHungerDecrease = 0.5f * (Mathf.Pow(stats.size, 3) * Mathf.Pow(stats.speed, 2) + 1) * stats.hungerDecreaseFactor;
         Hunger = Mathf.Max(Hunger - Time.deltaTime * netHungerDecrease, 0);
 
-        float netThirstDecrease = (Mathf.Pow(stats.size, 3) + Mathf.Pow(stats.speed, 2)) * stats.thirstDecreaseFactor;
+        float netThirstDecrease = 0.5f * (Mathf.Pow(stats.size, 3) * Mathf.Pow(stats.speed, 2) + 1) * stats.thirstDecreaseFactor;
         Thirst = Mathf.Max(Thirst - Time.deltaTime * netThirstDecrease, 0);
 
         bool isRunning = (CurrentAgentState == AgentState.CHASING_PREY || CurrentAgentState == AgentState.RUNNING_FROM_PREDATOR) && agent.velocity.magnitude > 0.3f;
@@ -266,13 +270,14 @@ public class AgentBehavior : MonoBehaviour
 
     #region Handle Food
 
+    Collider[] foodCandidateColliders = new Collider[maxCandidates];
     public List<GameObject> GetFoodInFOVRange()
     {
-        Collider[] colliders = new Collider[maxCandidates];
-        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, colliders, LayerMask.GetMask(foodTag));
+        Array.Clear(foodCandidateColliders, 0, maxCandidates);
+        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, foodCandidateColliders, LayerMask.GetMask(foodTag));
         List<GameObject> foods = new List<GameObject>();
 
-        foreach (Collider collider in colliders)
+        foreach (Collider collider in foodCandidateColliders)
         {
             if (collider != null)
             {
@@ -280,7 +285,7 @@ public class AgentBehavior : MonoBehaviour
             }
         }
 
-        foods = foods.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
+        // foods = foods.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
         return foods;
     }
 
@@ -318,7 +323,7 @@ public class AgentBehavior : MonoBehaviour
         Destroy(target);
         animator.SetBool("isEating", false);
 
-        Hunger = MaxHunger;
+        Hunger = Mathf.Min(Hunger + stats.foodRestoreHungerAmount, MaxHunger);
         CurrentAgentState = AgentState.DONE_EATING;
 
         agent.isStopped = false;
@@ -342,7 +347,8 @@ public class AgentBehavior : MonoBehaviour
     {
         return WaterGenerator.Instance.GetAccessibleWaterPoints()
             .Where((d) => (d - transform.position).sqrMagnitude <= stats.fovRange * stats.fovRange)
-            .OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
+            .ToList();
+        // .OrderBy((d) => (d - transform.position).sqrMagnitude).ToList();
     }
 
     public void Drink(Vector3 waterPoint)
@@ -370,7 +376,7 @@ public class AgentBehavior : MonoBehaviour
         }
 
         animator.SetBool("isDrinking", false);
-        Thirst = MaxThirst;
+        Thirst = Mathf.Min(Thirst + stats.waterRestoreThirstAmount, MaxThirst);
         CurrentAgentState = AgentState.DONE_DRINKING;
         agent.isStopped = false;
     }
@@ -401,14 +407,15 @@ public class AgentBehavior : MonoBehaviour
         locomotionSimpleAgent.Seek(mate.transform.position);
     }
 
+    private Collider[] mateCandidateColliders = new Collider[maxCandidates];
     public List<GameObject> GetMatesInFOVRange()
     {
-        Collider[] colliders = new Collider[maxCandidates];
+        Array.Clear(mateCandidateColliders, 0, maxCandidates);
         // get only the same species which will be on the same layer. Bitshift used to convert layer to layermask
-        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, colliders, 1 << gameObject.layer);
+        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, mateCandidateColliders, 1 << gameObject.layer);
         List<GameObject> mates = new List<GameObject>();
 
-        foreach (Collider collider in colliders)
+        foreach (Collider collider in mateCandidateColliders)
         {
             if (collider == null || collider.gameObject == gameObject)
             { // dont get itself
@@ -477,6 +484,9 @@ public class AgentBehavior : MonoBehaviour
         CurrentAgentState = AgentState.DONE_MATING;
         animator.SetBool("isMating", false);
         agent.isStopped = false;
+
+        Hunger = Mathf.Max(0, Hunger - 0.25f * MaxHunger);
+        Thirst = Mathf.Max(0, Thirst - 0.25f * MaxThirst);
 
         if (mate == null)
         {
@@ -550,13 +560,14 @@ public class AgentBehavior : MonoBehaviour
         locomotionSimpleAgent.Seek(AstarPath.active.GetNearest(directionToRunTowards).position);
     }
 
+    private Collider[] predatorCandidateColliders = new Collider[maxCandidates];
     public List<GameObject> GetPredatorsInFOVRange()
     {
-        Collider[] colliders = new Collider[maxCandidates];
-        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, colliders, LayerMask.GetMask(predatorTag));
+        Array.Clear(predatorCandidateColliders, 0, maxCandidates);
+        Physics.OverlapSphereNonAlloc(transform.position, stats.fovRange, predatorCandidateColliders, LayerMask.GetMask(predatorTag));
         List<GameObject> predators = new List<GameObject>();
 
-        foreach (Collider collider in colliders)
+        foreach (Collider collider in predatorCandidateColliders)
         {
             if (collider == null)
             {

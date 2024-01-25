@@ -23,6 +23,8 @@ public class AgentStats
     public float growIntoAdultDurationSeconds = 30;
     public float expectedAge = 100;
     public float averageNumberOfChildren = 1;
+    public float foodRestoreHungerAmount = 100;
+    public float waterRestoreThirstAmount = 100;
 
     public Gender gender = Gender.MALE;
 
@@ -51,6 +53,8 @@ public class AgentStats
         growIntoAdultDurationSeconds = parents[Random.Range(0, parents.Length)].growIntoAdultDurationSeconds;
         expectedAge = parents[Random.Range(0, parents.Length)].expectedAge;
         averageNumberOfChildren = parents[Random.Range(0, parents.Length)].averageNumberOfChildren;
+        foodRestoreHungerAmount = parents[Random.Range(0, parents.Length)].foodRestoreHungerAmount;
+        waterRestoreThirstAmount = parents[Random.Range(0, parents.Length)].waterRestoreThirstAmount;
 
         // random perturbations
         float minPerturbation = 0.75f;
