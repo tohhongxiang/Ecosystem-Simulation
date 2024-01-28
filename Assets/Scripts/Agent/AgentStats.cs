@@ -25,6 +25,7 @@ public class AgentStats
     public float averageNumberOfChildren = 1;
     public float foodRestoreHungerAmount = 100;
     public float waterRestoreThirstAmount = 100;
+    public float speedMultiplyFactor = 3;
 
     public Gender gender = Gender.MALE;
 
@@ -47,6 +48,7 @@ public class AgentStats
         hungerDecreaseFactor = parents[Random.Range(0, parents.Length)].hungerDecreaseFactor;
         thirstDecreaseFactor = parents[Random.Range(0, parents.Length)].thirstDecreaseFactor;
         staminaDecreaseFactor = parents[Random.Range(0, parents.Length)].staminaDecreaseFactor;
+        staminaIncreaseFactor = parents[Random.Range(0, parents.Length)].staminaIncreaseFactor;
         gestationDuration = parents[Random.Range(0, parents.Length)].gestationDuration;
         durationBetweenPregnancies = parents[Random.Range(0, parents.Length)].durationBetweenPregnancies;
         fovRange = parents[Random.Range(0, parents.Length)].fovRange;
@@ -55,6 +57,7 @@ public class AgentStats
         averageNumberOfChildren = parents[Random.Range(0, parents.Length)].averageNumberOfChildren;
         foodRestoreHungerAmount = parents[Random.Range(0, parents.Length)].foodRestoreHungerAmount;
         waterRestoreThirstAmount = parents[Random.Range(0, parents.Length)].waterRestoreThirstAmount;
+        speedMultiplyFactor = parents[Random.Range(0, parents.Length)].speedMultiplyFactor;
 
         // random perturbations
         float minPerturbation = 0.75f;

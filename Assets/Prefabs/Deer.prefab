@@ -589,12 +589,19 @@ MonoBehaviour:
     hungerDecreaseFactor: 0
     thirstDecreaseFactor: 0
     staminaDecreaseFactor: 0
+    staminaIncreaseFactor: 0
     gestationDuration: 0
     durationBetweenPregnancies: 0
     fovRange: 0
     growIntoAdultDurationSeconds: 120
     expectedAge: 100
+    averageNumberOfChildren: 0
+    foodRestoreHungerAmount: 0
+    waterRestoreThirstAmount: 0
+    runningSpeedMultiplier: 0
     gender: 0
+  animatorWalkSpeedScale: 3.56
+  animatorRunSpeedScale: 4.204
 --- !u!114 &2209305657650569442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3384,6 +3391,7 @@ MonoBehaviour:
   terainMask:
     serializedVersion: 2
     m_Bits: 512
+  updateFrequency: 3
 --- !u!1 &6896595178757239920
 GameObject:
   m_ObjectHideFlags: 0

@@ -43,7 +43,9 @@ public class AgentBehavior : MonoBehaviour
     public float Stamina { get; private set; } = 0;
     public float MaxStamina { get; private set; } = 100;
     public bool IsRecovering { get; private set; } = false;
-    private readonly float staminaRecoveryThreshold = 0.9f;
+    private readonly float staminaRecoveryThreshold = 0.9f; 
+
+    public float Damage { get; private set; } = 100;
 
     public float Age { get; private set; } = 0;
 
@@ -72,16 +74,15 @@ public class AgentBehavior : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-        animator.SetFloat("speed", stats.speed);
 
         agent = GetComponent<RichAI>();
-        agent.maxSpeed = 1;
 
         locomotionSimpleAgent = GetComponent<LocomotionSimpleAgent>();
 
         MaxHealth *= stats.size;
         MaxThirst *= Mathf.Pow(stats.size, 3);
         MaxHunger *= Mathf.Pow(stats.size, 3);
+        Damage *= stats.size;
 
         // start off hungry and thirsty
         Health = 0.75f * MaxHealth;
@@ -285,7 +286,7 @@ public class AgentBehavior : MonoBehaviour
             }
         }
 
-        // foods = foods.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
+        foods = foods.OrderBy((d) => (d.transform.position - transform.position).sqrMagnitude).ToList();
         return foods;
     }
 
@@ -609,13 +610,20 @@ public class AgentBehavior : MonoBehaviour
 
         if (target != null)
         {
-            target.GetComponent<AgentBehavior>().Kill();
+            target.GetComponent<AgentBehavior>().TakeDamage(Damage);
             Hunger = MaxHunger;
         }
 
         animator.SetBool("isAttacking", false);
         CurrentAgentState = AgentState.DONE_ATTACKING;
         agent.isStopped = false;
+    }
+
+    public void TakeDamage(float damage) {
+        Health -= damage;
+        if (Health < 0) {
+            Kill();
+        }
     }
 
     public void Kill()

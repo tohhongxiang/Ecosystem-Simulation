@@ -57,6 +57,8 @@ public class LocomotionSimpleAgent : MonoBehaviour
 
         bool isRunning = agentBehavior.CurrentAgentState == AgentBehavior.AgentState.CHASING_PREY || agentBehavior.CurrentAgentState == AgentBehavior.AgentState.RUNNING_FROM_PREDATOR;
         int runSpeedMultiplier = isRunning && !agentBehavior.IsRecovering ? 2 : 1;
+        
+        animator.SetFloat("speed", agentBehavior.stats.speed * (isRunning ? agentBehavior.stats.speedMultiplyFactor : 1));
         animator.SetBool("isWalking", velocity.magnitude > 0.5f);
         animator.SetFloat("velocityX", velocity.normalized.x * runSpeedMultiplier);
         animator.SetFloat("velocityZ", velocity.normalized.y * runSpeedMultiplier);
