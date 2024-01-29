@@ -543,7 +543,7 @@ public class AgentBehavior : MonoBehaviour
 
     public bool IsTargetInAttackRange(GameObject target)
     {
-        return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 4;
+        return Vector3.Distance(transform.position, target.transform.position) <= agent.radius * 3;
     }
 
     public void Pursue(GameObject target)
@@ -555,10 +555,17 @@ public class AgentBehavior : MonoBehaviour
     public void Evade(GameObject target)
     {
         CurrentAgentState = AgentState.RUNNING_FROM_PREDATOR;
-        Vector3 directionToRunTowards = (transform.position - target.transform.position + transform.position).normalized;
-        directionToRunTowards *= stats.fovRange;
+        // Vector3 directionToRunTowards = (transform.position - target.transform.position + transform.position).normalized;
+        // directionToRunTowards *= stats.fovRange;
 
-        locomotionSimpleAgent.Seek(AstarPath.active.GetNearest(directionToRunTowards).position + 2 * new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)));
+        // locomotionSimpleAgent.Seek(AstarPath.active.GetNearest(directionToRunTowards).position);
+
+        if (agent.pathPending || (!agent.reachedEndOfPath && agent.hasPath))
+        {
+            return;
+        }
+
+        locomotionSimpleAgent.Flee(target.transform.position);
     }
 
     private Collider[] predatorCandidateColliders = new Collider[maxCandidates];

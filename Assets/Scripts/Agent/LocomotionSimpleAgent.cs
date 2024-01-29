@@ -83,13 +83,18 @@ public class LocomotionSimpleAgent : MonoBehaviour
         agent.destination = location;
     }
 
+    private int counter = 0;
+    private int recalculatePathInterval = 10;
     public void Flee(Vector3 location)
     {
-        FleePath path = FleePath.Construct(transform.position, location, (int)agentBehavior.stats.fovRange * 1000);
-        path.aimStrength = 1;
-        path.spread = 4000;
+        counter += 1;
+        if (counter % recalculatePathInterval != 0) {
+            return;
+        }
 
-        Vector3 fleeVector = location - transform.position;
+        FleePath path = FleePath.Construct(transform.position, location, (int)(agentBehavior.stats.fovRange * 1000));
+        path.aimStrength = 0.5f;
+        path.spread = 4000;
         seeker.StartPath(path);
     }
 
