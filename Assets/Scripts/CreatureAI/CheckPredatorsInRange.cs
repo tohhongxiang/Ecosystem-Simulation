@@ -14,21 +14,18 @@ public class CheckPredatorsInRange : Node
 
     public override NodeState Evaluate()
     {
-        GameObject t = (GameObject)GetData("predator");
-
-        if (t == null)
+        List<GameObject> predators = _agentBehavior.GetPredatorsInFOVRange();
+        if (predators.Count == 0)
         {
-            List<GameObject> predators = _agentBehavior.GetPredatorsInFOVRange();
-            if (predators.Count == 0)
-            {
-                state = NodeState.FAILURE;
-                return state;
-            }
-            
-            parent.parent.SetData("predator", predators[0]);
-            state = NodeState.SUCCESS;
+            state = NodeState.FAILURE;
             return state;
         }
+
+        GameObject t = (GameObject)GetData("predator");
+        if (t == null || (_agentBehavior.transform.position - predators[0].transform.position).sqrMagnitude < (_agentBehavior.transform.position - t.transform.position).sqrMagnitude) {
+            parent.parent.SetData("predator", predators[0]);
+        }
+        
 
         state = NodeState.SUCCESS;
         return state;

@@ -13,20 +13,15 @@ public class CheckFoodInFOVRange : Node
 
     public override NodeState Evaluate()
     {
-        GameObject t = (GameObject)GetData("target");
-
-        if (t == null)
-        { // if there is no current target, check if there are valid targets
-            List<GameObject> targetFoods = _agentBehavior.GetFoodInFOVRange();
-            if (targetFoods.Count == 0)
-            {
-                state = NodeState.FAILURE;
-                return state;
-            }
-
-            parent.parent.parent.parent.SetData("target", targetFoods[0]);
-            state = NodeState.SUCCESS;
+        List<GameObject> targetFoods = _agentBehavior.GetFoodInFOVRange();
+        if (targetFoods.Count == 0) {
+            state = NodeState.FAILURE;
             return state;
+        }
+
+        GameObject t = (GameObject)GetData("target");
+        if (t == null || Vector3.Distance(t.transform.position, _agentBehavior.transform.position) > Vector3.Distance(targetFoods[0].transform.position, _agentBehavior.transform.position)) {
+            parent.parent.parent.parent.SetData("target", targetFoods[0]);
         }
 
         state = NodeState.SUCCESS;

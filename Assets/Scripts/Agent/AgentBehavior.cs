@@ -658,6 +658,7 @@ public class AgentBehavior : MonoBehaviour
     {
         if (agent == null) return;
 
+        DebugFOVRange();
         DebugFood();
         DebugWater();
         DebugMating();

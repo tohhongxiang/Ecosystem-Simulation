@@ -15,6 +15,10 @@ public class CheckIfThirsty : Node
     // Update is called once per frame
     public override NodeState Evaluate()
     {
+        if (!_agentBehavior.IsThirsty()) {
+            ClearData("water");
+        }
+        
         state = _agentBehavior.IsThirsty() ? NodeState.SUCCESS : NodeState.FAILURE;
         return state;
     }

@@ -15,6 +15,10 @@ public class CheckIfHungry : Node
     // Update is called once per frame
     public override NodeState Evaluate()
     {
+        if (!_agentBehavior.IsHungry()) {
+            ClearData("target");
+        }
+        
         state = _agentBehavior.IsHungry() ? NodeState.SUCCESS : NodeState.FAILURE;
         return state;
     }
