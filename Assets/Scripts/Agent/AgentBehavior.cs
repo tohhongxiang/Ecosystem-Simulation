@@ -558,7 +558,7 @@ public class AgentBehavior : MonoBehaviour
         Vector3 directionToRunTowards = (transform.position - target.transform.position + transform.position).normalized;
         directionToRunTowards *= stats.fovRange;
 
-        locomotionSimpleAgent.Seek(AstarPath.active.GetNearest(directionToRunTowards).position);
+        locomotionSimpleAgent.Seek(AstarPath.active.GetNearest(directionToRunTowards).position + 2 * new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)));
     }
 
     private Collider[] predatorCandidateColliders = new Collider[maxCandidates];
