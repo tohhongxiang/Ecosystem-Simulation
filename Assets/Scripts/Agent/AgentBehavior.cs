@@ -43,7 +43,7 @@ public class AgentBehavior : MonoBehaviour
     public float Stamina { get; private set; } = 0;
     public float MaxStamina { get; private set; } = 100;
     public bool IsRecovering { get; private set; } = false;
-    private readonly float staminaRecoveryThreshold = 0.9f; 
+    private readonly float staminaRecoveryThreshold = 0.9f;
 
     public float Damage { get; private set; } = 100;
 
@@ -135,7 +135,7 @@ public class AgentBehavior : MonoBehaviour
         }
         else if (!IsHungry() && !IsThirsty()) // if satisfied, recover health
         {
-            Health = Mathf.Min(Health + Time.deltaTime, MaxHealth);
+            Health = Mathf.Min(Health + 2 * Time.deltaTime, MaxHealth);
         }
 
         // since dying is handled with a coroutine, we need to ensure this is only called once
@@ -555,10 +555,15 @@ public class AgentBehavior : MonoBehaviour
     public void Evade(GameObject target)
     {
         CurrentAgentState = AgentState.RUNNING_FROM_PREDATOR;
+        // if (agent.pathPending || (!agent.reachedEndOfPath && agent.hasPath))
+        // {
+        //     return;
+        // }
+
         // Vector3 directionToRunTowards = (transform.position - target.transform.position + transform.position).normalized;
         // directionToRunTowards *= stats.fovRange;
 
-        // locomotionSimpleAgent.Seek(AstarPath.active.GetNearest(directionToRunTowards).position);
+        // locomotionSimpleAgent.Seek(AstarPath.active.GetNearest(directionToRunTowards).position + new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)));
 
         if (agent.pathPending || (!agent.reachedEndOfPath && agent.hasPath))
         {
@@ -617,8 +622,12 @@ public class AgentBehavior : MonoBehaviour
 
         if (target != null)
         {
-            target.GetComponent<AgentBehavior>().TakeDamage(Damage);
-            Hunger = MaxHunger;
+            float remainingHealth = target.GetComponent<AgentBehavior>().TakeDamage(Damage);
+
+            if (remainingHealth <= 0)
+            {
+                Hunger = Mathf.Min(Hunger + stats.foodRestoreHungerAmount, MaxHunger);
+            }
         }
 
         animator.SetBool("isAttacking", false);
@@ -626,11 +635,15 @@ public class AgentBehavior : MonoBehaviour
         agent.isStopped = false;
     }
 
-    public void TakeDamage(float damage) {
+    public float TakeDamage(float damage)
+    {
         Health -= damage;
-        if (Health < 0) {
+        if (Health < 0)
+        {
             Kill();
         }
+
+        return Health;
     }
 
     public void Kill()
