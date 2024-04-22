@@ -19,7 +19,8 @@ MonoBehaviour:
     octaves: 8
     persistence: 0.5
     lacunarity: 2.5
-    seed: 18
+    seed: 526
+    randomize: 1
     offset: {x: 0, y: 0}
   useFalloff: 1
   falloffParameters:

@@ -15,6 +15,12 @@ public static class Noise
 
         // for each octave, we want to sample from a different point
         System.Random prng = new System.Random(noiseParameters.seed);
+
+        if (noiseParameters.randomize)
+        {
+            prng = new System.Random();
+        }
+
         Vector2[] octaveOffsets = new Vector2[noiseParameters.octaves];
         for (int i = 0; i < noiseParameters.octaves; i++)
         {
@@ -89,6 +95,7 @@ public class NoiseParameters
     public float lacunarity = 2;
 
     public int seed;
+    public bool randomize = true;
     public Vector2 offset;
 
     public void ValidateValues()

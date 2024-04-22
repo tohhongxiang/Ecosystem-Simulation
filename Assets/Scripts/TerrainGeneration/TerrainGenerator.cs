@@ -7,16 +7,26 @@ public class TerrainGenerator : MonoBehaviour
     public Material terrainMaterial;
     public TerrainObjectGenerator[] terrainObjectSpawners;
     public TerrainAgentGenerator[] terrainAgentGenerators;
+    public bool randomize = true;
 
+    void Awake()
+    {
+        if (randomize)
+        {
+            heightMapSettings.noiseParameters.seed = UnityEngine.Random.Range(0, 1000);
+        }
+    }
     void Start()
     {
         Bounds chunkBounds = SpawnChunks();
 
-        foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners) {
-            if (terrainObjectSpawner == null) {
+        foreach (TerrainObjectGenerator terrainObjectSpawner in terrainObjectSpawners)
+        {
+            if (terrainObjectSpawner == null)
+            {
                 continue;
             }
-            
+
             terrainObjectSpawner.SpawnObjects(chunkBounds);
         }
 
@@ -24,11 +34,13 @@ public class TerrainGenerator : MonoBehaviour
         graph.SnapForceBoundsToScene();
         graph.Scan();
 
-        foreach (TerrainAgentGenerator terrainAgentGenerator in terrainAgentGenerators) {
-            if (terrainAgentGenerator == null) {
+        foreach (TerrainAgentGenerator terrainAgentGenerator in terrainAgentGenerators)
+        {
+            if (terrainAgentGenerator == null)
+            {
                 continue;
             }
-            
+
             terrainAgentGenerator.SpawnObjects(chunkBounds);
         }
     }
